@@ -1,0 +1,92 @@
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import hpp from 'hpp';
+
+// Rate limiting for general API
+export const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Stricter rate limit for auth endpoints
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 login attempts per 15 minutes
+  skipSuccessfulRequests: true,
+  message: { error: 'Too many login attempts, please try again later' },
+});
+
+// Security headers
+export const securityHeaders = helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "https:", "data:", "blob:"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:4028"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+});
+
+// Prevent NoSQL injection
+export const sanitizeData = mongoSanitize({
+  replaceWith: '_',
+  onSanitize: ({ req, key }) => {
+    console.warn(`Sanitized key: ${key} from IP: ${req.ip}`);
+  },
+});
+
+// Prevent HTTP Parameter Pollution
+export const preventParameterPollution = hpp({
+  whitelist: ['tags', 'category'], // Allow arrays for these params
+});
+
+// CORS whitelist
+export const corsOptions = {
+  origin: (origin, callback) => {
+    const whitelist = [
+      process.env.FRONTEND_URL,
+      'http://localhost:4028',
+      'http://localhost:4029',
+      'http://localhost:3000',
+    ].filter(Boolean);
+    
+    if (!origin || whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+// Request logging middleware
+export const requestLogger = (req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const log = {
+      method: req.method,
+      url: req.originalUrl,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get('user-agent')?.slice(0, 50),
+    };
+    console.log(JSON.stringify(log));
+  });
+  next();
+};
