@@ -11,11 +11,11 @@ const nextConfig = {
     // 2. الـ API rewrites لربط الـ Frontend بالـ Backend
     async rewrites() {
         return [
-            {
-                source: '/api/:path*',
-                // Use the Railway URL from environment variables
-                destination: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://considerate-celebration-production-558b.up.railway.app'}/api/:path*`.replace(/\/+/g, '/'),
-            },
+           {
+        source: '/api/:path*',
+        // ركز هنا: لازم https وبعدها (2 سلاش) والـ URL الكامل بتاع Railway
+        destination: 'https://considerate-celebration-production-558b.up.railway.app/api/:path*',
+      },
         ];
     },
     
