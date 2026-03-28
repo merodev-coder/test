@@ -236,7 +236,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const res = await fetch(`/api/admin/top-selling?year=${year}&limit=8`, { headers });
+        const res = await fetch(getAdminApiUrl(`top-selling?year=${year}&limit=8`), { headers });
         if (res.ok) {
           const data = await res.json();
           setItems(data.topSelling || []);
@@ -341,7 +341,7 @@ const ExportButton = ({ year, onExport }: { year: number; onExport: () => void }
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await fetch(`/api/admin/orders-export?year=${year}`, { headers });
+      const res = await fetch(getAdminApiUrl(`orders-export?year=${year}`), { headers });
       if (res.ok) {
         const data = await res.json();
         generateExcel(data.orders, year);
@@ -457,7 +457,7 @@ export default function MonthlySalesPerformance() {
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const res = await fetch(`/api/admin/monthly-audit?year=${year}&month=${month}`, {
+        const res = await fetch(getAdminApiUrl(`monthly-audit?year=${year}&month=${month}`), {
           headers,
         });
         if (res.ok) {
