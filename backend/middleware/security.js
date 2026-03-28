@@ -60,6 +60,8 @@ export const corsOptions = {
       'http://localhost:4028',
       'http://localhost:4029',
       'http://localhost:3000',
+      'https://69c80fc9a379546b82cb91ef--abo-kartona.netlify.app/',
+      'https://abo-kartona.netlify.app/',
     ].filter(Boolean);
     
     if (!origin || whitelist.includes(origin)) {
