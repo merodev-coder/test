@@ -314,7 +314,7 @@ export const useStore = create<StoreState & StoreActions>()(
 
       fetchTags: async () => {
         try {
-          const res = await fetch('http://localhost:5001/api/tags', { cache: 'no-store' });
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/tags`, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch tags');
 
           const data = await res.json();

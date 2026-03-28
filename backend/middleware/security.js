@@ -52,29 +52,6 @@ export const preventParameterPollution = hpp({
   whitelist: ['tags', 'category'], // Allow arrays for these params
 });
 
-// CORS whitelist
-export const corsOptions = {
-  origin: (origin, callback) => {
-    const whitelist = [
-      process.env.FRONTEND_URL,
-      'http://localhost:4028',
-      'http://localhost:4029',
-      'http://localhost:3000',
-      'https://69c80fc9a379546b82cb91ef--abo-kartona.netlify.app/',
-      'https://abo-kartona.netlify.app/',
-    ].filter(Boolean);
-    
-    if (!origin || whitelist.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
-
 // Request logging middleware
 export const requestLogger = (req, res, next) => {
   const start = Date.now();
