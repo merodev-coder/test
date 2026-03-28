@@ -27,40 +27,12 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'https://abo-kartona.netlify.app',
-      /^https:\/\/.*--abo-kartona\.netlify\.app$/, // All Netlify preview subdomains
-      'http://localhost:4028',
-      'http://localhost:3000'
-    ];
-    
-    if (process.env.NODE_ENV === 'development') {
-      return callback(null, true); // Allow all origins in development
-    }
-    
-    const isAllowed = allowedOrigins.some(allowedOrigin => 
-      typeof allowedOrigin === 'string' 
-        ? allowedOrigin === origin 
-        : allowedOrigin.test(origin)
-    );
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+app.use(cors({
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
-
-app.use(cors(corsOptions));
+}));
 
 // 2. Security middleware (بعد الـ CORS)
 app.use(securityHeaders);
