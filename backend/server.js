@@ -24,6 +24,8 @@ import { apiLimiter, authLimiter, securityHeaders, sanitizeData, preventParamete
 
 
 
+import { getTags } from './controllers/productController.js';
+
 dotenv.config();
 
 
@@ -77,6 +79,8 @@ app.use('/uploads', express.static(uploadsPath));
 app.use('/api/auth', authRoutes);
 
 app.use('/api/products', productRoutes);
+
+app.use('/api/tags', getTags);
 
 app.use('/api/orders', orderRoutes);
 

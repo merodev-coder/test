@@ -169,7 +169,7 @@ export default function FlashSales() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex-shrink-0 w-80"
+                  className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
                 >
                   <div className="card product-card">
                     <div className="aspect-square p-4">
@@ -191,7 +191,7 @@ export default function FlashSales() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="flex-shrink-0 w-80"
+                  className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
                 >
                   <div className="relative">
                     {/* Flash Sale Badge */}

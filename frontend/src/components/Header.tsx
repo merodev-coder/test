@@ -209,7 +209,7 @@ export default function Header() {
       <div
         className="pointer-events-auto w-full px-2 sm:px-4"
         style={{
-          maxWidth: scrolled ? '780px' : '100%',
+          maxWidth: scrolled ? 'min(780px, 95vw)' : '100%',
           width: scrolled ? '96%' : '100%',
           marginTop: scrolled ? '12px' : '0px',
           padding: scrolled ? '0 8px' : '0',
@@ -227,7 +227,7 @@ export default function Header() {
             relative flex items-center justify-between overflow-visible
             ${
               scrolled
-                ? 'bg-[#131429]/90 backdrop-blur-2xl border border-white/10'
+                ? 'bg-base/90 backdrop-blur-2xl border border-white/10'
                 : 'bg-transparent border-b border-white/5'
             }
           `}
@@ -303,7 +303,7 @@ export default function Header() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -6, scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                className="absolute top-full left-0 right-0 mt-3 mx-2 sm:mx-4 bg-[#131429]/98 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden md:hidden shadow-2xl"
+                className="absolute top-full left-0 right-0 mt-3 mx-2 sm:mx-4 bg-surface-card/95 backdrop-blur-[32px] border border-white/10 rounded-2xl overflow-hidden md:hidden shadow-2xl max-w-[calc(100vw-16px)] box-border"
               >
                 <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-glass-border to-transparent" />
 
@@ -346,16 +346,18 @@ export default function Header() {
                         stiffness: 320,
                         damping: 30,
                       }}
+                      className="w-full overflow-hidden"
                     >
                       <Link
                         href="/checkout"
                         onClick={() => setMobileOpen(false)}
-                        className="btn-primary w-full py-3.5 text-body-sm touch-target"
+                        className="flex items-center justify-center gap-2 bg-brand hover:bg-brand/90 text-white font-semibold py-3 text-sm touch-target rounded-full px-3"
+                        style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                       >
-                        <Icon name="ShoppingCartIcon" size={17} />
-                        <span>إتمام الشراء</span>
+                        <Icon name="ShoppingCartIcon" size={15} className="flex-shrink-0" />
+                        <span className="truncate whitespace-nowrap">إتمام الشراء</span>
                         {cartCount > 0 && (
-                          <span className="bg-midnight/20 text-midnight text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          <span className="bg-base text-brand text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">
                             {cartCount}
                           </span>
                         )}

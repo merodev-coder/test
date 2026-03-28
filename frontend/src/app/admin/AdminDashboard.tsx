@@ -10,7 +10,8 @@ import { UploadDropzone } from '@/utils/uploadthing';
 import Link from 'next/link';
 
 import { ThemedSelect } from '@/components/ui/ThemedSelect';
-import Switch from '@/components/ui/Switch';
+import CustomDropdown from '@/components/ui/CustomDropdown';
+import CyberSwitch from '@/components/ui/CyberSwitch';
 import InventoryAudit from '@/components/admin/InventoryAudit';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { AnalyticsErrorBoundary } from '@/components/error/ErrorBoundary';
@@ -335,6 +336,8 @@ function ProductsManager({
         oldPrice: isFreeContent ? 0 : formData.oldPrice,
       };
 
+      console.log('Submitting product data:', submitData);
+
       if (editingProduct) {
         await onUpdate(editingProduct.id, submitData);
         showNotification('تم تحديث المنتج بنجاح');
@@ -347,6 +350,7 @@ function ProductsManager({
       resetForm();
       onRefresh();
     } catch (err) {
+      console.error('Submit error:', err);
       showNotification(err instanceof Error ? err.message : 'حدث خطأ');
     } finally {
       setLoading(false);
@@ -436,10 +440,8 @@ function ProductsManager({
                     />
                   </div>
                   <div>
-                    <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
-                      النوع
-                    </label>
-                    <ThemedSelect
+                    <CustomDropdown
+                      label="النوع"
                       value={formData.type}
                       onChange={(value) => setFormData({ ...formData, type: value as any })}
                       options={[
@@ -449,6 +451,7 @@ function ProductsManager({
                         { value: 'data', label: 'داتا' },
                       ]}
                       className="w-full"
+                      required
                     />
                   </div>
                   <div>
@@ -601,7 +604,7 @@ function ProductsManager({
                       endpoint="productImages"
                       onClientUploadComplete={(res) => {
                         if (res) {
-                          const newUrls = res.map((f) => f.url);
+                          const newUrls = res.map((f) => f.ufsUrl);
                           setFormData((prev) => ({
                             ...prev,
                             images: [...prev.images, ...newUrls].slice(0, 10),
@@ -637,7 +640,7 @@ function ProductsManager({
                       عند التفعيل، سيظهر المنتج في صفحة العروض المخصصة بالإضافة للمتجر
                     </p>
                   </div>
-                  <Switch
+                  <CyberSwitch
                     checked={formData.isSale}
                     onChange={(checked) => setFormData({ ...formData, isSale: checked })}
                     size="md"
@@ -654,7 +657,7 @@ function ProductsManager({
                       عند التفعيل، يمكن للعملاء اختيار ماركة محددة عند الشراء
                     </p>
                   </div>
-                  <Switch
+                  <CyberSwitch
                     checked={formData.isBrandActive}
                     onChange={(checked) => setFormData({ ...formData, isBrandActive: checked })}
                     size="md"

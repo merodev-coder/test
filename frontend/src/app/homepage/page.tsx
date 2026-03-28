@@ -43,7 +43,7 @@ const SectionHeader = ({
         ease: [0.25, 0.46, 0.45, 0.94],
         delay: index * 0.1,
       }}
-      className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6"
+      className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-12 lg:mb-16 gap-4 sm:gap-6"
     >
       <div className="flex items-start gap-6">
         {/* Animated accent bar */}
@@ -461,7 +461,7 @@ export default function HomePage() {
       <main className="relative z-10 pt-16">
         <HeroSection storage={{ total: 1000, used: 0, hasDrive: false }} />
 
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pb-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-32">
           {loading ? (
             <div className="pt-20">
               <ProductGridSkeleton count={8} />
@@ -495,7 +495,7 @@ export default function HomePage() {
                 <SectionHeader
                   label="Laptops"
                   title="أحدث"
-                  accent="ال اللابتوبات"
+                  accent="اللابتوبات"
                   href="/products?cat=laptops"
                   index={1}
                 />

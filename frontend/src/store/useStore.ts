@@ -56,6 +56,7 @@ type StoreState = {
   filters: Filters;
   products: Product[];
   productsLoading: boolean;
+  tags: Tag[];
   isAuthenticated: boolean;
   token: string | null;
 };
@@ -78,6 +79,7 @@ type StoreActions = {
   removeOrder: (id: string) => void;
   setProducts: (products: Product[]) => void;
   setProductsLoading: (loading: boolean) => void;
+  setTags: (tags: Tag[]) => void;
   fetchProducts: (params?: {
     searchQuery?: string;
     category?: string;
@@ -85,6 +87,7 @@ type StoreActions = {
     minPrice?: number;
     maxPrice?: number;
   }) => Promise<void>;
+  fetchTags: () => Promise<void>;
   createProduct: (product: Partial<Product>) => Promise<Product>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<Product>;
   deleteProduct: (id: string) => Promise<void>;
@@ -123,6 +126,7 @@ export const useStore = create<StoreState & StoreActions>()(
       filters: { searchQuery: '', category: 'all', tags: [], priceRange: [0, 50000] },
       products: [],
       productsLoading: false,
+      tags: [],
       isAuthenticated: false,
       token: null,
 
@@ -306,6 +310,20 @@ export const useStore = create<StoreState & StoreActions>()(
 
       setProducts: (products) => set({ products }),
       setProductsLoading: (loading) => set({ productsLoading: loading }),
+      setTags: (tags) => set({ tags }),
+
+      fetchTags: async () => {
+        try {
+          const res = await fetch('http://localhost:5001/api/tags', { cache: 'no-store' });
+          if (!res.ok) throw new Error('Failed to fetch tags');
+          
+          const data = await res.json();
+          set({ tags: data.tags || [] });
+        } catch (error) {
+          console.error('Error fetching tags:', error);
+          set({ tags: [] });
+        }
+      },
 
       fetchProducts: async (params) => {
         set({ productsLoading: true });
@@ -318,7 +336,8 @@ export const useStore = create<StoreState & StoreActions>()(
           if (params?.minPrice !== undefined) searchParams.set('minPrice', String(params.minPrice));
           if (params?.maxPrice !== undefined) searchParams.set('maxPrice', String(params.maxPrice));
           
-          const url = `http://localhost:5001/api/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          // For admin operations, use the Next.js API route
+          const url = `/api/admin/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
           
           const res = await fetch(url, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch products');
@@ -341,16 +360,22 @@ export const useStore = create<StoreState & StoreActions>()(
         if (token) headers.Authorization = `Bearer ${token}`;
         
         try {
-          const res = await fetch('http://localhost:5001/api/products', {
+          console.log('Sending product to API:', product);
+          const res = await fetch('/api/admin/products', {
             method: 'POST',
             headers,
             body: JSON.stringify(product),
           });
+          console.log('Response status:', res.status);
+          console.log('Response ok:', res.ok);
+          
           if (!res.ok) {
             const data = await res.json();
+            console.error('API error response:', data);
             throw new Error(data.error || 'Failed to create product');
           }
           const data = await res.json();
+          console.log('Product created successfully:', data);
           // Refresh products list to get the latest data
           await get().fetchProducts();
           return data.product;
@@ -366,10 +391,10 @@ export const useStore = create<StoreState & StoreActions>()(
         if (token) headers.Authorization = `Bearer ${token}`;
         
         try {
-          const res = await fetch(`http://localhost:5001/api/products/${id}`, {
+          const res = await fetch(`/api/admin/products`, {
             method: 'PUT',
             headers,
-            body: JSON.stringify(product),
+            body: JSON.stringify({ id, ...product }),
           });
           if (!res.ok) {
             const data = await res.json();
@@ -390,40 +415,20 @@ export const useStore = create<StoreState & StoreActions>()(
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
         
-        console.log('Attempting to delete product:', id);
-        console.log('Using token:', token);
-        console.log('Request URL:', `http://localhost:5001/api/products/${id}`);
-        
         try {
-          const res = await fetch(`http://localhost:5001/api/products/${id}`, { 
-            method: 'DELETE', 
-            headers 
+          const res = await fetch(`/api/admin/products`, {
+            method: 'DELETE',
+            headers,
+            body: JSON.stringify({ id }),
           });
           
-          console.log('Delete response status:', res.status);
-          console.log('Delete response headers:', res.headers);
-          
-          // Try to get response text first to see what we received
-          const responseText = await res.text();
-          console.log('Delete response text:', responseText);
-          
           if (!res.ok) {
-            // Try to parse as JSON, fallback to text if it fails
-            let errorData;
-            try {
-              errorData = JSON.parse(responseText);
-            } catch {
-              errorData = { error: responseText || 'Failed to delete product' };
-            }
-            console.error('Delete failed:', errorData);
-            throw new Error(errorData.error || 'Failed to delete product');
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to delete product');
           }
           
-          console.log('Delete successful, removing from local state');
-          // Remove from local products array immediately
-          set((state) => ({
-            products: state.products.filter((p) => p.id !== id),
-          }));
+          // Refresh products list to get the latest data
+          await get().fetchProducts();
         } catch (error) {
           console.error('Delete product error:', error);
           throw error;

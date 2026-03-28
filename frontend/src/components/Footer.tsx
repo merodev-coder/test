@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebookF, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
 
@@ -15,9 +17,8 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: 'GlobeAltIcon', href: 'https://facebook.com', label: 'Facebook' },
-  { icon: 'CameraIcon', href: 'https://instagram.com', label: 'Instagram' },
-  { icon: 'MusicalNoteIcon', href: 'https://tiktok.com', label: 'TikTok' },
+  { icon: faFacebookF, href: 'https://web.facebook.com/profile.php?id=100093235875346&mibextid=ZbWKwL&_rdc=1&_rdr#', label: 'Facebook' },
+  { icon: faWhatsapp, href: 'https://chat.whatsapp.com/HgwapUpz5sl1m2fBdf3MCS', label: 'WhatsApp' },
 ];
 
 const Footer = memo(function Footer() {
@@ -52,7 +53,7 @@ const Footer = memo(function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-11 h-11 rounded-xl bg-surface-secondary dark:bg-surface-dark-secondary border border-border-light dark:border-border-dark text-text-muted dark:text-text-dark-muted hover:text-brand-500 hover:border-brand-500/50 hover:bg-brand-500/5 transition-all duration-200 will-change-transform hover:scale-105 active:scale-95"
                 >
-                  <Icon name={s.icon as any} size={20} />
+                  <FontAwesomeIcon icon={s.icon} className="w-5 h-5" />
                 </a>
               ))}
             </div>

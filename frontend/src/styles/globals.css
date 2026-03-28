@@ -141,7 +141,9 @@
 
   /* Category tiles */
   .category-tile {
-    @apply glass hover:bg-surface-hover rounded-full w-32 h-32 flex flex-col items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow-md cursor-pointer;
+    @apply glass hover:bg-surface-hover rounded-full flex flex-col items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow-md cursor-pointer;
+    width: clamp(80px, 25vw, 128px);
+    height: clamp(80px, 25vw, 128px);
   }
 
   .category-tile:hover .category-icon {

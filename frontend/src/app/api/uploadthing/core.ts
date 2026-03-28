@@ -9,13 +9,13 @@ export const ourFileRouter = {
       maxFileCount: 10,
     },
   }).onUploadComplete(async ({ file }) => {
-    return { url: file.url };
+    return { url: file.ufsUrl };
   }),
   orderAttachment: f({
     image: { maxFileSize: '8MB', maxFileCount: 1 },
   }).onUploadComplete(async ({ file }) => {
     // This will be used in the checkout flow for payment proof
-    return { url: file.url };
+    return { url: file.ufsUrl };
   }),
 } satisfies FileRouter;
 

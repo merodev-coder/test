@@ -15,12 +15,12 @@ const paginationSchema = z.object({
 const productSchema = z.object({
   name: z.string().min(2).max(200),
   type: z.enum(['laptops', 'accessories', 'storage', 'data']),
-  subtype: z.string().max(100).optional(),
-  price: z.number().positive(),
+  subtype: z.string().max(100).optional().transform(val => val === '' ? undefined : val),
+  price: z.number().min(0),
   oldPrice: z.number().positive().optional(),
-  description: z.string().max(5000).optional(),
-  image: z.string().url().optional(),
-  images: z.array(z.string().url()).optional(),
+  description: z.string().max(5000).optional().transform(val => val === '' ? undefined : val),
+  image: z.string().url().optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
+  images: z.array(z.string().url().or(z.literal('')).transform(val => val === '' ? undefined : val)).optional(),
   specs: z.record(z.any()).optional(),
   stockCount: z.number().int().min(0).default(0),
   storageCapacity: z.number().int().min(0).default(0),
@@ -29,6 +29,19 @@ const productSchema = z.object({
   isBrandActive: z.boolean().default(false),
   brands: z.array(z.string()).default([]),
   isSale: z.boolean().default(false), // Show on dedicated /sale page
+}).refine((data) => {
+  // For non-data products, price must be positive
+  if (data.type !== 'data' && data.price <= 0) {
+    return false;
+  }
+  // For data products, if price is 0, gbSize must be provided
+  if (data.type === 'data' && data.price === 0 && (!data.gbSize || data.gbSize <= 0)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Invalid price configuration: non-data products must have positive price, and free data products must have gbSize",
+  path: ["price"]
 });
 
 export async function listProducts(req, res, next) {
@@ -117,11 +130,9 @@ export async function listProducts(req, res, next) {
 
 export async function createProduct(req, res, next) {
   try {
+    console.log('Received product data:', req.body);
     const body = productSchema.parse(req.body);
-    
-    if (body.type === 'data' && (!body.gbSize || body.gbSize <= 0)) {
-      return res.status(400).json({ error: 'gbSize is required for data products' });
-    }
+    console.log('Validated product data:', body);
     
     const product = await Product.create(body);
     
@@ -149,8 +160,14 @@ export async function createProduct(req, res, next) {
     };
     res.status(201).json({ product: dto });
   } catch (err) {
+    console.error('Create product error details:', err);
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid product data', details: err.errors });
+      console.error('Zod validation errors:', err.errors);
+      return res.status(400).json({ 
+        error: 'Invalid product data', 
+        details: err.errors,
+        receivedData: req.body 
+      });
     }
     if (err.code === 11000) {
       return res.status(409).json({ error: 'Product with this name already exists' });
@@ -162,12 +179,12 @@ export async function createProduct(req, res, next) {
 const updateProductSchema = z.object({
   name: z.string().min(2).max(200).optional(),
   type: z.enum(['laptops', 'accessories', 'storage', 'data']).optional(),
-  subtype: z.string().max(100).optional(),
-  price: z.number().positive().optional(),
+  subtype: z.string().max(100).optional().transform(val => val === '' ? undefined : val),
+  price: z.number().min(0).optional(),
   oldPrice: z.number().positive().optional(),
-  description: z.string().max(5000).optional(),
-  image: z.string().url().optional(),
-  images: z.array(z.string().url()).optional(),
+  description: z.string().max(5000).optional().transform(val => val === '' ? undefined : val),
+  image: z.string().url().optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
+  images: z.array(z.string().url().or(z.literal('')).transform(val => val === '' ? undefined : val)).optional(),
   specs: z.record(z.any()).optional(),
   stockCount: z.number().int().min(0).optional(),
   storageCapacity: z.number().int().min(0).optional(),
@@ -176,16 +193,28 @@ const updateProductSchema = z.object({
   isBrandActive: z.coerce.boolean().optional(),
   brands: z.array(z.string()).optional(),
   isSale: z.coerce.boolean().optional(),
+}).refine((data) => {
+  // If price is being updated, validate it based on product type
+  if (data.price !== undefined) {
+    // For non-data products, price must be positive
+    if (data.type !== 'data' && data.price <= 0) {
+      return false;
+    }
+    // For data products, if price is 0, gbSize must be provided and positive
+    if (data.type === 'data' && data.price === 0 && (!data.gbSize || data.gbSize <= 0)) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: "Invalid price configuration: non-data products must have positive price, and free data products must have gbSize",
+  path: ["price"]
 });
 
 export async function updateProduct(req, res, next) {
   try {
     const { id } = req.params;
     const body = updateProductSchema.parse(req.body);
-    
-    if (body.type === 'data' && body.gbSize !== undefined && body.gbSize <= 0) {
-      return res.status(400).json({ error: 'gbSize must be greater than 0 for data products' });
-    }
     
     // Build update object only with provided fields
     const updateData = {};
@@ -243,6 +272,35 @@ export async function deleteProduct(req, res, next) {
       return res.status(404).json({ error: 'Product not found' });
     }
     res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getTags(req, res, next) {
+  try {
+    // Get all unique tags from products
+    const products = await Product.find({}, 'tags').lean();
+    const tagSet = new Set();
+    
+    products.forEach(product => {
+      if (Array.isArray(product.tags)) {
+        product.tags.forEach(tag => {
+          if (tag && tag.trim()) {
+            tagSet.add(tag.trim());
+          }
+        });
+      }
+    });
+    
+    // Convert to array of tag objects with id, name, slug
+    const tags = Array.from(tagSet).map(tag => ({
+      id: tag.toLowerCase().replace(/\s+/g, '-'),
+      name: tag,
+      slug: tag.toLowerCase().replace(/\s+/g, '-')
+    }));
+    
+    res.json({ tags });
   } catch (err) {
     next(err);
   }

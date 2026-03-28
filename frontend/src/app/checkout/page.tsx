@@ -183,8 +183,8 @@ export default function CheckoutPage() {
               إتمام الشراء
             </h1>
 
-            {/* Step Indicator */}
-            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-1">
+            {/* Step Indicator - Responsive scrollable on mobile */}
+            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {STEPS.map((step, idx) => (
                 <React.Fragment key={step.id}>
                   <button
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Step 1: Cart Review */}

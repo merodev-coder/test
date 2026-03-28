@@ -25,8 +25,8 @@ export default function FeaturedProducts() {
   return (
     <section className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="flex items-end justify-between mb-12">
+        {/* Section Header - Mobile responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 sm:mb-12 gap-4">
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">منتجات مميزة</h2>
             <p className="text-text-muted text-lg">اكتشف أحدث وأفضل المنتجات لدينا</p>
@@ -42,8 +42,8 @@ export default function FeaturedProducts() {
           </Link>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Products Grid - Responsive gaps */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {isLoading ? (
             // Skeleton loading
             [...Array(6)].map((_, i) => (

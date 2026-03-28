@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import AppImage from '@/components/ui/AppImage';
 import { isFreeWithHardware } from '@/lib/freeContentUtils';
 import CustomDropdown from '@/components/ui/CustomDropdown';
+import styled from 'styled-components';
 
 interface ProductCardProps {
   product: Product;
@@ -148,22 +149,21 @@ export default function ProductCard({
       : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative flex flex-col h-full"
-      style={{ perspective: '1200px' }}
-    >
-      {/* ── Card Shell ── */}
+    <StyledWrapper>
       <motion.div
-        whileHover={{ y: -6, rotateX: 3, rotateY: -3 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        style={{ transformStyle: 'preserve-3d' }}
-        className="relative flex flex-col h-full rounded-xl sm:rounded-2xl overflow-hidden hover:md:-translate-y-1.5"
-        // Glass-morphism dark card
-        css-data-card=""
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="group relative flex flex-col h-full"
+        style={{ perspective: '1200px' }}
       >
+        {/* ── Card Shell ── */}
+        <motion.div
+          whileHover={{ y: -6, rotateX: 3, rotateY: -3 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          style={{ transformStyle: 'preserve-3d' }}
+          className="neumorphic-card relative flex flex-col h-full overflow-hidden"
+        >
         {/* Ambient border glow — only on hover */}
         <div
           className="pointer-events-none absolute inset-0 rounded-2xl z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -182,12 +182,14 @@ export default function ProductCard({
         {/* ── IMAGE ── */}
         <div
           ref={imageRef}
-          className="relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #0d1420 0%, #141e2e 100%)' }}
+          className="relative overflow-hidden aspect-[4/3] min-h-[140px] sm:min-h-[180px]"
+          style={{ 
+            background: 'linear-gradient(135deg, #0d1420 0%, #141e2e 100%)'
+          }}
         >
           <Link
             href={`/product/${product.slug || product.id || product._id}`}
-            className="block relative w-full aspect-[4/3]"
+            className="block relative w-full h-full"
           >
             {/* Subtle grid texture */}
             <div
@@ -364,8 +366,10 @@ export default function ProductCard({
 
         {/* ── CONTENT ── */}
         <div
-          className="flex flex-col flex-1 p-4 gap-3"
-          style={{ background: 'linear-gradient(180deg, #0e1623 0%, #0b1120 100%)' }}
+          className="flex flex-col flex-1 p-4 gap-3 min-h-[200px] sm:min-h-[220px]"
+          style={{ 
+            background: 'linear-gradient(180deg, #0e1623 0%, #0b1120 100%)'
+          }}
         >
           {/* Type pill */}
           <div className="flex items-center justify-between">
@@ -476,23 +480,23 @@ export default function ProductCard({
               </div>
             )}
 
-            {/* Brand hint */}
-            {needsBrandSelection && !selectedBrand && (
-              <div
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl"
-                style={{
-                  background: 'rgba(251,191,36,0.08)',
-                  border: '1px solid rgba(251,191,36,0.2)',
-                }}
-              >
-                <Icon
-                  name="InformationCircleIcon"
-                  size={12}
-                  className="text-amber-400 flex-shrink-0"
-                />
-                <span className="text-[11px] text-amber-300/80">يجب اختيار الماركة أولاً</span>
-              </div>
-            )}
+            {/* Brand hint - reserve space to maintain consistent card height */}
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl"
+              style={{
+                background: needsBrandSelection && !selectedBrand ? 'rgba(251,191,36,0.08)' : 'transparent',
+                border: needsBrandSelection && !selectedBrand ? '1px solid rgba(251,191,36,0.2)' : '1px solid transparent',
+                minHeight: '34px',
+                visibility: needsBrandSelection && !selectedBrand ? 'visible' : 'hidden',
+              }}
+            >
+              <Icon
+                name="InformationCircleIcon"
+                size={12}
+                className="text-amber-400 flex-shrink-0"
+              />
+              <span className="text-[11px] text-amber-300/80">يجب اختيار الماركة أولاً</span>
+            </div>
 
             {/* CTA */}
             {(onAddToCart || onAddToDrive) && (
@@ -564,5 +568,31 @@ export default function ProductCard({
         </div>
       </motion.div>
     </motion.div>
+    </StyledWrapper>
   );
 }
+
+const StyledWrapper = styled.div`
+  .neumorphic-card {
+    width: 100%;
+    border-radius: clamp(16px, 4vw, 24px);
+    background: linear-gradient(180deg, #0e1623 0%, #0b1120 100%);
+    box-shadow: 20px 20px 60px #0a0e17,
+                -20px -20px 60px #121e2f,
+                inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  .neumorphic-card:hover {
+    box-shadow: 25px 25px 70px #0a0e17,
+                -25px -25px 70px #121e2f,
+                inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+
+  @media (max-width: 640px) {
+    .neumorphic-card {
+      box-shadow: 10px 10px 30px #0a0e17,
+                  -10px -10px 30px #121e2f,
+                  inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+  }
+`;

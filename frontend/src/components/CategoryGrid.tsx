@@ -19,7 +19,7 @@ const categories: Category[] = [
     id: 'laptops',
     name: ' اللابتوبات',
     slug: 'laptops',
-    icon: <Laptop className="w-10 h-10" />,
+    icon: <Laptop className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 45,
     color: 'from-brand/20 to-brand/10',
   },
@@ -27,7 +27,7 @@ const categories: Category[] = [
     id: 'pc-parts',
     name: 'قطع الكمبيوتر',
     slug: 'pc-parts',
-    icon: <Cpu className="w-10 h-10" />,
+    icon: <Cpu className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 120,
     color: 'from-brand/20 to-brand/10',
   },
@@ -35,7 +35,7 @@ const categories: Category[] = [
     id: 'accessories',
     name: 'اكسسوارات',
     slug: 'accessories',
-    icon: <Headphones className="w-10 h-10" />,
+    icon: <Headphones className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 85,
     color: 'from-brand/20 to-brand/10',
   },
@@ -43,7 +43,7 @@ const categories: Category[] = [
     id: 'monitors',
     name: 'شاشات',
     slug: 'monitors',
-    icon: <Monitor className="w-10 h-10" />,
+    icon: <Monitor className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 32,
     color: 'from-brand/20 to-brand/10',
   },
@@ -51,7 +51,7 @@ const categories: Category[] = [
     id: 'mobile',
     name: 'موبايل',
     slug: 'mobile',
-    icon: <Smartphone className="w-10 h-10" />,
+    icon: <Smartphone className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 67,
     color: 'from-brand/20 to-brand/10',
   },
@@ -59,7 +59,7 @@ const categories: Category[] = [
     id: 'gaming',
     name: 'ألعاب',
     slug: 'gaming',
-    icon: <Gamepad2 className="w-10 h-10" />,
+    icon: <Gamepad2 className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 28,
     color: 'from-brand/20 to-brand/10',
   },
@@ -114,8 +114,8 @@ const CategoryCard = memo(function CategoryCard({
           transition={smoothSpring}
           className="category-tile relative overflow-hidden will-change-transform touch-target"
           style={{
-            width: '100px',
-            height: '100px',
+            width: 'clamp(80px, 22vw, 120px)',
+            height: 'clamp(80px, 22vw, 120px)',
             transform: 'translateZ(0)', // Force GPU layer
           }}
         >

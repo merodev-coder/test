@@ -9,7 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import WhatsAppButton from '../homepage/components/WhatsAppButton';
 import { useSearchParams } from 'next/navigation';
-import { useStore, type Product } from '@/store/useStore';
+import { useStore, type Product, type Tag } from '@/store/useStore';
 import { ThemedSelect } from '@/components/ui/ThemedSelect';
 
 export const dynamic = 'force-dynamic';
@@ -161,6 +161,8 @@ function ProductsContent() {
   );
 
   const filteredProducts = useMemo(() => {
+    if (!products || !Array.isArray(products)) return [];
+    
     const q = filters.searchQuery.trim().toLowerCase();
     const activeCategory = filters.category;
     const activeTags = filters.tags;
@@ -248,24 +250,24 @@ function ProductsContent() {
                 </h1>
               </motion.div>
 
-              {/* Search Bar - simplified animation */}
+              {/* Search Bar - fixed overlapping issues */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
-                className="relative max-w-2xl"
+                className="relative max-w-2xl w-full"
               >
                 <Icon
                   name="MagnifyingGlassIcon"
                   size={20}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none z-10"
                 />
                 <input
                   type="text"
-                  placeholder="ابحث عن منتج، لعبة، فيلم..."
+                  placeholder="ابحث عن منتج..."
                   value={filters.searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field pr-12 pl-4 py-4 text-lg w-full rounded-xl"
+                  className="input-field pr-12 pl-4 py-3 text-base w-full rounded-xl bg-surface dark:bg-surface-dark relative"
                 />
               </motion.div>
             </div>
@@ -273,7 +275,7 @@ function ProductsContent() {
             {/* Tag Filters - removed motion animations, simplified hover */}
             {tags.length > 0 && (
               <div className="flex items-center gap-2 mt-4 overflow-x-auto scrollbar-hide pb-1">
-                {tags.slice(0, 8).map((tag) => (
+                {tags.slice(0, 8).map((tag: Tag) => (
                   <button
                     key={tag.id}
                     onClick={() => toggleTag(tag.slug)}
@@ -302,7 +304,7 @@ function ProductsContent() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setFiltersOpen(true)}
-                    className="md:hidden btn-ghost px-4 py-2.5 font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200"
+                    className="hidden btn-ghost px-4 py-2.5 font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200"
                   >
                     <Icon name="FunnelIcon" size={16} />
                     <span>فلاتر</span>

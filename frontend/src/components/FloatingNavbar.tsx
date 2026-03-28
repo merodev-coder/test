@@ -49,7 +49,7 @@ export default function FloatingNavbar({ cartCount = 0 }: FloatingNavbarProps) {
           }`}
         >
           <div
-            className={`flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 transform-gpu will-change-transform backdrop-blur-glass bg-surface-dark/90 border border-white/10 shadow-lg`}
+            className={`flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 transform-gpu will-change-transform backdrop-blur-glass bg-base/90 border border-white/10 shadow-lg`}
           >
             {/* Logo with Laptop & Storage Icon */}
             <Link href="/" className="flex items-center gap-2 group">
@@ -122,7 +122,7 @@ export default function FloatingNavbar({ cartCount = 0 }: FloatingNavbarProps) {
       >
         <div className="mx-4">
           <div
-            className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 transform-gpu bg-surface-dark/90 backdrop-blur-xl border border-white/10 shadow-lg`}
+            className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 transform-gpu bg-base/90 backdrop-blur-xl border border-white/10 shadow-lg`}
           >
             {/* Mobile Logo */}
             <Link href="/" className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export default function FloatingNavbar({ cartCount = 0 }: FloatingNavbarProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="mx-4 mt-2 bg-surface-dark/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl"
+              className="mx-4 mt-2 bg-base/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl max-w-[calc(100vw-32px)]"
             >
               <div className="flex flex-col p-2">
                 {navLinks.map((link) => (
@@ -191,7 +191,7 @@ export default function FloatingNavbar({ cartCount = 0 }: FloatingNavbarProps) {
         transition={{ duration: 0.5, ease: 'easeOut', delay: 0.2 }}
         className="fixed bottom-0 left-0 right-0 z-[99] md:hidden"
       >
-        <div className="bg-surface-dark/95 backdrop-blur-xl border-t border-white/10">
+        <div className="bg-base/95 backdrop-blur-xl border-t border-white/10">
           <div className="flex items-center justify-around px-4 py-3">
             <Link
               href="/"

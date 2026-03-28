@@ -174,7 +174,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         className={`
-          fixed md:sticky top-0 md:top-24 h-full md:h-auto
+          hidden md:block md:sticky top-0 md:top-24 h-full md:h-auto
           w-72 md:w-64 z-50 md:z-auto
           glass-dark md:bg-transparent md:backdrop-filter-none md:border-0
           border-r border-white/10
@@ -309,19 +309,21 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
             <h4 className="text-xs font-black text-brand-500 uppercase tracking-wider mb-4">
               نطاق السعر
             </h4>
-            {/* Price Display */}
-            <div className="flex items-center justify-between mb-3">
+            {/* Price Display - Fixed overlap */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-text-muted">الحد الأدنى:</span>
-                <span className="text-sm font-bold text-text-primary">
-                  {localPriceRange[0].toLocaleString('ar-EG')} جنيه
+                <span className="text-xs text-text-muted">من:</span>
+                <span className="text-sm font-bold text-brand-500">
+                  {localPriceRange[0].toLocaleString('ar-EG')}
                 </span>
+                <span className="text-xs text-text-muted">جنيه</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-text-muted">الحد الأقصى:</span>
-                <span className="text-sm font-bold text-text-primary">
-                  {localPriceRange[1].toLocaleString('ar-EG')} جنيه
+                <span className="text-xs text-text-muted">إلى:</span>
+                <span className="text-sm font-bold text-brand-500">
+                  {localPriceRange[1].toLocaleString('ar-EG')}
                 </span>
+                <span className="text-xs text-text-muted">جنيه</span>
               </div>
             </div>
 
@@ -344,27 +346,27 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
 
               {/* Min Handle (Right Side - Controls Low Price) */}
               <div
-                className="absolute w-5 h-5 bg-surface border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-10 hover:shadow-brand-500/25"
+                className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-surface border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-20 hover:shadow-brand-500/25"
                 style={{ right: `${(localPriceRange[0] / 50000) * 100}%` }}
                 onMouseDown={() => handleSliderMouseDown('min')}
               >
-                <div className="absolute inset-1 bg-brand-500 rounded-full transition-all duration-200" />
+                <div className="absolute inset-0.5 sm:inset-1 bg-brand-500 rounded-full transition-all duration-200" />
               </div>
 
               {/* Max Handle (Left Side - Controls High Price) */}
               <div
-                className="absolute w-5 h-5 bg-surface border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-10 hover:shadow-brand-500/25"
+                className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-surface border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-20 hover:shadow-brand-500/25"
                 style={{ right: `${(localPriceRange[1] / 50000) * 100}%` }}
                 onMouseDown={() => handleSliderMouseDown('max')}
               >
-                <div className="absolute inset-1 bg-brand-500 rounded-full transition-all duration-200" />
+                <div className="absolute inset-0.5 sm:inset-1 bg-brand-500 rounded-full transition-all duration-200" />
               </div>
             </div>
 
-            {/* Input Fields */}
-            <div className="grid grid-cols-2 gap-3 mt-4">
+            {/* Input Fields - Fixed for mobile */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-4">
               <div>
-                <label className="block text-xs text-text-muted mb-1">الحد الأدنى</label>
+                <label className="block text-xs text-text-muted mb-1 truncate">الحد الأدنى</label>
                 <input
                   type="number"
                   min="0"
@@ -372,12 +374,12 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                   step="500"
                   value={localPriceRange[0]}
                   onChange={(e) => handlePriceChange('min', parseInt(e.target.value) || 0)}
-                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all dark:bg-surface-dark-secondary dark:border-border-dark dark:text-text-dark-primary"
+                  className="w-full px-2 sm:px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all dark:bg-surface-dark-secondary dark:border-border-dark dark:text-text-dark-primary"
                   placeholder="0"
                 />
               </div>
               <div>
-                <label className="block text-xs text-text-muted mb-1">الحد الأقصى</label>
+                <label className="block text-xs text-text-muted mb-1 truncate">الحد الأقصى</label>
                 <input
                   type="number"
                   min={localPriceRange[0] + 500}
@@ -385,7 +387,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                   step="500"
                   value={localPriceRange[1]}
                   onChange={(e) => handlePriceChange('max', parseInt(e.target.value) || 50000)}
-                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all dark:bg-surface-dark-secondary dark:border-border-dark dark:text-text-dark-primary"
+                  className="w-full px-2 sm:px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all dark:bg-surface-dark-secondary dark:border-border-dark dark:text-text-dark-primary"
                   placeholder="50000"
                 />
               </div>
