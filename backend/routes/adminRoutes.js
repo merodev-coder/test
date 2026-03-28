@@ -5,6 +5,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  listProducts,
 } from '../controllers/productController.js';
 import {
   listBrands,
@@ -27,6 +28,12 @@ router.patch('/orders/:id', authMiddleware, updateOrderStatus);
 router.post('/inventory', authMiddleware, createProduct);
 router.put('/inventory/:id', authMiddleware, updateProduct);
 router.delete('/inventory/:id', authMiddleware, deleteProduct);
+
+// Products routes (alias for inventory)
+router.get('/products', authMiddleware, listProducts);
+router.post('/products', authMiddleware, createProduct);
+router.put('/products/:id', authMiddleware, updateProduct);
+router.delete('/products/:id', authMiddleware, deleteProduct);
 
 // Brand routes
 router.get('/brands', authMiddleware, listBrands);

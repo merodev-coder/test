@@ -10,6 +10,7 @@ import AppImage from '@/components/ui/AppImage';
 import { isFreeWithHardware } from '@/lib/freeContentUtils';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 import styled from 'styled-components';
+import { useStore } from '@/store/useStore';
 
 interface ProductCardProps {
   product: Product;
@@ -25,7 +26,9 @@ export default function ProductCard({
   hasDrive,
 }: ProductCardProps) {
   const router = useRouter();
+  const { getStorageAggregation } = useStore();
   const isData = product.type === 'data';
+  const isStorage = product.type === 'storage';
   const isFreeContent = isFreeWithHardware(product.type, product.subtype);
   const inStock = product.stockCount > 0;
   const flyingCloneRef = useRef<HTMLDivElement | null>(null);
@@ -242,6 +245,21 @@ export default function ProductCard({
                   }}
                 >
                   {product.gbSize} GB
+                </span>
+              )}
+              {isStorage && (product.storageCapacity ?? 0) > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full tracking-wide"
+                  style={{
+                    background: 'rgba(52,211,153,0.15)',
+                    color: '#34d399',
+                    border: '1px solid rgba(52,211,153,0.3)',
+                  }}
+                >
+                  {product.storageCapacity! >= 1000 
+                    ? `${(product.storageCapacity! / 1000).toFixed(1)}TB` 
+                    : `${product.storageCapacity}GB`
+                  }
                 </span>
               )}
             </div>

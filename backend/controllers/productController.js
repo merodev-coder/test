@@ -14,7 +14,7 @@ const paginationSchema = z.object({
 
 const productSchema = z.object({
   name: z.string().min(2).max(200),
-  type: z.enum(['laptops', 'accessories', 'storage', 'data']),
+  type: z.enum(['laptops', 'accessories', 'storage', 'data', 'games']),
   subtype: z.string().max(100).optional().transform(val => val === '' ? undefined : val),
   price: z.number().min(0),
   oldPrice: z.number().positive().optional(),

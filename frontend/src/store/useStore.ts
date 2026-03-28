@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ProductType } from '@/lib/productSchema';
+import { getTotalStorageWithAggregation, createStorageSummary } from '@/lib/storageUtils';
 
 export type Tag = { id: string; name: string; slug: string };
 
@@ -96,6 +97,8 @@ type StoreActions = {
   getFilteredProducts: () => Product[];
   getTotalCartPrice: () => number;
   getTotalDriveCapacity: () => number;
+  getStorageAggregation: () => ReturnType<typeof getTotalStorageWithAggregation>;
+  getStorageSummary: () => string;
 };
 
 function _getCookie(name: string): string | null {
@@ -317,7 +320,7 @@ export const useStore = create<StoreState & StoreActions>()(
 
       fetchTags: async () => {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/tags`, { cache: 'no-store' });
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001'}/api/tags`, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch tags');
 
           const data = await res.json();
@@ -339,8 +342,8 @@ export const useStore = create<StoreState & StoreActions>()(
           if (params?.minPrice !== undefined) searchParams.set('minPrice', String(params.minPrice));
           if (params?.maxPrice !== undefined) searchParams.set('maxPrice', String(params.maxPrice));
 
-          // For admin operations, use the Next.js API route
-          const url = `/api/admin/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          // Use the backend API directly
+          const url = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001'}/api/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
           const res = await fetch(url, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch products');
@@ -485,6 +488,17 @@ export const useStore = create<StoreState & StoreActions>()(
         return allItems
           .filter((p) => p.type === 'storage')
           .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
+      },
+
+      getStorageAggregation: () => {
+        const allItems = [...get().cartItems, ...get().driveItems];
+        return getTotalStorageWithAggregation(allItems);
+      },
+
+      getStorageSummary: () => {
+        const allItems = [...get().cartItems, ...get().driveItems];
+        const { aggregations } = getTotalStorageWithAggregation(allItems);
+        return createStorageSummary(aggregations);
       },
     }),
     {

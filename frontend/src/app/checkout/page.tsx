@@ -12,6 +12,7 @@ import WhatsAppButton from '../homepage/components/WhatsAppButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStore, Product as StoreProduct } from '@/store/useStore';
+import { createStorageSummary } from '@/lib/storageUtils';
 
 interface CartItem {
   id: string;
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
     clearCart,
     clearDrive,
     fetchProducts,
+    getStorageSummary,
   } = useStore();
   const [activeStep, setActiveStep] = useState(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -66,6 +68,7 @@ export default function CheckoutPage() {
     .reduce((acc, p) => acc + (typeof p.gbSize === 'number' ? p.gbSize : 0), 0);
 
   const storageUsed = usedDataGB;
+  const storageSummary = getStorageSummary();
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const depositAmount = Math.max(50, Math.round(shippingCost > 0 ? shippingCost : 50));
 
@@ -261,6 +264,16 @@ export default function CheckoutPage() {
                           <Icon name="CircleStackIcon" size={18} className="text-brand-500" />
                           تتبع مساحة الهارد
                         </h3>
+                        
+                        {/* Storage Summary */}
+                        {storageSummary !== '0GB' && (
+                          <div className="mb-3 p-2 rounded-lg bg-brand-50 border border-brand-200">
+                            <p className="text-xs font-semibold text-brand-600 text-center">
+                              {storageSummary}
+                            </p>
+                          </div>
+                        )}
+                        
                         <div className="flex items-center justify-between mb-2 text-caption">
                           <span className="text-text-muted text-text-muted">
                             السعة:{' '}
