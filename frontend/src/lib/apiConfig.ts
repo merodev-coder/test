@@ -2,12 +2,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5
 
 export function getApiUrl(endpoint: string): string {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  return `${API_BASE_URL}/api/${cleanEndpoint}`;
+  return `${API_BASE_URL}${cleanEndpoint}`;
 }
 
 export function getAdminApiUrl(endpoint: string): string {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  return `${API_BASE_URL}/api/admin/${cleanEndpoint}`;
+  return `${API_BASE_URL}admin/${cleanEndpoint}`;
 }
 
 export const API_ENDPOINTS = {
