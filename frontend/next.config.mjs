@@ -13,8 +13,8 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                // شلنا localhost وحطينا رابط الـ Railway بتاعك
-                destination: 'https://abo-kartona-backend.onrender.com/api/:path*',
+                // Use the Railway URL from environment variables
+                destination: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://considerate-celebration-production-558b.up.railway.app/'}/api/:path*`,
             },
         ];
     },
