@@ -199,3 +199,5 @@ const CategoryGrid = memo(function CategoryGrid() {
     </section>
   );
 });
+
+export default CategoryGrid;

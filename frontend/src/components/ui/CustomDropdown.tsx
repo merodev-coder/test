@@ -121,12 +121,16 @@ const CustomDropdown = memo(function CustomDropdown({
         <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
           {selectedOption?.icon && (
             <Icon
-              name={selectedOption.icon as any}
-              size={iconSize as any}
+              name={selectedOption.icon}
+              size={iconSize}
               className="text-[#2ab88a] flex-shrink-0"
             />
           )}
-          <span className={`font-bold truncate block max-w-[calc(100%-40px)] ${selectedOption ? 'text-white' : 'text-white/40'}`}>
+          <span
+            className={`font-bold truncate block max-w-[calc(100%-40px)] ${
+              selectedOption ? 'text-white' : 'text-white/40'
+            }`}
+          >
             {selectedOption?.label || placeholder}
           </span>
         </div>
@@ -146,7 +150,7 @@ const CustomDropdown = memo(function CustomDropdown({
             className="text-white/40"
             transition={{ duration: 0.3, ease: 'backOut' }}
           >
-            <Icon name="ChevronDownIcon" size={iconSize as any} />
+            <Icon name="ChevronDownIcon" size={iconSize as 14 | 18 | 20} />
           </motion.div>
         </div>
       </motion.button>
@@ -212,7 +216,7 @@ const CustomDropdown = memo(function CustomDropdown({
                       <div
                         className={`p-1.5 rounded-lg ${value === option.value ? 'bg-[#2ab88a]/10' : 'bg-white/5'}`}
                       >
-                        <Icon name={option.icon as any} size={14} />
+                        <Icon name={option.icon} size={14} />
                       </div>
                     )}
                     <span className="font-bold tracking-wide">{option.label}</span>

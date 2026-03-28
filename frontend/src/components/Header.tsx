@@ -10,6 +10,7 @@ import { useStore } from '@/store/useStore';
 const navItems = [
   { label: 'منتجات', href: '/products' },
   { label: 'عروض', href: '/sales' },
+  { label: 'طلباتي', href: '/orders' },
 ];
 
 // ─── Nav Link ────────────────────────────────────────────────────────────────
@@ -206,24 +207,24 @@ export default function Header() {
           class toggle. This is the only reliable way to keep
           them perfectly in sync without spring drift.
       {/* Morphing shell with mobile-first responsive width */}
-      <div
-        className="pointer-events-auto w-full px-2 sm:px-4"
-        style={{
-          maxWidth: scrolled ? 'min(780px, 95vw)' : '100%',
-          width: scrolled ? '96%' : '100%',
-          marginTop: scrolled ? '12px' : '0px',
-          padding: scrolled ? '0 8px' : '0',
-          transition:
-            'max-width 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94), margin-top 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        }}
-      >
-        <header
+        <div
+          className="pointer-events-auto w-full px-2 sm:px-4"
           style={{
-            borderRadius: scrolled ? '9999px' : '0px',
+            maxWidth: scrolled ? 'min(780px, 95vw)' : '100%',
+            width: scrolled ? '96%' : '100%',
+            marginTop: scrolled ? '12px' : '0px',
+            padding: scrolled ? '0 8px' : '0',
             transition:
-              'border-radius 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              'max-width 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94), margin-top 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           }}
-          className={`
+        >
+          <header
+            style={{
+              borderRadius: scrolled ? '9999px' : '0px',
+              transition:
+                'border-radius 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            }}
+            className={`
             relative flex items-center justify-between overflow-visible
             ${
               scrolled
@@ -231,111 +232,111 @@ export default function Header() {
                 : 'bg-transparent border-b border-white/5'
             }
           `}
-        >
-          {/* Top shimmer line — only on floating state */}
-          <div
-            className="absolute inset-x-0 top-0 h-px pointer-events-none transition-opacity duration-400"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)',
-              opacity: scrolled ? 1 : 0,
-              borderRadius: '9999px',
-            }}
-          />
+          >
+            {/* Top shimmer line — only on floating state */}
+            <div
+              className="absolute inset-x-0 top-0 h-px pointer-events-none transition-opacity duration-400"
+              style={{
+                background:
+                  'linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)',
+                opacity: scrolled ? 1 : 0,
+                borderRadius: '9999px',
+              }}
+            />
 
-          <div className="flex items-center justify-between w-full h-[60px] px-4">
-            {/* Logo with breathing animation */}
-            <Link href="/homepage" className="flex items-center gap-2.5 group">
-              <motion.div
-                animate={{
-                  scale: [1, 1.05, 1],
-                  opacity: [1, 0.85, 1],
-                }}
-                transition={{
-                  duration: 4,
-                  ease: [0.4, 0, 0.6, 1],
-                  repeat: Infinity,
-                  repeatType: 'loop',
-                }}
-                whileHover={{
-                  scale: 1.06,
-                  transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-                }}
-                whileTap={{
-                  scale: 0.96,
-                  transition: { duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] },
-                }}
-              >
-                <AppLogo size={40} />
-              </motion.div>
-              <motion.span
-                className="text-[15px] font-bold text-white tracking-tight hidden sm:block"
-                whileHover={{
-                  x: -2,
-                  transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-                }}
-                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              >
-                أبو كارتونة
-              </motion.span>
-            </Link>
+            <div className="flex items-center justify-between w-full h-[60px] px-4">
+              {/* Logo with breathing animation */}
+              <Link href="/homepage" className="flex items-center gap-2.5 group">
+                <motion.div
+                  animate={{
+                    scale: [1, 1.05, 1],
+                    opacity: [1, 0.85, 1],
+                  }}
+                  transition={{
+                    duration: 4,
+                    ease: [0.4, 0, 0.6, 1],
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                  }}
+                  whileHover={{
+                    scale: 1.06,
+                    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+                  }}
+                  whileTap={{
+                    scale: 0.96,
+                    transition: { duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] },
+                  }}
+                >
+                  <AppLogo size={40} />
+                </motion.div>
+                <motion.span
+                  className="text-[15px] font-bold text-white tracking-tight hidden sm:block"
+                  whileHover={{
+                    x: -2,
+                    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+                  }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                >
+                  أبو كارتونة
+                </motion.span>
+              </Link>
 
-            {/* Right side */}
-            <div className="flex items-center gap-1 md:gap-6">
-              <nav className="hidden md:block">
-                <NavItems />
-              </nav>
+              {/* Right side */}
+              <div className="flex items-center gap-1 md:gap-6">
+                <nav className="hidden md:block">
+                  <NavItems />
+                </nav>
 
-              <div className="hidden md:block w-px h-5 bg-white/20 rounded-full" />
+                <div className="hidden md:block w-px h-5 bg-white/20 rounded-full" />
 
-              <div className="flex items-center gap-0.5">
-                <CartButton cartCount={cartCount} />
-                <HamburgerButton open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)} />
+                <div className="flex items-center gap-0.5">
+                  <CartButton cartCount={cartCount} />
+                  <HamburgerButton open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)} />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Mobile dropdown with brand color #131429 */}
-          <AnimatePresence>
-            {mobileOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                className="absolute top-full left-0 right-0 mt-3 mx-2 sm:mx-4 bg-surface-card/95 backdrop-blur-[32px] border border-white/10 rounded-2xl overflow-hidden md:hidden shadow-2xl max-w-[calc(100vw-16px)] box-border"
-              >
-                <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-glass-border to-transparent" />
+            {/* Mobile dropdown with brand color #131429 */}
+            <AnimatePresence>
+              {mobileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                  className="absolute top-full left-0 right-0 mt-3 mx-2 sm:mx-4 bg-surface-card/95 backdrop-blur-[32px] border border-white/10 rounded-2xl overflow-hidden md:hidden shadow-2xl max-w-[calc(100vw-16px)] box-border"
+                >
+                  <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-glass-border to-transparent" />
 
-                <nav className="p-5 flex flex-col gap-3">
-                  {navItems.map((item, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: idx * 0.06,
-                        type: 'spring',
-                        stiffness: 320,
-                        damping: 30,
-                      }}
-                    >
-                      <Link
-                        href={item.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center justify-between w-full px-4 py-3 text-white hover:text-brand-400 font-medium text-body rounded-xl hover:bg-surface/60 transition-all duration-400 group"
+                  <nav className="p-5 flex flex-col gap-3">
+                    {navItems.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: idx * 0.06,
+                          type: 'spring',
+                          stiffness: 320,
+                          damping: 30,
+                        }}
                       >
-                        <span>{item.label}</span>
-                        <Icon
-                          name="ChevronLeftIcon"
-                          size={16}
-                          className="text-white/60 group-hover:text-brand-400 transition-colors duration-400"
-                        />
-                      </Link>
-                    </motion.div>
-                  ))}
+                        <Link
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center justify-between w-full px-4 py-3 text-white hover:text-brand-400 font-medium text-body rounded-xl hover:bg-surface/60 transition-all duration-400 group"
+                        >
+                          <span>{item.label}</span>
+                          <Icon
+                            name="ChevronLeftIcon"
+                            size={16}
+                            className="text-white/60 group-hover:text-brand-400 transition-colors duration-400"
+                          />
+                        </Link>
+                      </motion.div>
+                    ))}
 
-                  <div className="h-px bg-white/10 mx-2 my-1" />
+                    <div className="h-px bg-white/10 mx-2 my-1" />
 
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}

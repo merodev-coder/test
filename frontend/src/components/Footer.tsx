@@ -17,7 +17,11 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: faFacebookF, href: 'https://web.facebook.com/profile.php?id=100093235875346&mibextid=ZbWKwL&_rdc=1&_rdr#', label: 'Facebook' },
+  {
+    icon: faFacebookF,
+    href: 'https://web.facebook.com/profile.php?id=100093235875346&mibextid=ZbWKwL&_rdc=1&_rdr#',
+    label: 'Facebook',
+  },
   { icon: faWhatsapp, href: 'https://chat.whatsapp.com/HgwapUpz5sl1m2fBdf3MCS', label: 'WhatsApp' },
 ];
 

@@ -27,7 +27,9 @@ function isRetryableError(error: unknown, retryableStatuses: number[]): boolean 
   if (!(error instanceof Error)) return false;
 
   // Check for HTTP status codes
-  const status = (error as any).status || (error as any).statusCode;
+  const status =
+    (error as { status?: number; statusCode?: number }).status ||
+    (error as { status?: number; statusCode?: number }).statusCode;
   if (status && retryableStatuses.includes(Number(status))) {
     return true;
   }
@@ -81,7 +83,7 @@ export async function withRetry<T>(
       const jitter = Math.random() * 1000;
       const delay = Math.min(baseDelay + jitter, finalConfig.maxDelay);
 
-      console.log(
+      console.info(
         `[${context}] Retry ${attempt + 1}/${finalConfig.maxRetries} after ${Math.round(delay)}ms:`,
         lastError.message
       );
@@ -120,7 +122,7 @@ export async function fetchWithRetry(
         // Throw for error status codes to trigger retry
         if (!response.ok) {
           const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-          (error as any).status = response.status;
+          (error as Error & { status: number }).status = response.status;
           throw error;
         }
 

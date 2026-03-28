@@ -162,7 +162,7 @@ function ProductsContent() {
 
   const filteredProducts = useMemo(() => {
     if (!products || !Array.isArray(products)) return [];
-    
+
     const q = filters.searchQuery.trim().toLowerCase();
     const activeCategory = filters.category;
     const activeTags = filters.tags;

@@ -29,7 +29,7 @@ export const idbCartStorage = {
 
       // Check version for migration
       if (data.version !== CART_VERSION) {
-        console.log('[CartStorage] Migrating from version', data.version, 'to', CART_VERSION);
+        console.info('[CartStorage] Migrating from version', data.version, 'to', CART_VERSION);
         return migrateCartData(data);
       }
 

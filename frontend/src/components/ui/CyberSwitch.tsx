@@ -8,16 +8,21 @@ interface CyberSwitchProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const CyberSwitch = ({ checked = false, onChange, disabled = false, size = 'md' }: CyberSwitchProps) => {
+const CyberSwitch = ({
+  checked = false,
+  onChange,
+  disabled = false,
+  size = 'md',
+}: CyberSwitchProps) => {
   const id = `cyber-toggle-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <StyledWrapper size={size}>
       <div className="cyber-toggle-wrapper">
-        <input 
-          className="cyber-toggle-checkbox" 
-          id={id} 
-          type="checkbox" 
+        <input
+          className="cyber-toggle-checkbox"
+          id={id}
+          type="checkbox"
           checked={checked}
           onChange={(e) => onChange?.(e.target.checked)}
           disabled={disabled}
@@ -78,11 +83,15 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     width: 64px;
     height: 32px;
     cursor: pointer;
-    ${(props) => props.size === 'sm' && `
+    ${(props) =>
+      props.size === 'sm' &&
+      `
       width: 48px;
       height: 24px;
     `}
-    ${(props) => props.size === 'lg' && `
+    ${(props) =>
+      props.size === 'lg' &&
+      `
       width: 80px;
       height: 40px;
     `}
@@ -104,7 +113,7 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
   }
 
   .cyber-toggle-track::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 2px;
     border-radius: 14px;
@@ -138,13 +147,17 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     z-index: 2;
     transition: all 0.4s cubic-bezier(0.3, 1.5, 0.7, 1);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-    ${(props) => props.size === 'sm' && `
+    ${(props) =>
+      props.size === 'sm' &&
+      `
       width: 16px;
       height: 16px;
       top: 4px;
       left: 4px;
     `}
-    ${(props) => props.size === 'lg' && `
+    ${(props) =>
+      props.size === 'lg' &&
+      `
       width: 32px;
       height: 32px;
       top: 4px;
@@ -156,11 +169,7 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: radial-gradient(
-      circle at 30% 30%,
-      rgba(255, 255, 255, 0.1),
-      transparent 70%
-    );
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent 70%);
     z-index: 1;
   }
 
@@ -168,11 +177,7 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: radial-gradient(
-      circle at 70% 70%,
-      rgba(0, 0, 0, 0.2),
-      transparent 70%
-    );
+    background: radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.2), transparent 70%);
     z-index: 1;
   }
 
@@ -196,11 +201,15 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     transition:
       fill 0.4s ease,
       transform 0.4s ease;
-    ${(props) => props.size === 'sm' && `
+    ${(props) =>
+      props.size === 'sm' &&
+      `
       width: 10px;
       height: 10px;
     `}
-    ${(props) => props.size === 'lg' && `
+    ${(props) =>
+      props.size === 'lg' &&
+      `
       width: 18px;
       height: 18px;
     `}
@@ -278,7 +287,7 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
   .cyber-toggle-label-off {
@@ -299,10 +308,14 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
   .cyber-toggle-checkbox:checked + .cyber-toggle .cyber-toggle-thumb {
     left: calc(100% - 28px);
     background: #222;
-    ${(props) => props.size === 'sm' && `
+    ${(props) =>
+      props.size === 'sm' &&
+      `
       left: calc(100% - 20px);
     `}
-    ${(props) => props.size === 'lg' && `
+    ${(props) =>
+      props.size === 'lg' &&
+      `
       left: calc(100% - 36px);
     `}
   }
@@ -326,9 +339,7 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     text-shadow: 0 0 5px rgba(3, 233, 244, 0.5);
   }
 
-  .cyber-toggle-checkbox:not(:checked)
-    ~ .cyber-toggle-labels
-    .cyber-toggle-label-off {
+  .cyber-toggle-checkbox:not(:checked) ~ .cyber-toggle-labels .cyber-toggle-label-off {
     color: #aaa;
   }
 
@@ -338,27 +349,19 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
     animation: cyber-toggle-float 3s infinite alternate;
   }
 
-  .cyber-toggle-checkbox:checked
-    + .cyber-toggle
-    .cyber-toggle-particle:nth-child(1) {
+  .cyber-toggle-checkbox:checked + .cyber-toggle .cyber-toggle-particle:nth-child(1) {
     animation-delay: 0s;
   }
 
-  .cyber-toggle-checkbox:checked
-    + .cyber-toggle
-    .cyber-toggle-particle:nth-child(2) {
+  .cyber-toggle-checkbox:checked + .cyber-toggle .cyber-toggle-particle:nth-child(2) {
     animation-delay: 0.5s;
   }
 
-  .cyber-toggle-checkbox:checked
-    + .cyber-toggle
-    .cyber-toggle-particle:nth-child(3) {
+  .cyber-toggle-checkbox:checked + .cyber-toggle .cyber-toggle-particle:nth-child(3) {
     animation-delay: 1s;
   }
 
-  .cyber-toggle-checkbox:checked
-    + .cyber-toggle
-    .cyber-toggle-particle:nth-child(4) {
+  .cyber-toggle-checkbox:checked + .cyber-toggle .cyber-toggle-particle:nth-child(4) {
     animation-delay: 1.5s;
   }
 
@@ -381,7 +384,7 @@ const StyledWrapper = styled.div<{ size: 'sm' | 'md' | 'lg' }>`
   }
 
   .cyber-toggle-checkbox:focus + .cyber-toggle::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: -4px;
     border-radius: 20px;

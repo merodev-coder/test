@@ -98,7 +98,7 @@ type StoreActions = {
   getTotalDriveCapacity: () => number;
 };
 
-function getCookie(name: string): string | null {
+function _getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(
     new RegExp(`(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]*)`)
@@ -316,7 +316,7 @@ export const useStore = create<StoreState & StoreActions>()(
         try {
           const res = await fetch('http://localhost:5001/api/tags', { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch tags');
-          
+
           const data = await res.json();
           set({ tags: data.tags || [] });
         } catch (error) {
@@ -335,16 +335,16 @@ export const useStore = create<StoreState & StoreActions>()(
           if (params?.tags?.length) searchParams.set('tags', params.tags.join(','));
           if (params?.minPrice !== undefined) searchParams.set('minPrice', String(params.minPrice));
           if (params?.maxPrice !== undefined) searchParams.set('maxPrice', String(params.maxPrice));
-          
+
           // For admin operations, use the Next.js API route
           const url = `/api/admin/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-          
+
           const res = await fetch(url, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch products');
-          
+
           const data = await res.json();
-          console.log('Fetched products:', data.products?.length || 0, 'products');
-          
+          console.info('Fetched products:', data.products?.length || 0, 'products');
+
           set({ products: data.products || [] });
         } catch (error) {
           console.error('Error fetching products:', error);
@@ -358,24 +358,24 @@ export const useStore = create<StoreState & StoreActions>()(
         const token = localStorage.getItem('token');
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (token) headers.Authorization = `Bearer ${token}`;
-        
+
         try {
-          console.log('Sending product to API:', product);
+          console.info('Sending product to API:', product);
           const res = await fetch('/api/admin/products', {
             method: 'POST',
             headers,
             body: JSON.stringify(product),
           });
-          console.log('Response status:', res.status);
-          console.log('Response ok:', res.ok);
-          
+          console.info('Response status:', res.status);
+          console.info('Response ok:', res.ok);
+
           if (!res.ok) {
             const data = await res.json();
             console.error('API error response:', data);
             throw new Error(data.error || 'Failed to create product');
           }
           const data = await res.json();
-          console.log('Product created successfully:', data);
+          console.info('Product created successfully:', data);
           // Refresh products list to get the latest data
           await get().fetchProducts();
           return data.product;
@@ -389,7 +389,7 @@ export const useStore = create<StoreState & StoreActions>()(
         const token = localStorage.getItem('token');
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (token) headers.Authorization = `Bearer ${token}`;
-        
+
         try {
           const res = await fetch(`/api/admin/products`, {
             method: 'PUT',
@@ -414,19 +414,19 @@ export const useStore = create<StoreState & StoreActions>()(
         const token = localStorage.getItem('token');
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
-        
+
         try {
           const res = await fetch(`/api/admin/products`, {
             method: 'DELETE',
             headers,
             body: JSON.stringify({ id }),
           });
-          
+
           if (!res.ok) {
             const data = await res.json();
             throw new Error(data.error || 'Failed to delete product');
           }
-          
+
           // Refresh products list to get the latest data
           await get().fetchProducts();
         } catch (error) {

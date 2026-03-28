@@ -106,7 +106,7 @@ export default function CheckoutPage() {
     const orderID = `AC-${Math.floor(Math.random() * 90000) + 10000}`;
 
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -124,6 +124,23 @@ export default function CheckoutPage() {
       });
 
       if (!res.ok) throw new Error('فشل إرسال الطلب');
+
+      // Save order to localStorage
+      const existingOrders = JSON.parse(localStorage.getItem('abuKartona_userOrders') || '[]');
+      const newOrder = {
+        orderId: orderID,
+        items: cartItems,
+        driveItems,
+        totalPrice: subtotal + shippingCost,
+        totalGb: storageTotal,
+        date: new Date().toISOString(),
+        status: 'Pending',
+        customerName,
+        phone,
+        address: customerAddress,
+      };
+      existingOrders.push(newOrder);
+      localStorage.setItem('abuKartona_userOrders', JSON.stringify(existingOrders));
 
       clearCart();
       clearDrive();
