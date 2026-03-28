@@ -48,7 +48,7 @@ app.use(sanitizeData);
 
 app.use(preventParameterPollution);
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(requestLogger);
 
