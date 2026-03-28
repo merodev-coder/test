@@ -12,8 +12,8 @@ import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
+import { getApiUrl } from '@/lib/apiConfig';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 const BRAND_GREEN = '#37D7AC';
 
 // ─── Enhanced Section Header ────────────────────────────────────────────────
@@ -358,7 +358,7 @@ export default function HomePage() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch(`${API_BASE_URL}/products`, {
+    fetch(getApiUrl('products'), {
       cache: 'no-store',
       signal: controller.signal,
     })

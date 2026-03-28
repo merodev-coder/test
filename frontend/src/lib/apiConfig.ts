@@ -11,10 +11,10 @@ export function getAdminApiUrl(endpoint: string): string {
 }
 
 export const API_ENDPOINTS = {
-  PRODUCTS: '/api/products',
-  TAGS: '/api/tags',
-  ORDERS: '/api/orders',
-  ADMIN_PRODUCTS: '/api/admin/products',
-  ADMIN_ORDERS: '/api/admin/orders',
-  ADMIN_MONTHLY_PERFORMANCE: '/api/admin/monthly-performance',
+  PRODUCTS: 'products',
+  TAGS: 'tags',
+  ORDERS: 'orders',
+  ADMIN_PRODUCTS: 'products',
+  ADMIN_ORDERS: 'orders',
+  ADMIN_MONTHLY_PERFORMANCE: 'monthly-performance',
 } as const;

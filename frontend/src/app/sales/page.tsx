@@ -8,8 +8,7 @@ import WhatsAppButton from '../homepage/components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { useStore, type Product } from '@/store/useStore';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+import { getApiUrl } from '@/lib/apiConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,7 +29,7 @@ export default function SalesPage() {
   const storageInfo = { total: 1000, used: 0, hasDrive: false };
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/products?isSale=true`, { cache: 'no-store' })
+    fetch(getApiUrl('products?isSale=true'), { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         // Filter out data products from sales page

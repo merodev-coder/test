@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStore, Product as StoreProduct } from '@/store/useStore';
 import { createStorageSummary } from '@/lib/storageUtils';
+import { getApiUrl } from '@/lib/apiConfig';
 
 interface CartItem {
   id: string;
@@ -109,7 +110,7 @@ export default function CheckoutPage() {
     const orderID = `AC-${Math.floor(Math.random() * 90000) + 10000}`;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/orders`, {
+      const res = await fetch(getApiUrl('orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

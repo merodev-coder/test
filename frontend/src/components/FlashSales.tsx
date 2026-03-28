@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Clock, Zap, Flame } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import type { Product } from '@/types';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+import { getApiUrl } from '@/lib/apiConfig';
 
 interface CountdownTime {
   hours: number;
@@ -43,7 +42,7 @@ export default function FlashSales() {
 
   // Fetch flash sale products
   useEffect(() => {
-    fetch(`${API_BASE_URL}/products?discount=true&limit=10`, { cache: 'no-store' })
+    fetch(getApiUrl('products?discount=true&limit=10'), { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products?.slice(0, 8) || []);

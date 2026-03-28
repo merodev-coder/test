@@ -5,15 +5,14 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import type { Product } from '@/types';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+import { getApiUrl } from '@/lib/apiConfig';
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/products?limit=6`, { cache: 'no-store' })
+    fetch(getApiUrl('products?limit=6'), { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products?.slice(0, 6) || []);
