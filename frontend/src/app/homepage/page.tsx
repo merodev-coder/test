@@ -13,7 +13,7 @@ import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 const BRAND_GREEN = '#37D7AC';
 
 // ─── Enhanced Section Header ────────────────────────────────────────────────
