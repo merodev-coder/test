@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from './components/HeroSection';
 import WhatsAppButton from './components/WhatsAppButton';
-import SectionSeparator from '@/components/ui/SectionSeparator';
 import { gsap, ScrollTrigger } from '@/lib/gsapinit';
 import { useStore, type Product } from '@/store/useStore';
 import Link from 'next/link';
@@ -14,91 +13,410 @@ import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+const BRAND_GREEN = '#37D7AC';
+
+// ─── Enhanced Section Header ────────────────────────────────────────────────
+
+const SectionHeader = ({
+  label,
+  title,
+  accent,
+  href,
+  index = 0,
+}: {
+  label: string;
+  title: string;
+  accent: string;
+  href?: string;
+  index?: number;
+}) => {
+  const accentRef = useRef<HTMLSpanElement>(null);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-100px' }}
+      transition={{
+        duration: 0.8,
+        ease: [0.25, 0.46, 0.45, 0.94],
+        delay: index * 0.1,
+      }}
+      className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6"
+    >
+      <div className="flex items-start gap-6">
+        {/* Animated accent bar */}
+        <motion.div
+          initial={{ scaleY: 0, opacity: 0 }}
+          whileInView={{ scaleY: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="w-1.5 rounded-full flex-shrink-0 mt-2 origin-top"
+          style={{
+            height: '80px',
+            background: `linear-gradient(180deg, ${BRAND_GREEN} 0%, ${BRAND_GREEN}40 50%, transparent 100%)`,
+            boxShadow: `0 0 20px ${BRAND_GREEN}40`,
+          }}
+        />
+
+        <div className="space-y-4">
+          {/* Label pill with pulse effect */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex items-center gap-2"
+          >
+            <span
+              className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase px-4 py-1.5 rounded-full backdrop-blur-sm"
+              style={{
+                background: `${BRAND_GREEN}15`,
+                color: BRAND_GREEN,
+                border: `1px solid ${BRAND_GREEN}30`,
+                boxShadow: `0 2px 8px ${BRAND_GREEN}10`,
+              }}
+            >
+              <motion.span
+                animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: BRAND_GREEN }}
+              />
+              {label}
+            </span>
+          </motion.div>
+
+          {/* Title with character stagger effect */}
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-[1.1]">
+            <span className="block sm:inline">{title}</span>{' '}
+            <span
+              ref={accentRef}
+              className="relative inline-block group cursor-default"
+              style={{ color: BRAND_GREEN }}
+            >
+              {accent}
+              {/* Animated underline */}
+              <motion.span
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="absolute left-0 right-0 bottom-[-8px] h-[3px] rounded-full origin-left"
+                style={{
+                  background: `linear-gradient(90deg, ${BRAND_GREEN}, ${BRAND_GREEN}60, transparent)`,
+                  filter: 'blur(0.5px)',
+                }}
+              />
+              {/* Hover glow */}
+              <span
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+                style={{ background: `${BRAND_GREEN}20` }}
+              />
+            </span>
+          </h2>
+        </div>
+      </div>
+
+      {/* Enhanced View all link */}
+      <AnimatePresence>
+        {href && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <Link
+              href={href}
+              className="group relative flex items-center gap-3 text-sm font-semibold transition-all duration-300 px-6 py-3 rounded-full overflow-hidden bg-white/5 border border-white/10 text-white/90 hover:border-[#37D7AC]/50 hover:text-white"
+            >
+              {/* Hover background */}
+              <span
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: `linear-gradient(135deg, ${BRAND_GREEN}10, transparent)` }}
+              />
+              <span className="relative z-10">عرض الكل</span>
+              <Icon
+                name="ArrowLeftIcon"
+                size={16}
+                className="relative z-10 group-hover:-translate-x-1.5 transition-transform duration-300"
+                style={{ color: BRAND_GREEN }}
+              />
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+// ─── Enhanced Section Wrapper ───────────────────────────────────────────────
+
+const SectionWrapper = ({
+  children,
+  glowSide = 'left',
+  className = '',
+}: {
+  children: React.ReactNode;
+  glowSide?: 'left' | 'right' | 'center';
+  className?: string;
+}) => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [0.95, 1]);
+  const y = useTransform(scrollYProgress, [0, 0.2], [50, 0]);
+
+  const glowPosition = {
+    left: { left: '-200px', right: undefined, transform: 'translateY(-30%)' },
+    right: { left: undefined, right: '-200px', transform: 'translateY(-30%)' },
+    center: { left: '50%', right: undefined, transform: 'translateX(-50%) translateY(-30%)' },
+  }[glowSide];
+
+  return (
+    <motion.section
+      ref={sectionRef}
+      style={{ opacity, scale, y }}
+      className={`relative py-20 ${className}`}
+    >
+      {/* Dynamic ambient glow */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1 }}
+        className="pointer-events-none absolute top-0 w-[800px] h-[500px]"
+        style={{
+          ...glowPosition,
+          background: `radial-gradient(ellipse at ${glowSide === 'left' ? '30%' : glowSide === 'right' ? '70%' : '50%'} 50%, ${BRAND_GREEN}08 0%, ${BRAND_GREEN}02 40%, transparent 70%)`,
+          filter: 'blur(60px)',
+        }}
+      />
+
+      {/* Top divider with gradient animation */}
+      <div className="w-full h-px mb-20 pointer-events-none overflow-hidden">
+        <motion.div
+          initial={{ x: '-100%' }}
+          whileInView={{ x: '100%' }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
+          className="w-full h-full"
+          style={{
+            background: `linear-gradient(90deg, transparent 0%, ${BRAND_GREEN}40 50%, transparent 100%)`,
+          }}
+        />
+      </div>
+
+      <div className="relative z-10">{children}</div>
+    </motion.section>
+  );
+};
+
+// ─── Enhanced Product Grid ──────────────────────────────────────────────────
+
+const ProductGrid = ({
+  items,
+  gridRef,
+  onAddToCart,
+  columns = 4,
+}: {
+  items: Product[];
+  gridRef: React.RefObject<HTMLDivElement | null>;
+  onAddToCart: (product: Product) => void;
+  columns?: number;
+}) => {
+  const getGridCols = () => {
+    if (columns === 4) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
+    if (columns === 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+    return 'grid-cols-1 sm:grid-cols-2';
+  };
+
+  return (
+    <div ref={gridRef} className={`grid ${getGridCols()} gap-6 md:gap-8`}>
+      <AnimatePresence mode="popLayout">
+        {items.map((product, index) => (
+          <motion.div
+            key={product.id}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{
+              duration: 0.5,
+              delay: index * 0.08,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            className="will-change-transform"
+          >
+            <ProductCard product={product} onAddToCart={onAddToCart} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ─── Enhanced Background Mesh ─────────────────────────────────────────────────
+
+const BackgroundMesh = () => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 1000], [0, -150]);
+  const springY1 = useSpring(y1, { stiffness: 100, damping: 30 });
+  const springY2 = useSpring(y2, { stiffness: 100, damping: 30 });
+
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0" aria-hidden>
+      {/* Animated orbs */}
+      <motion.div
+        style={{ y: springY1 }}
+        className="absolute top-[-15%] left-[-15%] w-[70vw] h-[70vh]"
+      >
+        <div
+          className="w-full h-full animate-pulse"
+          style={{
+            background: `radial-gradient(circle at center, ${BRAND_GREEN}06 0%, transparent 60%)`,
+            animationDuration: '8s',
+          }}
+        />
+      </motion.div>
+
+      <motion.div
+        style={{ y: springY2 }}
+        className="absolute bottom-[5%] right-[-10%] w-[60vw] h-[60vh]"
+      >
+        <div
+          style={{
+            background: `radial-gradient(circle at center, ${BRAND_GREEN}04 0%, transparent 60%)`,
+          }}
+        />
+      </motion.div>
+
+      {/* Subtle noise texture overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      {/* Refined grid */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)
+          `,
+          backgroundSize: '80px 80px',
+        }}
+      />
+    </div>
+  );
+};
+
+// ─── Empty State Component ───────────────────────────────────────────────────
+
+const EmptySection = ({ message }: { message: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="flex flex-col items-center justify-center py-20 text-center"
+  >
+    <div
+      className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+      style={{ background: `${BRAND_GREEN}10`, border: `1px solid ${BRAND_GREEN}20` }}
+    >
+      <Icon name="ArchiveBoxIcon" size={24} style={{ color: BRAND_GREEN }} />
+    </div>
+    <p className="text-white/50 text-sm">{message}</p>
+  </motion.div>
+);
+
+// ─── Main Page Component ────────────────────────────────────────────────────
 
 export default function HomePage() {
   const { addToCart } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const salesRef = useRef<HTMLDivElement>(null);
-  const laptopsRef = useRef<HTMLDivElement>(null);
-  const accessoriesRef = useRef<HTMLDivElement>(null);
-  const storageRef = useRef<HTMLDivElement>(null);
+  const refs = {
+    sales: useRef<HTMLDivElement>(null),
+    laptops: useRef<HTMLDivElement>(null),
+    accessories: useRef<HTMLDivElement>(null),
+    storage: useRef<HTMLDivElement>(null),
+  };
 
+  // Optimized data fetching with error handling
   useEffect(() => {
-    fetch(`${API_BASE_URL}/products`, { cache: 'no-store' })
-      .then((res) => res.json())
+    const controller = new AbortController();
+
+    fetch(`${API_BASE_URL}/products`, {
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
       .then((data) => {
         setProducts(data.products || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setError('Unable to load products');
+          setLoading(false);
+        }
+      });
+
+    return () => controller.abort();
   }, []);
 
-  const handleAddToCart = (product: Product) => {
-    try {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        type: product.type as any,
-        subtype: product.subtype,
-        price: product.price,
-        oldPrice: product.oldPrice,
-        description: product.description,
-        images: product.images,
-        stockCount: product.stockCount,
-        storageCapacity: product.storageCapacity,
-        gbSize: product.gbSize,
-        isSale: product.isSale,
-        tags: product.tags,
-        isBrandActive: product.isBrandActive,
-        brands: product.brands,
-        createdAt: '',
-        updatedAt: '',
-      });
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('الماركة')) {
-        alert('يرجى اختيار الماركة قبل إضافة المنتج للسلة');
-      } else {
-        alert('حدث خطأ أثناء إضافة المنتج للسلة');
-      }
-    }
-  };
+  const handleAddToCart = useCallback(
+    (product: Product) => {
+      addToCart({ ...product, createdAt: '', updatedAt: '' } as any);
+    },
+    [addToCart]
+  );
 
-  const sales = products.filter((p) => !!p.isSale);
-  const laptops = products.filter((p) => p.type === 'laptops');
-  const accessories = products.filter((p) => p.type === 'accessories');
-  const storage = products.filter((p) => p.type === 'storage');
+  // Memoized filtered products
+  const filteredProducts = React.useMemo(
+    () => ({
+      sales: products.filter((p) => !!p.isSale),
+      laptops: products.filter((p) => p.type === 'laptops'),
+      accessories: products.filter((p) => p.type === 'accessories'),
+      storage: products.filter((p) => p.type === 'storage'),
+    }),
+    [products]
+  );
 
-  const storageInfo = { total: 1000, used: 0, hasDrive: false };
-
-  // GSAP ScrollTrigger animations for grids
+  // GSAP ScrollTrigger cleanup
   useEffect(() => {
     if (loading) return;
 
-    const refs = [salesRef, laptopsRef, accessoriesRef, storageRef];
-    const contexts: (() => void)[] = [];
+    const triggers: ScrollTrigger[] = [];
 
-    refs.forEach((ref) => {
-      if (!ref.current) return;
-      // We animate the direct child wrapper elements
-      const cards = ref.current.children;
-      if (!cards.length) return;
+    Object.values(refs).forEach((ref) => {
+      if (!ref.current?.children.length) return;
 
-      gsap.fromTo(
-        cards,
-        {
-          opacity: 0,
-          y: 40,
-        },
+      const tween = gsap.fromTo(
+        ref.current.children,
+        { opacity: 0, y: 40, scale: 0.96 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
+          scale: 1,
+          duration: 0.7,
           ease: 'power3.out',
-          stagger: 0.1,
+          stagger: 0.08,
           scrollTrigger: {
             trigger: ref.current,
             start: 'top 85%',
@@ -106,164 +424,135 @@ export default function HomePage() {
           },
         }
       );
+
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
+      triggers.forEach((st) => st.kill());
     };
   }, [loading, products.length]);
 
-  // Reusable section header
-  const SectionHeader = ({
-    label,
-    title,
-    accent,
-    href,
-  }: {
-    label: string;
-    title: string;
-    accent: string;
-    href?: string;
-  }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.5 }}
-      className="flex items-end justify-between mb-8"
-    >
-      <div>
-        <p className="section-label mb-2 relative">
-          <span className="relative z-10">{label}</span>
-          <span className="absolute inset-0 bg-brand-500/20 bg-brand-400/20 -z-10 scale-x-110 rounded-full blur-sm" />
-        </p>
-        <h2 className="text-h1 md:text-display text-text-primary text-text-primary font-heading relative">
-          {title}{' '}
-          <span className="text-gradient-primary relative">
-            {accent}
-            <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-brand-500 via-brand-400 to-transparent rounded-full opacity-50" />
-          </span>
-        </h2>
-      </div>
-      {href && (
-        <Link
-          href={href}
-          className="group flex items-center gap-1.5 text-body-sm font-semibold text-brand-500 hover:text-brand-600 text-brand-400 dark:hover:text-brand-300 transition-all duration-200 hover:gap-2"
-        >
-          <span>عرض الكل</span>
-          <Icon
-            name="ArrowLeftIcon"
-            size={14}
-            className="group-hover:-translate-x-0.5 transition-transform duration-200"
-          />
-        </Link>
-      )}
-    </motion.div>
-  );
-
-  // Empty state component
-  const EmptyState = ({ message }: { message: string }) => (
-    <div className="card rounded-2xl p-10 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-surface-tertiary bg-white/5 flex items-center justify-center mx-auto mb-4">
-        <Icon name="InboxIcon" size={24} className="text-text-muted text-text-muted" />
-      </div>
-      <p className="text-body font-medium text-text-muted text-text-muted">{message}</p>
-    </div>
-  );
-
-  // Product grid renderer
-  const ProductGrid = ({
-    items,
-    gridRef,
-    cols = 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-4',
-  }: {
-    items: Product[];
-    gridRef: React.RefObject<HTMLDivElement | null>;
-    cols?: string;
-  }) => (
-    <div ref={gridRef} className={`grid ${cols} gap-4 md:gap-6`}>
-      {items.map((p) => (
-        <div key={p.id}>
-          <ProductCard product={p} onAddToCart={handleAddToCart} />
+  if (error) {
+    return (
+      <div className="min-h-screen bg-base flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 rounded-full text-sm font-medium transition-colors"
+            style={{ background: `${BRAND_GREEN}20`, color: BRAND_GREEN }}
+          >
+            إعادة المحاولة
+          </button>
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-surface bg-surface" dir="rtl">
+    <div
+      className="relative min-h-screen bg-base selection:bg-[#37D7AC]/30 selection:text-[#37D7AC]"
+      dir="rtl"
+    >
+      <BackgroundMesh />
       <Header />
-      <main className="pt-14">
-        <HeroSection storage={storageInfo} />
 
-        {loading ? (
-          <div className="section-container section-padding">
-            <ProductGridSkeleton count={8} />
-          </div>
-        ) : (
-          <>
-            {/* Sales Section */}
-            {sales.length > 0 && (
-              <>
-                <section className="section-padding section-container">
-                  <SectionHeader label="العروض" title="منتجات" accent="عليها خصم" />
-                  <ProductGrid items={sales} gridRef={salesRef} />
-                </section>
-                <SectionSeparator />
-              </>
-            )}
+      <main className="relative z-10 pt-16">
+        <HeroSection storage={{ total: 1000, used: 0, hasDrive: false }} />
 
-            {/* Laptops Section */}
-            <>
-              <section className="section-padding section-container section-alt">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pb-32">
+          {loading ? (
+            <div className="pt-20">
+              <ProductGridSkeleton count={8} />
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {/* Sales Section */}
+              {filteredProducts.sales.length > 0 ? (
+                <SectionWrapper glowSide="center">
+                  <SectionHeader
+                    label="Exclusive Offers"
+                    title="عروض"
+                    accent="أبو كارتونة"
+                    index={0}
+                  />
+                  <ProductGrid
+                    items={filteredProducts.sales}
+                    gridRef={refs.sales}
+                    onAddToCart={handleAddToCart}
+                  />
+                </SectionWrapper>
+              ) : (
+                <SectionWrapper glowSide="center">
+                  <SectionHeader label="Exclusive Offers" title="عروض" accent="أبو كارتونة" />
+                  <EmptySection message="لا توجد عروض حالياً" />
+                </SectionWrapper>
+              )}
+
+              {/* Laptops Section */}
+              <SectionWrapper glowSide="right">
                 <SectionHeader
-                  label="اللابتوبات"
+                  label="Laptops"
                   title="أحدث"
-                  accent="اللابتوبات"
+                  accent="ال اللابتوبات"
                   href="/products?cat=laptops"
+                  index={1}
                 />
-                {laptops.length === 0 ? (
-                  <EmptyState message="لا توجد لابتوبات حالياً" />
+                {filteredProducts.laptops.length > 0 ? (
+                  <ProductGrid
+                    items={filteredProducts.laptops.slice(0, 8)}
+                    gridRef={refs.laptops}
+                    onAddToCart={handleAddToCart}
+                  />
                 ) : (
-                  <ProductGrid items={laptops.slice(0, 8)} gridRef={laptopsRef} />
+                  <EmptySection message="لا توجد  اللابتوبات متاحة" />
                 )}
-              </section>
-              <SectionSeparator />
-            </>
+              </SectionWrapper>
 
-            {/* Accessories Section */}
-            <>
-              <section className="section-padding section-container">
+              {/* Accessories Section */}
+              <SectionWrapper glowSide="left">
                 <SectionHeader
-                  label="الإكسسوارات"
+                  label="Accessories"
                   title="إكسسوارات"
-                  accent="إضافية"
+                  accent="احترافية"
                   href="/products?cat=accessories"
+                  index={2}
                 />
-                {accessories.length === 0 ? (
-                  <EmptyState message="لا توجد إكسسوارات حالياً" />
+                {filteredProducts.accessories.length > 0 ? (
+                  <ProductGrid
+                    items={filteredProducts.accessories.slice(0, 8)}
+                    gridRef={refs.accessories}
+                    onAddToCart={handleAddToCart}
+                  />
                 ) : (
-                  <ProductGrid items={accessories.slice(0, 8)} gridRef={accessoriesRef} />
+                  <EmptySection message="لا توجد إكسسوارات متاحة" />
                 )}
-              </section>
-              <SectionSeparator />
-            </>
+              </SectionWrapper>
 
-            {/* Storage Section */}
-            {storage.length > 0 && (
-              <section className="section-padding section-container section-alt">
-                <SectionHeader
-                  label="التخزين"
-                  title="هارد"
-                  accent="درايف"
-                  href="/products?cat=storage"
-                />
-                <ProductGrid items={storage.slice(0, 4)} gridRef={storageRef} />
-              </section>
-            )}
-          </>
-        )}
+              {/* Storage Section */}
+              {filteredProducts.storage.length > 0 && (
+                <SectionWrapper glowSide="center">
+                  <SectionHeader
+                    label="Storage"
+                    title="وحدات"
+                    accent="التخزين"
+                    href="/products?cat=storage"
+                    index={3}
+                  />
+                  <ProductGrid
+                    items={filteredProducts.storage.slice(0, 4)}
+                    gridRef={refs.storage}
+                    onAddToCart={handleAddToCart}
+                    columns={4}
+                  />
+                </SectionWrapper>
+              )}
+            </div>
+          )}
+        </div>
       </main>
+
       <Footer />
       <WhatsAppButton />
     </div>

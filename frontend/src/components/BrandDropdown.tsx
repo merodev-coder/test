@@ -141,16 +141,14 @@ export default function BrandDropdown({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           whileTap={{ scale: 0.98 }}
-          className={`relative w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-surface-secondary bg-surface-secondary border backdrop-blur-md transition-all duration-300 z-20 ${
-            isOpen
-              ? 'border-brand-500 shadow-glow-sm'
-              : 'border-border border-border hover:border-brand-500/30'
+          className={`relative w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-surface-secondary border backdrop-blur-md transition-all duration-300 z-20 ${
+            isOpen ? 'border-brand-500 shadow-glow-sm' : 'border-border hover:border-brand-500/30'
           }`}
         >
           <div className="flex items-center gap-3 min-w-0">
             <BrandAvatar brand={selectedBrandData} hasSelection={!!selectedBrand} />
             <span
-              className={`text-sm truncate ${selectedBrand ? 'text-text-primary text-text-primary font-medium' : 'text-text-muted text-text-muted'}`}
+              className={`text-sm truncate ${selectedBrand ? 'text-text-primary font-medium' : 'text-text-muted'}`}
             >
               {selectedBrand || placeholder}
             </span>
@@ -175,9 +173,9 @@ export default function BrandDropdown({
             exit={{ opacity: 0, y: dropdownPosition === 'bottom' ? -10 : 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
             style={dropdownStyles}
-            className="bg-surface bg-surface-secondary backdrop-blur-2xl border border-border border-border rounded-2xl shadow-elevated shadow-elevated overflow-hidden max-h-[70vh] flex flex-col"
+            className="bg-surface-secondary backdrop-blur-2xl border border-border rounded-2xl shadow-elevated overflow-hidden max-h-[70vh] flex flex-col"
           >
-            <div className="p-3 border-b border-border border-border bg-surface-secondary bg-surface-tertiary">
+            <div className="p-3 border-b border-border bg-surface-tertiary">
               <div className="relative">
                 <Icon
                   name="MagnifyingGlassIcon"
@@ -190,7 +188,7 @@ export default function BrandDropdown({
                   placeholder="ابحث عن الماركة..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pr-9 pl-4 py-2 text-sm rounded-xl bg-white bg-surface border border-border border-border text-text-primary text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 transition-all"
+                  className="w-full pr-9 pl-4 py-2 text-sm rounded-xl bg-surface border border-border text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 transition-all"
                 />
               </div>
             </div>
@@ -235,13 +233,13 @@ function BrandAvatar({ brand, hasSelection }: { brand?: Brand; hasSelection: boo
     return (
       <img
         src={brand.logo}
-        className="w-6 h-6 object-contain rounded-lg bg-surface-tertiary bg-white/5 p-0.5"
+        className="w-6 h-6 object-contain rounded-lg bg-surface-tertiary p-0.5"
         alt=""
       />
     );
   return (
     <div
-      className={`w-6 h-6 rounded-lg flex items-center justify-center border ${hasSelection ? 'border-brand-500/30 bg-brand-500/10' : 'border-border border-border bg-surface-tertiary bg-white/5'}`}
+      className={`w-6 h-6 rounded-lg flex items-center justify-center border ${hasSelection ? 'border-brand-500/30 bg-brand-500/10' : 'border-border bg-surface-tertiary'}`}
     >
       <span
         className={`text-[10px] font-bold ${hasSelection ? 'text-brand-500' : 'text-text-muted'}`}
@@ -272,12 +270,12 @@ function DropdownItem({
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 mb-1 ${
         isSelected
           ? 'bg-brand-500/15 text-brand-500'
-          : 'hover:bg-surface-tertiary hover:bg-white/5 text-text-secondary text-text-secondary hover:text-text-primary'
+          : 'hover:bg-surface-tertiary text-text-secondary hover:text-text-primary'
       }`}
     >
       {isAll ? (
         <div
-          className={`w-6 h-6 rounded-lg flex items-center justify-center ${isSelected ? 'bg-brand-500/20' : 'bg-surface-tertiary bg-white/5'}`}
+          className={`w-6 h-6 rounded-lg flex items-center justify-center ${isSelected ? 'bg-brand-500/20' : 'bg-surface-tertiary'}`}
         >
           <div className="grid grid-cols-2 gap-0.5">
             <div className="w-1.5 h-1.5 rounded-sm bg-current" />
@@ -289,11 +287,11 @@ function DropdownItem({
       ) : avatar ? (
         <img
           src={avatar}
-          className="w-6 h-6 object-contain rounded-lg bg-surface-tertiary bg-white/5 p-0.5"
+          className="w-6 h-6 object-contain rounded-lg bg-surface-tertiary p-0.5"
           alt=""
         />
       ) : (
-        <div className="w-6 h-6 rounded-lg bg-surface-tertiary bg-white/5 flex items-center justify-center text-[10px] font-bold text-text-muted">
+        <div className="w-6 h-6 rounded-lg bg-surface-tertiary flex items-center justify-center text-[10px] font-bold text-text-muted">
           {label.charAt(0)}
         </div>
       )}

@@ -28,11 +28,9 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
 
   if (!doc) {
     return (
-      <div className="min-h-screen bg-surface bg-surface flex flex-col items-center justify-center">
-        <h1 className="text-xl font-black text-text-primary text-text-primary mb-2">
-          الطلب غير موجود
-        </h1>
-        <Link href="/admin" className="text-brand-500 text-brand-400 font-bold">
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
+        <h1 className="text-xl font-black text-text-primary mb-2">الطلب غير موجود</h1>
+        <Link href="/admin" className="text-brand-500 font-bold">
           العودة للوحة التحكم
         </Link>
       </div>
@@ -44,23 +42,14 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
   const proofImage = order.uploadedPhotoUrl || order.paymentScreenshot;
 
   return (
-    <div className="min-h-screen bg-surface bg-surface flex flex-col" dir="rtl">
-      <header className="bg-surface-secondary bg-surface-secondary/50 border-b border-border border-border sticky top-0 z-40">
+    <div className="min-h-screen bg-surface flex flex-col" dir="rtl">
+      <header className="bg-surface-secondary/50 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="p-2 hover:bg-surface-tertiary hover:bg-white/5 rounded-full transition-colors"
-            >
-              <Icon
-                name="ArrowRightIcon"
-                size={20}
-                className="text-text-primary text-text-primary"
-              />
+            <Link href="/admin" className="p-2 hover:bg-white/5 rounded-full transition-colors">
+              <Icon name="ArrowRightIcon" size={20} className="text-text-primary" />
             </Link>
-            <h1 className="text-xl font-black text-text-primary text-text-primary font-heading">
-              تفاصيل الطلب
-            </h1>
+            <h1 className="text-xl font-black text-text-primary font-heading">تفاصيل الطلب</h1>
           </div>
         </div>
       </header>
@@ -71,10 +60,10 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
             <div className="glass-card rounded-2xl p-6">
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-black text-text-primary text-text-primary font-heading mb-1">
+                  <h2 className="text-xl font-black text-text-primary font-heading mb-1">
                     الطلب {order.orderID || `#${order._id.slice(-6)}`}
                   </h2>
-                  <p className="text-body-sm text-text-muted text-text-muted">
+                  <p className="text-body-sm text-text-muted">
                     {new Date(order.createdAt).toLocaleString('ar-EG', {
                       dateStyle: 'full',
                       timeStyle: 'short',
@@ -105,24 +94,21 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="bg-surface-secondary bg-surface-secondary p-4 rounded-xl border border-border border-border">
-                  <p className="text-caption text-text-muted text-text-muted mb-1">اسم العميل</p>
-                  <p className="text-body-sm font-bold text-text-primary text-text-primary">
+                <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                  <p className="text-caption text-text-muted mb-1">اسم العميل</p>
+                  <p className="text-body-sm font-bold text-text-primary">
                     {order.customerName || 'بدون اسم'}
                   </p>
                 </div>
-                <div className="bg-surface-secondary bg-surface-secondary p-4 rounded-xl border border-border border-border">
-                  <p className="text-caption text-text-muted text-text-muted mb-1">رقم الموبايل</p>
-                  <p
-                    className="text-body-sm font-bold text-text-primary text-text-primary"
-                    dir="ltr"
-                  >
+                <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                  <p className="text-caption text-text-muted mb-1">رقم الموبايل</p>
+                  <p className="text-body-sm font-bold text-text-primary" dir="ltr">
                     {order.phone || '—'}
                   </p>
                 </div>
-                <div className="bg-surface-secondary bg-surface-secondary p-4 rounded-xl border border-border border-border sm:col-span-2 md:col-span-1">
-                  <p className="text-caption text-text-muted text-text-muted mb-1">العنوان</p>
-                  <p className="text-body-sm text-text-primary text-text-primary line-clamp-3">
+                <div className="bg-surface-secondary p-4 rounded-xl border border-border sm:col-span-2 md:col-span-1">
+                  <p className="text-caption text-text-muted mb-1">العنوان</p>
+                  <p className="text-body-sm text-text-primary line-clamp-3">
                     {order.address || '—'}
                   </p>
                 </div>
@@ -130,28 +116,28 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
             </div>
 
             <div className="glass-card rounded-2xl p-6">
-              <h3 className="text-body-lg font-bold text-text-primary text-text-primary mb-4 font-heading">
+              <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading">
                 المنتجات المطلوبة
               </h3>
               <div className="space-y-3">
                 {order.items?.map((item: any, idx: number) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-4 bg-surface-secondary bg-surface-secondary p-3 rounded-xl border border-border border-border"
+                    className="flex items-center gap-4 bg-surface-secondary p-3 rounded-xl border border-border"
                   >
-                    <div className="w-12 h-12 bg-surface-tertiary bg-white/5 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon name="CubeIcon" size={20} className="text-text-muted text-text-muted" />
+                    <div className="w-12 h-12 bg-surface-tertiary rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon name="CubeIcon" size={20} className="text-text-muted" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-body-sm font-bold text-text-primary text-text-primary line-clamp-1">
+                      <h4 className="text-body-sm font-bold text-text-primary line-clamp-1">
                         {item.name}
                       </h4>
-                      <p className="text-caption text-text-muted text-text-muted mt-0.5">
+                      <p className="text-caption text-text-muted mt-0.5">
                         الكمية: {item.quantity || 1}
                       </p>
                     </div>
                     <div className="text-left flex-shrink-0">
-                      <p className="text-body-sm font-bold text-brand-500 text-brand-400">
+                      <p className="text-body-sm font-bold text-brand-500">
                         {(item.price || 0).toLocaleString('ar-EG')} جنيه
                       </p>
                     </div>
@@ -163,23 +149,21 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
 
           <div className="md:w-80 w-full space-y-6">
             <div className="glass-card rounded-2xl p-6">
-              <h3 className="text-body-lg font-bold text-text-primary text-text-primary mb-4 font-heading">
+              <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading">
                 إجمالي الحساب
               </h3>
               <div className="space-y-3 mb-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-text-muted text-text-muted">إجمالي المنتجات</span>
-                  <span className="text-text-primary text-text-primary font-bold">
+                  <span className="text-text-muted">إجمالي المنتجات</span>
+                  <span className="text-text-primary font-bold">
                     {order.totalPrice?.toLocaleString('ar-EG')} جنيه
                   </span>
                 </div>
               </div>
-              <div className="pt-4 border-t border-border border-border">
+              <div className="pt-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-body-lg font-bold text-text-primary text-text-primary">
-                    الإجمالي
-                  </span>
-                  <span className="text-h3 font-bold text-brand-500 text-brand-400 font-heading">
+                  <span className="text-body-lg font-bold text-text-primary">الإجمالي</span>
+                  <span className="text-h3 font-bold text-brand-500 font-heading">
                     {order.totalPrice?.toLocaleString('ar-EG')} جنيه
                   </span>
                 </div>
@@ -193,8 +177,8 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
             />
 
             <div className="glass-card rounded-2xl p-6">
-              <h3 className="text-body-lg font-bold text-text-primary text-text-primary mb-4 font-heading flex items-center gap-2">
-                <Icon name="PhotoIcon" size={20} className="text-text-muted text-text-muted" />
+              <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
+                <Icon name="PhotoIcon" size={20} className="text-text-muted" />
                 إيصال الدفع
               </h3>
               {proofImage ? (
@@ -217,7 +201,7 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                   </div>
                 </a>
               ) : (
-                <div className="w-full aspect-video rounded-xl bg-surface-tertiary bg-white/5 border border-border border-border flex flex-col items-center justify-center text-text-muted text-text-muted">
+                <div className="w-full aspect-video rounded-xl bg-surface-tertiary border border-border flex flex-col items-center justify-center text-text-muted">
                   <Icon name="NoSymbolIcon" size={24} className="mb-2 opacity-50" />
                   <p className="text-xs">لا يوجد إيصال مرفق</p>
                 </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
-import { ThemedSelect } from '@/components/ui/ThemedSelect';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 interface ProductPerformance {
   name: string;
@@ -146,7 +146,7 @@ function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative overflow-hidden rounded-2xl border ${colorClasses[color].border} bg-white bg-surface-secondary p-6`}
+      className={`relative overflow-hidden rounded-2xl border ${colorClasses[color].border} bg-surface-secondary p-6`}
     >
       <div className="flex items-start justify-between">
         <div>
@@ -390,17 +390,19 @@ export default function InventoryAudit() {
         <div className="flex items-center gap-3 flex-wrap">
           {/* Month Selector */}
           <div className="flex items-center gap-2">
-            <ThemedSelect
+            <CustomDropdown
+              options={MONTHS_AR.map((m, i) => ({ value: String(i + 1), label: m }))}
               value={String(month)}
               onChange={(value) => setMonth(parseInt(value))}
-              options={MONTHS_AR.map((m, i) => ({ value: String(i + 1), label: m }))}
               className="w-32"
+              size="sm"
             />
-            <ThemedSelect
+            <CustomDropdown
+              options={years.map((y) => ({ value: String(y), label: String(y) }))}
               value={String(year)}
               onChange={(value) => setYear(parseInt(value))}
-              options={years.map((y) => ({ value: String(y), label: String(y) }))}
               className="w-28"
+              size="sm"
             />
           </div>
 
@@ -425,7 +427,7 @@ export default function InventoryAudit() {
           <div className="w-10 h-10 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin" />
         </div>
       ) : !data || data.productPerformance.length === 0 ? (
-        <div className="bg-white bg-surface-secondary rounded-2xl border border-border-light border-border">
+        <div className="bg-surface-secondary rounded-2xl border border-border">
           <EmptyState month={month} year={year} />
         </div>
       ) : (
@@ -482,7 +484,7 @@ export default function InventoryAudit() {
           </div>
 
           {/* Product Performance Table */}
-          <div className="bg-white bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden">
+          <div className="bg-surface-secondary rounded-2xl border border-border overflow-hidden">
             <div className="p-5 border-b border-border-light border-border">
               <h3 className="text-body font-bold text-text-primary text-text-primary flex items-center gap-2">
                 <Icon name="ChartPieIcon" size={18} className="text-brand-500" />

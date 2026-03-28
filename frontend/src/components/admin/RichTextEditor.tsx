@@ -36,7 +36,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       }),
       Image.configure({
         HTMLAttributes: {
-          class: 'rounded-2xl border border-white/10 my-6 max-w-full h-auto shadow-2xl',
+          class: 'rounded-2xl border border-border my-6 max-w-full h-auto shadow-2xl',
         },
       }),
       Link.configure({ openOnClick: false }),
@@ -68,9 +68,9 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
   if (!editor) return null;
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden border border-white/5 bg-surface-secondary bg-surface-secondary/30">
+    <div className="glass-card rounded-2xl overflow-hidden border border-border bg-surface-secondary/30">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-white/5 bg-white/5">
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-surface-secondary/50">
         <MenuButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
@@ -89,7 +89,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           icon="icon-underline"
           label="Underline"
         />
-        <div className="w-px h-6 bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-border mx-1" />
         <MenuButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           active={editor.isActive('heading', { level: 1 })}
@@ -102,14 +102,14 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           icon="icon-h2"
           label="H2"
         />
-        <div className="w-px h-6 bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-border mx-1" />
         <MenuButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive('bulletList')}
           icon="icon-list-bullet"
           label="List"
         />
-        <div className="w-px h-6 bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-border mx-1" />
         <MenuButton
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           active={editor.isActive({ textAlign: 'left' })}
@@ -137,11 +137,11 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           icon="icon-link"
           label="Link"
         />
-        <div className="w-px h-6 bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-border mx-1" />
 
         {/* Image Upload Button */}
         <label
-          className={`p-2 rounded-lg hover:bg-white/10 cursor-pointer transition-all flex items-center justify-center ${isUploading ? 'opacity-50 animate-pulse' : ''}`}
+          className={`p-2 rounded-lg hover:bg-surface-secondary cursor-pointer transition-all flex items-center justify-center ${isUploading ? 'opacity-50 animate-pulse' : ''}`}
         >
           <input
             type="file"
@@ -188,7 +188,9 @@ function MenuButton({
       type="button"
       onClick={onClick}
       className={`p-2 rounded-lg transition-all flex items-center justify-center ${
-        active ? 'bg-brand-500 text-bg-deep font-bold' : 'text-text-muted hover:bg-white/10'
+        active
+          ? 'bg-brand-500 text-text-dark-primary font-bold'
+          : 'text-text-muted hover:bg-surface-secondary'
       }`}
       title={label}
     >

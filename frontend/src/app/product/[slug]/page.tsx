@@ -108,7 +108,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const categoryLabel =
     product.type === 'laptops'
-      ? 'لابتوبات'
+      ? ' اللابتوبات'
       : product.type === 'accessories'
         ? 'إكسسوارات'
         : product.type === 'storage'

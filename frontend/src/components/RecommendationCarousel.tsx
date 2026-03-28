@@ -42,11 +42,11 @@ const ProductCard = React.memo(function ProductCard({ product, index }: ProductC
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.3 }}
-      className="flex-shrink-0 w-[280px] group"
+      className="flex-shrink-0 w-[280px] group transform-gpu will-change-transform"
     >
       <Link
         href={`/product/${product.slug}`}
-        className="block bg-surface bg-surface-secondary rounded-2xl overflow-hidden border border-border-light border-border hover:border-brand-500/50 dark:hover:border-brand-400/50 transition-all duration-300 hover:shadow-card-hover dark:hover:shadow-card-dark-hover h-full"
+        className="block bg-surface-secondary rounded-2xl overflow-hidden border border-border hover:border-brand-500/50 dark:hover:border-brand-400/50 transition-all duration-300 hover:shadow-card-hover dark:hover:shadow-card-dark-hover h-full transform-gpu will-change-transform hover:scale-[1.02]"
       >
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden bg-surface-secondary bg-surface-tertiary">
@@ -85,11 +85,11 @@ const ProductCard = React.memo(function ProductCard({ product, index }: ProductC
         <div className="p-4 flex flex-col gap-2">
           {/* Category Tag */}
           {product.subtype && (
-            <span className="text-caption text-text-muted text-text-muted">{product.subtype}</span>
+            <span className="text-caption text-text-muted">{product.subtype}</span>
           )}
 
           {/* Product Name */}
-          <h3 className="text-body font-semibold text-text-primary text-text-primary leading-tight line-clamp-2 group-hover:text-brand-500 group-hover:text-brand-400 transition-colors">
+          <h3 className="text-body font-semibold text-text-primary leading-tight line-clamp-2 group-hover:text-brand-500 transition-colors">
             {product.name}
           </h3>
 
@@ -105,7 +105,7 @@ const ProductCard = React.memo(function ProductCard({ product, index }: ProductC
 
           {/* Price */}
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-body-lg font-bold text-brand-500 text-brand-400">
+            <span className="text-body-lg font-bold text-brand-500">
               {product.price.toLocaleString('ar-EG')} جنيه
             </span>
             {product.oldPrice && product.oldPrice > 0 && (
@@ -142,8 +142,8 @@ const NavButton = React.memo(function NavButton({ direction, onClick, disabled }
         border-2 transition-all duration-200
         ${
           disabled
-            ? 'border-border-light border-border text-text-muted cursor-not-allowed opacity-50'
-            : 'border-brand-500 text-brand-500 hover:bg-brand-50 dark:border-brand-400 text-brand-400 dark:hover:bg-brand-400/10'
+            ? 'border-border text-text-muted cursor-not-allowed opacity-50'
+            : 'border-brand-500 text-brand-500 hover:bg-brand-50 dark:border-brand-400 dark:text-brand-400 dark:hover:bg-brand-400/10'
         }
       `}
       aria-label={direction === 'prev' ? 'السابق' : 'التالي'}
@@ -166,7 +166,6 @@ export function RecommendationCarousel({
   const containerRef = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
 
   // Smart recommendation algorithm
   const recommendedProducts = useMemo(() => {
@@ -259,12 +258,15 @@ export function RecommendationCarousel({
   }, [currentIndex, scrollToIndex]);
 
   const handleDragStart = useCallback(() => {
-    setIsDragging(true);
+    // Drag start handler - could be used for analytics or UI feedback
   }, []);
 
   const handleDragEnd = useCallback(
-    (_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
-      setIsDragging(false);
+    (
+      _: MouseEvent | TouchEvent | PointerEvent,
+      info: { offset: { x: number }; velocity: { x: number } }
+    ) => {
+      // Drag end handler - isDragging state removed as it was unused
 
       const threshold = 50;
       const velocity = info.velocity.x;
@@ -286,7 +288,7 @@ export function RecommendationCarousel({
   }
 
   return (
-    <section className={`mt-16 pt-10 border-t border-border-light border-border ${className}`}>
+    <section className={`mt-16 pt-10 border-t border-border ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">

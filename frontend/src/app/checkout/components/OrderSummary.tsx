@@ -41,7 +41,7 @@ export default function OrderSummary({
 
   return (
     <div className="glass-card rounded-3xl p-6 sticky top-24">
-      <h3 className="text-base font-black text-text-primary text-text-primary mb-5 flex items-center gap-2">
+      <h3 className="text-base font-black text-text-primary mb-5 flex items-center gap-2">
         <Icon name="ReceiptPercentIcon" size={18} className="text-brand-500" />
         ملخص الأوردر
       </h3>
@@ -52,7 +52,7 @@ export default function OrderSummary({
           <div key={item.id} className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               {item.images?.[0] || item.image ? (
-                <div className="w-8 h-8 rounded-lg bg-white/5 overflow-hidden relative flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-surface-tertiary overflow-hidden relative flex-shrink-0">
                   <AppImage
                     src={item.images?.[0] || item.image || '/placeholder.png'}
                     alt={item.name}
@@ -61,7 +61,7 @@ export default function OrderSummary({
                   />
                 </div>
               ) : (
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-surface-tertiary flex items-center justify-center flex-shrink-0">
                   <Icon name="PhotoIcon" size={12} className="text-text-secondary" />
                 </div>
               )}
@@ -70,7 +70,7 @@ export default function OrderSummary({
                 {item.selectedBrand && ` (${item.selectedBrand})`} × {item.quantity}
               </span>
             </div>
-            <span className="text-xs font-bold text-text-primary text-text-primary flex-shrink-0">
+            <span className="text-xs font-bold text-text-primary flex-shrink-0">
               {(item.price * item.quantity).toLocaleString('ar-EG')} جنيه
             </span>
           </div>
@@ -85,20 +85,20 @@ export default function OrderSummary({
       </div>
 
       {/* Divider */}
-      <div className="border-t border-white/5 my-4" />
+      <div className="border-t border-border my-4" />
 
       {/* Totals */}
       <div className="space-y-3 mb-5">
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-muted">إجمالي المنتجات</span>
-          <span className="text-sm font-bold text-text-primary text-text-primary">
+          <span className="text-sm font-bold text-text-primary">
             {subtotal.toLocaleString('ar-EG')} جنيه
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-muted">تكلفة الشحن</span>
           <span
-            className={`text-sm font-bold ${shippingCost === 0 ? 'text-brand-500' : 'text-text-primary text-text-primary'}`}
+            className={`text-sm font-bold ${shippingCost === 0 ? 'text-brand-500' : 'text-text-primary'}`}
           >
             {shippingCost === 0 ? 'مجاناً' : `${shippingCost} جنيه`}
           </span>
@@ -106,14 +106,14 @@ export default function OrderSummary({
       </div>
 
       {/* Total */}
-      <div className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5 mb-4">
+      <div className="p-4 rounded-2xl bg-surface-secondary border border-white/5 mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-black text-text-primary text-text-primary">الإجمالي</span>
-          <span className="text-xl font-black text-text-primary text-text-primary">
+          <span className="text-sm font-black text-text-primary">الإجمالي</span>
+          <span className="text-xl font-black text-text-primary">
             {total.toLocaleString('ar-EG')} جنيه
           </span>
         </div>
-        <div className="border-t border-white/5 pt-2 mt-2 space-y-1.5">
+        <div className="border-t border-border pt-2 mt-2 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs text-amber-400 font-bold">عربون الشحن (الآن)</span>
             <span className="text-xs font-black text-amber-400">{depositAmount} جنيه</span>
@@ -128,7 +128,7 @@ export default function OrderSummary({
       </div>
 
       {/* Trust Badges */}
-      <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-white/3">
+      <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-surface-tertiary">
         {[
           { icon: 'LockClosedIcon', text: 'دفع آمن' },
           { icon: 'ShieldCheckIcon', text: 'ضمان أصالة' },

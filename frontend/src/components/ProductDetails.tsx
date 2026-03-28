@@ -107,9 +107,7 @@ const QuantitySelector = memo(function QuantitySelector({
 
   return (
     <div className="flex items-center gap-3">
-      <label className="text-body-sm font-semibold text-text-secondary text-text-secondary">
-        الكمية:
-      </label>
+      <label className="text-body-sm font-semibold text-text-secondary">الكمية:</label>
       <div className="flex items-center gap-2">
         <motion.button
           type="button"
@@ -118,14 +116,14 @@ const QuantitySelector = memo(function QuantitySelector({
           whileTap={quantity > 1 ? { scale: 0.9 } : {}}
           className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
             quantity <= 1 || disabled
-              ? 'bg-surface-tertiary bg-surface-tertiary text-text-muted cursor-not-allowed'
-              : 'bg-surface-secondary bg-surface-secondary text-text-primary text-text-primary hover:bg-brand-50 dark:hover:bg-brand-500/10'
+              ? 'bg-surface-tertiary text-text-muted cursor-not-allowed'
+              : 'bg-surface-secondary text-text-primary hover:bg-brand-50'
           }`}
         >
           <Icon name="MinusIcon" size={14} />
         </motion.button>
 
-        <span className="w-12 text-center text-body font-semibold text-text-primary text-text-primary">
+        <span className="w-12 text-center text-body font-semibold text-text-primary">
           {quantity}
         </span>
 
@@ -136,8 +134,8 @@ const QuantitySelector = memo(function QuantitySelector({
           whileTap={quantity < maxQuantity ? { scale: 0.9 } : {}}
           className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
             quantity >= maxQuantity || disabled
-              ? 'bg-surface-tertiary bg-surface-tertiary text-text-muted cursor-not-allowed'
-              : 'bg-surface-secondary bg-surface-secondary text-text-primary text-text-primary hover:bg-brand-50 dark:hover:bg-brand-500/10'
+              ? 'bg-surface-tertiary text-text-muted cursor-not-allowed'
+              : 'bg-surface-secondary text-text-primary hover:bg-brand-50'
           }`}
         >
           <Icon name="PlusIcon" size={14} />
@@ -174,13 +172,11 @@ const ProductInfoSection = memo(function ProductInfoSection({
       <div className="flex flex-col gap-2">
         <Link
           href={`/product/${product.slug}`}
-          className="text-body font-semibold text-text-primary text-text-primary hover:text-brand-500 hover:text-brand-400 transition-colors line-clamp-2"
+          className="text-body font-semibold text-text-primary hover:text-brand-500 transition-colors line-clamp-2"
         >
           {product.name}
         </Link>
-        {product.subtype && (
-          <span className="text-caption text-text-muted text-text-muted">{product.subtype}</span>
-        )}
+        {product.subtype && <span className="text-caption text-text-muted">{product.subtype}</span>}
         <div className="flex items-baseline gap-2">
           <span className="text-body font-bold text-brand-500">
             {product.price.toLocaleString('ar-EG')} جنيه
@@ -201,7 +197,7 @@ const ProductInfoSection = memo(function ProductInfoSection({
       {product.subtype && (
         <Link
           href={`/products?cat=${product.type}`}
-          className="text-body-sm text-text-muted text-text-muted hover:text-brand-500 hover:text-brand-400 transition-colors w-fit"
+          className="text-body-sm text-text-muted hover:text-brand-500 transition-colors w-fit"
         >
           {product.subtype}
         </Link>
@@ -209,7 +205,7 @@ const ProductInfoSection = memo(function ProductInfoSection({
 
       {/* Title */}
       <h1
-        className={`font-heading text-text-primary text-text-primary leading-tight ${
+        className={`font-heading text-text-primary leading-tight ${
           variant === 'card' ? 'text-body-lg line-clamp-2' : 'text-h1'
         }`}
       >
@@ -233,7 +229,7 @@ const ProductInfoSection = memo(function ProductInfoSection({
         >
           {product.price.toLocaleString('ar-EG')}
           <span
-            className={`font-medium text-text-muted text-text-muted me-1 ${
+            className={`font-medium text-text-muted me-1 ${
               variant === 'card' ? 'text-body' : 'text-base'
             }`}
           >
@@ -252,15 +248,13 @@ const ProductInfoSection = memo(function ProductInfoSection({
 
       {/* Description (only for full variant) */}
       {variant === 'full' && descriptionLines.length > 0 && (
-        <div className="pt-4 border-t border-border-light border-border">
-          <h3 className="text-body-sm font-bold text-text-primary text-text-primary mb-3">
-            حول هذا المنتج
-          </h3>
+        <div className="pt-4 border-t border-border">
+          <h3 className="text-body-sm font-bold text-text-primary mb-3">حول هذا المنتج</h3>
           <ul className="space-y-2">
             {descriptionLines.map((line: string, idx: number) => (
               <li
                 key={idx}
-                className="flex items-start gap-2 text-body-sm text-text-secondary text-text-secondary leading-relaxed"
+                className="flex items-start gap-2 text-body-sm text-text-secondary leading-relaxed"
               >
                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 flex-shrink-0" />
                 {line.trim()}
@@ -363,8 +357,8 @@ const ActionButtons = memo(function ActionButtons({
           addedToCart
             ? 'bg-success text-white'
             : isAddDisabled
-              ? 'bg-surface-tertiary bg-white/5 text-text-muted cursor-not-allowed'
-              : 'bg-brand-500 text-white shadow-btn hover:shadow-btn-hover hover:bg-brand-600 bg-brand-400 dark:text-brand-950 dark:hover:bg-brand-300'
+              ? 'bg-surface-tertiary text-text-muted cursor-not-allowed'
+              : 'bg-brand-500 text-white shadow-btn hover:shadow-btn-hover hover:bg-brand-600'
         }`}
       >
         {loading ? (
@@ -390,8 +384,8 @@ const ActionButtons = memo(function ActionButtons({
         whileTap={!isBuyDisabled ? { scale: 0.98 } : {}}
         className={`w-full py-4 rounded-xl font-semibold text-body-sm flex items-center justify-center gap-2 transition-all duration-200 border-2 ${
           isBuyDisabled
-            ? 'border-border border-border text-text-muted cursor-not-allowed'
-            : 'border-brand-500 text-brand-500 hover:bg-brand-50 dark:border-brand-400 text-brand-400 dark:hover:bg-brand-400/10'
+            ? 'border-border text-text-muted cursor-not-allowed'
+            : 'border-brand-500 text-brand-500 hover:bg-brand-50'
         }`}
       >
         <Icon name="BoltIcon" size={18} />
@@ -416,7 +410,7 @@ const StockStatus = memo(function StockStatus({ inStock, stockCount }: StockStat
       {inStock ? (
         <>
           <span className="w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulse" />
-          <span className="text-body-sm font-medium text-brand-500 text-brand-400">
+          <span className="text-body-sm font-medium text-brand-500">
             متوفر في المخزن — يُشحن غداً
           </span>
         </>
@@ -445,11 +439,11 @@ const SelectedBrandDisplay = memo(function SelectedBrandDisplay({
     <motion.div
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
-      className="flex items-center gap-2 p-3 rounded-lg bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/20"
+      className="flex items-center gap-2 p-3 rounded-lg bg-brand-50 border border-brand-200"
     >
-      <Icon name="CheckBadgeIcon" size={16} className="text-brand-500 text-brand-400" />
-      <span className="text-body-sm text-text-muted text-text-muted">الماركة المختارة:</span>
-      <span className="text-body-sm font-semibold text-brand-600 text-brand-400">{brand}</span>
+      <Icon name="CheckBadgeIcon" size={16} className="text-brand-500" />
+      <span className="text-body-sm text-text-muted">الماركة المختارة:</span>
+      <span className="text-body-sm font-semibold text-brand-600">{brand}</span>
     </motion.div>
   );
 });
@@ -568,7 +562,7 @@ function ProductDetails({
       <div className={`flex gap-4 ${className}`}>
         {/* Thumbnail */}
         <Link href={`/product/${product.slug}`} className="flex-shrink-0">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-surface-secondary bg-surface-secondary">
+          <div className="w-20 h-20 rounded-xl overflow-hidden bg-surface-secondary">
             {product.images?.[0] ? (
               <img
                 src={product.images[0]}
@@ -598,14 +592,14 @@ function ProductDetails({
   if (variant === 'card') {
     return (
       <motion.div
-        className={`bg-white bg-surface-secondary rounded-2xl overflow-hidden border border-border-light border-border flex flex-col h-full ${className}`}
+        className={`bg-surface-secondary rounded-2xl overflow-hidden border border-border flex flex-col h-full ${className}`}
         whileHover={!disableAnimations ? { y: -4 } : {}}
         transition={{ duration: 0.2 }}
       >
         {/* Image */}
         <Link
           href={`/product/${product.slug}`}
-          className="relative aspect-square overflow-hidden bg-surface-secondary bg-surface-tertiary"
+          className="relative aspect-square overflow-hidden bg-surface-tertiary"
         >
           {product.images?.[0] ? (
             <img
@@ -679,14 +673,14 @@ function ProductDetails({
   // Full variant (default - for product detail page)
   return (
     <motion.div
-      className={`bg-white bg-surface-secondary rounded-2xl p-6 border border-border-light border-border flex flex-col gap-5 shadow-card dark:shadow-card-dark ${className}`}
+      className={`bg-surface-secondary rounded-2xl p-6 border border-border flex flex-col gap-5 shadow-card ${className}`}
       initial={disableAnimations ? {} : { y: 20, opacity: 0 }}
       animate={disableAnimations ? {} : { y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
       <ProductInfoSection product={product} variant={variant} />
 
-      <div className="h-px bg-border-light dark:bg-border-dark" />
+      <div className="h-px bg-border" />
 
       {/* Stock Status */}
       <StockStatus inStock={inStock} stockCount={product.stockCount} />
@@ -730,43 +724,31 @@ function ProductDetails({
       />
 
       {/* Trust Signals */}
-      <div className="h-px bg-border-light dark:bg-border-dark" />
+      <div className="h-px bg-border" />
       <div className="space-y-3">
-        <div className="flex items-center gap-3 text-body-sm text-text-secondary text-text-secondary">
-          <Icon
-            name="TruckIcon"
-            size={18}
-            className="text-brand-500 text-brand-400 flex-shrink-0"
-          />
+        <div className="flex items-center gap-3 text-body-sm text-text-secondary">
+          <Icon name="TruckIcon" size={18} className="text-brand-500 flex-shrink-0" />
           <span>شحن سريع عبر بوسطة لكل المحافظات</span>
         </div>
-        <div className="flex items-center gap-3 text-body-sm text-text-secondary text-text-secondary">
-          <Icon
-            name="ArrowPathIcon"
-            size={18}
-            className="text-brand-500 text-brand-400 flex-shrink-0"
-          />
+        <div className="flex items-center gap-3 text-body-sm text-text-secondary">
+          <Icon name="ArrowPathIcon" size={18} className="text-brand-500 flex-shrink-0" />
           <span>استرجاع سهل خلال 14 يوم</span>
         </div>
-        <div className="flex items-center gap-3 text-body-sm text-text-secondary text-text-secondary">
-          <Icon
-            name="ShieldCheckIcon"
-            size={18}
-            className="text-brand-500 text-brand-400 flex-shrink-0"
-          />
+        <div className="flex items-center gap-3 text-body-sm text-text-secondary">
+          <Icon name="ShieldCheckIcon" size={18} className="text-brand-500 flex-shrink-0" />
           <span>دفع آمن ومضمون</span>
         </div>
       </div>
 
       {/* Seller info */}
-      <div className="bg-surface-secondary dark:bg-white/[0.03] rounded-xl p-3 text-caption text-text-muted text-text-muted space-y-1">
+      <div className="bg-surface-secondary rounded-xl p-3 text-caption text-text-muted space-y-1">
         <div className="flex justify-between">
           <span>يُشحن من</span>
-          <span className="font-semibold text-text-primary text-text-primary">أبو كارتونة</span>
+          <span className="font-semibold text-text-primary">أبو كارتونة</span>
         </div>
         <div className="flex justify-between">
           <span>يُباع بواسطة</span>
-          <span className="font-semibold text-text-primary text-text-primary">أبو كارتونة</span>
+          <span className="font-semibold text-text-primary">أبو كارتونة</span>
         </div>
       </div>
     </motion.div>

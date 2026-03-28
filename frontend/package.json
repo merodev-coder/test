@@ -132,6 +132,8 @@
 
         "bcryptjs": "^3.0.3",
 
+        "clsx": "^2.1.1",
+
         "framer-motion": "^12.38.0",
 
         "gsap": "^3.14.2",
@@ -163,6 +165,8 @@
         "recharts": "^2.15.2",
 
         "sharp": "^0.34.5",
+
+        "tailwind-merge": "^3.5.0",
 
         "uploadthing": "^7.7.4",
 

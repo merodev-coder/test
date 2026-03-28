@@ -113,7 +113,7 @@ const itemVariants = {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white bg-surface-secondary border border-border-light border-border rounded-xl p-4 shadow-elevated">
+      <div className="bg-surface-secondary border border-border-light border-border rounded-xl p-4 shadow-elevated">
         <p className="text-body-sm font-semibold text-text-primary text-text-primary mb-2">
           {label}
         </p>
@@ -217,7 +217,7 @@ const StatCard = ({
       </div>
 
       {/* Subtle shine effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-surface-elevated/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
     </motion.div>
   );
 };
@@ -252,7 +252,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
 
   if (loading) {
     return (
-      <div className="bg-white bg-surface-secondary rounded-2xl p-6 border border-border-light border-border">
+      <div className="bg-surface-secondary rounded-2xl p-6 border border-border-light border-border">
         <div className="flex items-center justify-center py-8">
           <div className="w-8 h-8 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin" />
         </div>
@@ -262,7 +262,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
 
   if (items.length === 0) {
     return (
-      <div className="bg-white bg-surface-secondary rounded-2xl p-6 border border-border-light border-border">
+      <div className="bg-surface-secondary rounded-2xl p-6 border border-border-light border-border">
         <div className="text-center py-6">
           <Icon name="ChartPieIcon" size={32} className="text-text-muted mx-auto mb-2" />
           <p className="text-body-sm text-text-muted text-text-muted">لا توجد بيانات مبيعات</p>
@@ -272,7 +272,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
   }
 
   return (
-    <div className="bg-white bg-surface-secondary rounded-2xl p-5 border border-border-light border-border">
+    <div className="bg-surface-secondary rounded-2xl p-5 border border-border-light border-border">
       <h3 className="text-body font-bold text-text-primary text-text-primary mb-4 flex items-center gap-2">
         <Icon name="TrophyIcon" size={18} className="text-amber-500" />
         الأكثر مبيعاً
@@ -285,7 +285,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="flex items-center gap-3 p-3 rounded-xl bg-surface-secondary bg-surface-tertiary/50 hover:bg-surface-tertiary dark:hover:bg-white/[0.03] transition-colors"
+            className="flex items-center gap-3 p-3 rounded-xl bg-surface-tertiary/50 hover:bg-surface-tertiary dark:hover:bg-white/[0.03] transition-colors"
           >
             {/* Rank */}
             <div
@@ -296,7 +296,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
                     ? 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400'
                     : index === 2
                       ? 'bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400'
-                      : 'bg-gray-100 text-gray-500 bg-white/5 text-gray-400'
+                      : 'bg-gray-100 text-gray-500 dark:bg-gray-500/20 dark:text-gray-400'
               }`}
             >
               {index + 1}
@@ -515,9 +515,9 @@ export default function MonthlySalesPerformance() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-16 px-4 bg-white bg-surface-secondary rounded-2xl border border-border-light border-border"
+        className="flex flex-col items-center justify-center py-16 px-4 bg-surface-secondary rounded-2xl border border-border-light border-border"
       >
-        <div className="w-24 h-24 rounded-3xl bg-surface-tertiary bg-surface-tertiary flex items-center justify-center mb-6">
+        <div className="w-24 h-24 rounded-3xl bg-surface-tertiary flex items-center justify-center mb-6">
           <Icon name="ChartBarIcon" size={40} className="text-text-muted" />
         </div>
         <h3 className="text-h3 text-text-primary text-text-primary mb-2">لا توجد بيانات</h3>
@@ -569,8 +569,6 @@ export default function MonthlySalesPerformance() {
           value={data.yearlyTotals.revenue.toLocaleString('ar-EG')}
           subtitle="جنيه مصري"
           icon="BanknotesIcon"
-          trend="+12%"
-          trendUp={true}
           accentColor="brand"
           delay={0}
         />
@@ -607,19 +605,19 @@ export default function MonthlySalesPerformance() {
       {/* Main Chart Section */}
       <motion.div
         variants={itemVariants}
-        className="bg-white bg-surface-secondary rounded-2xl p-6 border border-border-light border-border"
+        className="bg-surface-secondary rounded-2xl p-6 border border-border-light border-border"
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-body font-bold text-text-primary text-text-primary flex items-center gap-2">
             <Icon name="PresentationChartLineIcon" size={18} className="text-brand-500" />
             رسم بياني للإيرادات والطلبات
           </h3>
-          <div className="flex items-center gap-2 p-1 bg-surface-secondary bg-surface-tertiary rounded-lg">
+          <div className="flex items-center gap-2 p-1 bg-surface-tertiary rounded-lg">
             <button
               onClick={() => setChartType('area')}
               className={`px-3 py-1.5 rounded-md text-caption font-medium transition-all ${
                 chartType === 'area'
-                  ? 'bg-white bg-surface-secondary text-brand-500 shadow-sm'
+                  ? 'bg-surface-secondary text-brand-500 shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
               }`}
             >
@@ -629,7 +627,7 @@ export default function MonthlySalesPerformance() {
               onClick={() => setChartType('bar')}
               className={`px-3 py-1.5 rounded-md text-caption font-medium transition-all ${
                 chartType === 'bar'
-                  ? 'bg-white bg-surface-secondary text-brand-500 shadow-sm'
+                  ? 'bg-surface-secondary text-brand-500 shadow-sm'
                   : 'text-text-muted hover:text-text-primary'
               }`}
             >
@@ -757,7 +755,7 @@ export default function MonthlySalesPerformance() {
         {/* Monthly Performance Table */}
         <motion.div
           variants={itemVariants}
-          className="lg:col-span-2 bg-white bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden"
+          className="lg:col-span-2 bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden"
         >
           <div className="p-5 border-b border-border-light border-border">
             <h3 className="text-body font-bold text-text-primary text-text-primary flex items-center gap-2">
@@ -789,9 +787,7 @@ export default function MonthlySalesPerformance() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.03 }}
                   className={`grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface-secondary dark:hover:bg-white/[0.02] transition-colors cursor-pointer ${
-                    selectedMonth === month.month
-                      ? 'bg-surface-secondary bg-surface-tertiary/50'
-                      : ''
+                    selectedMonth === month.month ? 'bg-surface-tertiary/50' : ''
                   }`}
                   onClick={() => handleMonthClick(month.month)}
                 >
@@ -837,7 +833,7 @@ export default function MonthlySalesPerformance() {
 
                   <div className="col-span-4 lg:col-span-4">
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-surface-tertiary bg-surface-tertiary rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-surface-tertiary rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${progress}%` }}
@@ -867,7 +863,7 @@ export default function MonthlySalesPerformance() {
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="bg-white bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden">
+            <div className="bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden">
               <div className="p-5 border-b border-border-light border-border bg-gradient-to-r from-brand-50 dark:from-brand-500/5 to-transparent">
                 <h3 className="text-body font-bold text-text-primary text-text-primary flex items-center gap-2">
                   <Icon name="ClipboardDocumentListIcon" size={18} className="text-brand-500" />
@@ -884,7 +880,7 @@ export default function MonthlySalesPerformance() {
                 </div>
               ) : auditData?.audit?.length === 0 ? (
                 <div className="p-8 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-surface-secondary bg-surface-tertiary flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-surface-tertiary flex items-center justify-center mx-auto mb-4">
                     <Icon name="InboxIcon" size={28} className="text-text-muted" />
                   </div>
                   <p className="text-body-sm text-text-muted text-text-muted">

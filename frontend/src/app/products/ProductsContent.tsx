@@ -1,7 +1,7 @@
 'use client';
 
-import React, { Suspense, useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { Suspense, useEffect, useMemo, useRef, useState, useCallback, memo } from 'react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductFilters from './components/ProductFilters';
@@ -26,19 +26,35 @@ const sortOptions: { value: SortOption; label: string }[] = [
 const tabOptions = [
   { id: 'all', label: 'الكل' },
   { id: 'storage', label: 'التخزين' },
-  { id: 'laptops', label: 'اللابتوبات' },
+  { id: 'laptops', label: 'ال اللابتوبات' },
   { id: 'accessories', label: 'الإكسسوارات' },
 ];
 
+// Optimized animation variants - simpler easing for 60FPS
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.05,
+    },
+  },
 };
 
-const itemVariants: any = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } },
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.35,
+    },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.15 },
+  },
 };
 
 function ProductsContent() {
@@ -63,7 +79,7 @@ function ProductsContent() {
   const [sortBy, setSortBy] = useState<SortOption>('popular');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
+  const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [storage] = useState({ total: 1000, used: 0, hasDrive: false });
 
   useEffect(() => {
@@ -103,8 +119,11 @@ function ProductsContent() {
   );
 
   const showNotification = useCallback((msg: string) => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
     setNotification(msg);
-    setTimeout(() => setNotification(null), 2500);
+    notificationTimeoutRef.current = setTimeout(() => setNotification(null), 2500);
   }, []);
 
   const handleAddToCart = useCallback(
@@ -147,22 +166,12 @@ function ProductsContent() {
     const activeTags = filters.tags;
     const [minPrice, maxPrice] = filters.priceRange;
 
-    console.log('Filtering products:', {
-      totalProducts: products.length,
-      activeCategory,
-      activeTags,
-      searchQuery: q,
-      priceRange: [minPrice, maxPrice],
-      products: products.map((p) => ({ id: p.id, name: p.name, type: p.type })),
-    });
-
     let filtered = products.filter((p) => {
       // Hide data products from general listing
       if (p.type === 'data') return false;
 
-      // Category filtering - this is the key fix
+      // Category filtering
       if (activeCategory && activeCategory !== 'all' && p.type !== activeCategory) {
-        console.log(`Filtering out ${p.name} - type: ${p.type}, needed: ${activeCategory}`);
         return false;
       }
 
@@ -179,11 +188,6 @@ function ProductsContent() {
       return true;
     });
 
-    console.log(
-      'Filtered products:',
-      filtered.map((p) => ({ id: p.id, name: p.name, type: p.type }))
-    );
-
     switch (sortBy) {
       case 'price-asc':
         filtered = [...filtered].sort((a, b) => a.price - b.price);
@@ -198,9 +202,7 @@ function ProductsContent() {
         break;
       case 'popular':
       default:
-        // Keep original order or sort by a combination of factors
         filtered = [...filtered].sort((a, b) => {
-          // Sort by isSale first, then by price (descending), then by name
           if (a.isSale && !b.isSale) return -1;
           if (!a.isSale && b.isSale) return 1;
           if (a.price !== b.price) return b.price - a.price;
@@ -213,16 +215,17 @@ function ProductsContent() {
   }, [products, sortBy, filters.searchQuery, filters.category, filters.tags, filters.priceRange]);
 
   return (
-    <div className="min-h-screen bg-surface bg-surface" dir="rtl">
+    <div className="min-h-screen bg-base">
       <Header />
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {notification && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-card px-6 py-3 rounded-2xl text-body-sm font-semibold text-text-primary text-text-primary shadow-elevated"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl text-sm font-semibold text-text-primary shadow-lg will-change-transform bg-surface/95 dark:bg-surface-dark/95 border border-border-light dark:border-border-dark"
           >
             {notification}
           </motion.div>
@@ -230,31 +233,31 @@ function ProductsContent() {
       </AnimatePresence>
 
       <main className="pt-20 pb-32">
-        {/* Page Header */}
-        <div className="bg-surface-secondary bg-surface-secondary/40 border-b border-border-light border-border">
+        {/* Page Header - removed glass-card blur */}
+        <div className="border-b border-border bg-surface/80 dark:bg-surface-dark/80 backdrop-blur-sm">
           <div className="section-container py-8">
-            <div ref={headerRef}>
+            <div>
               <motion.div
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4 }}
               >
-                <p className="section-label mb-2">المتجر</p>
-                <h1 className="text-h1 md:text-display font-heading text-text-primary text-text-primary mb-6">
+                <p className="text-text-secondary text-sm font-medium mb-2 opacity-80">المتجر</p>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 font-readex tracking-tight">
                   كل المنتجات
                 </h1>
               </motion.div>
 
-              {/* Search Bar */}
+              {/* Search Bar - simplified animation */}
               <motion.div
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="relative max-w-lg"
+                transition={{ duration: 0.4, delay: 0.1 }}
+                className="relative max-w-2xl"
               >
                 <Icon
                   name="MagnifyingGlassIcon"
-                  size={18}
+                  size={20}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
                 />
                 <input
@@ -262,65 +265,57 @@ function ProductsContent() {
                   placeholder="ابحث عن منتج، لعبة، فيلم..."
                   value={filters.searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field pr-11 pl-4 py-3 text-body-sm w-full"
+                  className="input-field pr-12 pl-4 py-4 text-lg w-full rounded-xl"
                 />
               </motion.div>
             </div>
 
-            {/* Category Tabs - Removed */}
-
-            {/* Tag Filters */}
+            {/* Tag Filters - removed motion animations, simplified hover */}
             {tags.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex items-center gap-2 mt-4 overflow-x-auto no-scrollbar pb-1"
-              >
+              <div className="flex items-center gap-2 mt-4 overflow-x-auto scrollbar-hide pb-1">
                 {tags.slice(0, 8).map((tag) => (
                   <button
                     key={tag.id}
                     onClick={() => toggleTag(tag.slug)}
-                    className={`px-4 py-2 rounded-xl text-body-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 will-change-transform hover:scale-105 active:scale-95 ${
                       filters.tags.includes(tag.slug)
-                        ? 'bg-brand-500 text-white shadow-btn'
-                        : 'bg-surface-tertiary bg-white/5 text-text-secondary text-text-secondary hover:bg-surface-secondary hover:bg-white/10'
+                        ? 'bg-brand text-white shadow-md'
+                        : 'bg-surface-secondary dark:bg-surface-dark-secondary text-text-secondary hover:text-brand border border-border-light dark:border-border-dark'
                     }`}
                   >
                     {tag.name}
                   </button>
                 ))}
-              </motion.div>
+              </div>
             )}
           </div>
         </div>
 
         {/* Products Grid */}
         <div className="section-container mt-8">
-          <div className="flex gap-6">
+          <div className="flex gap-8">
             <ProductFilters isOpen={filtersOpen} onClose={() => setFiltersOpen(false)} />
 
             <div className="flex-1 min-w-0">
-              {/* Toolbar */}
+              {/* Toolbar - simplified animations */}
               <div className="flex items-center justify-between mb-6 gap-4">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setFiltersOpen(true)}
-                    className="md:hidden btn-ghost px-4 py-2.5 text-body-sm font-semibold flex items-center gap-2"
+                    className="md:hidden btn-ghost px-4 py-2.5 font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200"
                   >
                     <Icon name="FunnelIcon" size={16} />
                     <span>فلاتر</span>
                   </button>
-                  <span className="text-body-sm text-text-muted text-text-muted">
-                    <span className="text-text-primary text-text-primary font-bold">
-                      {filteredProducts.length}
-                    </span>{' '}
-                    منتج
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-text-muted text-sm">عرض</span>
+                    <span className="text-brand font-bold text-lg">{filteredProducts.length}</span>
+                    <span className="text-text-muted text-sm">منتج</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-caption text-text-muted hidden md:block">ترتيب:</span>
+                  <span className="text-text-muted text-sm hidden md:block">ترتيب:</span>
                   <ThemedSelect
                     value={sortBy}
                     onChange={(value) => setSortBy(value as SortOption)}
@@ -330,73 +325,74 @@ function ProductsContent() {
                 </div>
               </div>
 
-              {/* Loading State — Skeleton */}
+              {/* Loading State - static skeleton, no motion animations */}
               {productsLoading ? (
-                <div className="grid gap-4 md:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="card rounded-2xl overflow-hidden">
-                      <div className="shimmer w-full aspect-[4/3]" />
+                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="card product-card animate-pulse">
+                      <div className="aspect-square p-4">
+                        <div className="w-full h-full skeleton rounded-xl" />
+                      </div>
                       <div className="p-4 space-y-3">
-                        <div className="shimmer h-3 w-20 rounded-md" />
-                        <div className="shimmer h-5 w-full rounded-md" />
-                        <div className="shimmer h-5 w-3/4 rounded-md" />
+                        <div className="skeleton h-4 w-20 rounded-md" />
+                        <div className="skeleton h-5 w-full rounded-md" />
+                        <div className="skeleton h-5 w-3/4 rounded-md" />
                         <div className="flex justify-between pt-2">
-                          <div className="shimmer h-6 w-24 rounded-md" />
-                          <div className="shimmer h-4 w-12 rounded-md" />
+                          <div className="skeleton h-6 w-24 rounded-md" />
+                          <div className="skeleton h-4 w-12 rounded-md" />
                         </div>
-                        <div className="shimmer h-11 w-full rounded-xl" />
+                        <div className="skeleton h-11 w-full rounded-xl" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : filteredProducts.length === 0 ? (
-                /* Empty State */
+                /* Empty State - simplified, removed rotation animation */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
                   className="text-center py-24"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-surface-tertiary bg-white/5 flex items-center justify-center mx-auto mb-4">
-                    <Icon name="MagnifyingGlassIcon" size={28} className="text-text-muted" />
+                  <div className="w-20 h-20 rounded-2xl bg-surface-secondary dark:bg-surface-dark-secondary border border-border-light dark:border-border-dark flex items-center justify-center mx-auto mb-6 will-change-transform">
+                    <Icon name="MagnifyingGlassIcon" size={32} className="text-brand" />
                   </div>
-                  <p className="text-h3 font-bold text-text-secondary text-text-secondary">
-                    مفيش نتائج للبحث ده
-                  </p>
-                  <p className="text-body-sm text-text-muted text-text-muted mt-2">
-                    جرب كلمة تانية أو غير الفلاتر
-                  </p>
+                  <h3 className="text-2xl font-bold text-text-primary mb-2">مفيش نتائج للبحث ده</h3>
+                  <p className="text-text-secondary mb-6">جرب كلمة تانية أو غير الفلاتر</p>
                   <button
                     onClick={() => {
                       setSearchQuery('');
                       handleTabChange('all');
                       clearTags();
                     }}
-                    className="btn-secondary mt-6 text-body-sm"
+                    className="btn-secondary hover:scale-105 active:scale-95 transition-transform duration-200"
                   >
                     مسح الفلاتر
                   </button>
                 </motion.div>
               ) : (
-                /* Product Grid */
+                /* Product Grid - simplified AnimatePresence */
                 <motion.div
                   key={`${activeTab}-${filters.category}-${filters.searchQuery}`}
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className={`grid gap-4 md:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3`}
+                  className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 >
-                  <AnimatePresence mode="popLayout">
-                    {filteredProducts.map((product) => (
-                      <motion.div key={product.id} variants={itemVariants} layout>
-                        <ProductCard
-                          product={product}
-                          onAddToCart={handleAddToCart}
-                          onAddToDrive={handleAddToDrive}
-                          hasDrive={storage.hasDrive}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
+                  {filteredProducts.map((product) => (
+                    <motion.div
+                      key={product.id}
+                      variants={itemVariants}
+                      className="will-change-transform"
+                    >
+                      <ProductCard
+                        product={product}
+                        onAddToCart={handleAddToCart}
+                        onAddToDrive={handleAddToDrive}
+                        hasDrive={storage.hasDrive}
+                      />
+                    </motion.div>
+                  ))}
                 </motion.div>
               )}
             </div>
@@ -410,16 +406,16 @@ function ProductsContent() {
   );
 }
 
-export default function ProductsPage() {
+export default memo(function ProductsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface bg-surface flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin" />
+        <div className="min-h-screen bg-base flex items-center justify-center">
+          <div className="w-10 h-10 border-3 border-brand/30 border-t-brand rounded-full animate-spin" />
         </div>
       }
     >
       <ProductsContent />
     </Suspense>
   );
-}
+});

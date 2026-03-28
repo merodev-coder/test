@@ -56,7 +56,7 @@ export function ThemedSelect({
         className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-body-sm font-medium transition-all duration-200 ${
           disabled
             ? 'bg-surface-tertiary bg-surface-tertiary text-text-muted cursor-not-allowed'
-            : 'bg-white bg-surface-secondary text-text-primary text-text-primary border border-border-light border-border hover:border-brand-500/50 dark:hover:border-brand-400/50 focus:border-brand-500 dark:focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-400/20'
+            : 'bg-surface-secondary text-text-primary border border-border hover:border-brand-500/50 dark:hover:border-brand-400/50 focus:border-brand-500 dark:focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-400/20'
         }`}
         whileTap={!disabled ? { scale: 0.98 } : {}}
       >
@@ -77,7 +77,7 @@ export function ThemedSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute z-[9999] w-full mt-2 py-2 bg-white bg-surface-secondary rounded-xl border border-border-light border-border shadow-elevated shadow-elevated overflow-hidden"
+            className="absolute z-[9999] w-full mt-2 py-2 bg-surface-secondary rounded-xl border border-border shadow-elevated overflow-hidden"
           >
             <div className="max-h-60 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
               {options.map((option, index) => (
@@ -168,7 +168,7 @@ export function ThemedMultiSelect({
       <motion.button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-body-sm font-medium bg-white bg-surface-secondary text-text-primary text-text-primary border border-border-light border-border hover:border-brand-500/50 dark:hover:border-brand-400/50 focus:border-brand-500 dark:focus:border-brand-400 transition-all duration-200"
+        className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-body-sm font-medium bg-surface-secondary text-text-primary border border-border hover:border-brand-500/50 dark:hover:border-brand-400/50 focus:border-brand-500 dark:focus:border-brand-400 transition-all duration-200"
         whileTap={{ scale: 0.98 }}
       >
         <span
@@ -190,7 +190,7 @@ export function ThemedMultiSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute z-[9999] w-full mt-2 py-2 bg-white bg-surface-secondary rounded-xl border border-border-light border-border shadow-elevated shadow-elevated overflow-hidden"
+            className="absolute z-[9999] w-full mt-2 py-2 bg-surface-secondary rounded-xl border border-border shadow-elevated overflow-hidden"
           >
             <div className="max-h-60 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
               {options.map((option, index) => {

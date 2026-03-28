@@ -105,9 +105,9 @@ export function useCheckoutSubmission(): CheckoutState & CheckoutActions {
           });
 
           if (!response.ok) {
-            const error = new Error(await response.text());
-            (error as any).status = response.status;
-            throw error;
+            const errorResponse = new Error(await response.text());
+            (errorResponse as Error & { status: number }).status = response.status;
+            throw errorResponse;
           }
 
           return response.json();
@@ -115,7 +115,7 @@ export function useCheckoutSubmission(): CheckoutState & CheckoutActions {
         {
           maxRetries: 3,
           baseDelay: 2000,
-          onRetry: (attempt, error) => {
+          onRetry: (attempt, _error) => {
             setState((prev) => ({
               ...prev,
               retryAttempt: attempt,
@@ -185,7 +185,7 @@ export function useCheckoutSubmission(): CheckoutState & CheckoutActions {
  * Hook for inventory synchronization with cart
  * Updates cart when stock changes on server
  */
-export function useInventorySync(cartItems: Product[], pollingInterval = 30000) {
+export function useInventorySync(cartItems: Product[], _pollingInterval = 30000) {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
   const lastSyncRef = useRef<number>(0);
 

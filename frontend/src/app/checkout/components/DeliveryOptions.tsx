@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 interface DeliveryOptionsProps {
   onDeliveryChange: (method: string, governorate: string, cost: number, cityCode?: string) => void;
@@ -65,12 +66,12 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
           className={`p-4 rounded-2xl border transition-all text-right ${
             method === 'delivery'
               ? 'border-brand-500 bg-brand-500/10'
-              : 'border-white/8 bg-surface-secondary bg-surface-secondary hover:border-white/20'
+              : 'border-border bg-surface-secondary hover:border-border-light'
           }`}
         >
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-              method === 'delivery' ? 'bg-brand-500/20' : 'bg-white/5'
+              method === 'delivery' ? 'bg-brand-500/20' : 'bg-surface-tertiary'
             }`}
           >
             <Icon
@@ -80,7 +81,7 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
             />
           </div>
           <p
-            className={`text-sm font-black ${method === 'delivery' ? 'text-text-primary text-text-primary' : 'text-text-muted'}`}
+            className={`text-sm font-black ${method === 'delivery' ? 'text-text-primary' : 'text-text-muted'}`}
           >
             توصيل للبيت
           </p>
@@ -97,12 +98,12 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
           className={`p-4 rounded-2xl border transition-all text-right ${
             method === 'pickup'
               ? 'border-brand-500 bg-brand-500/10'
-              : 'border-white/8 bg-surface-secondary bg-surface-secondary hover:border-white/20'
+              : 'border-border bg-surface-secondary hover:border-border-light'
           }`}
         >
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-              method === 'pickup' ? 'bg-brand-500/20' : 'bg-white/5'
+              method === 'pickup' ? 'bg-brand-500/20' : 'bg-surface-tertiary'
             }`}
           >
             <Icon
@@ -112,7 +113,7 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
             />
           </div>
           <p
-            className={`text-sm font-black ${method === 'pickup' ? 'text-text-primary text-text-primary' : 'text-text-muted'}`}
+            className={`text-sm font-black ${method === 'pickup' ? 'text-text-primary' : 'text-text-muted'}`}
           >
             استلام من المحل
           </p>
@@ -126,30 +127,21 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
 
       {/* Delivery Details */}
       {method === 'delivery' && (
-        <div className="space-y-4 p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5">
-          <h4 className="text-sm font-black text-text-primary text-text-primary">تفاصيل التوصيل</h4>
+        <div className="space-y-4 p-4 rounded-2xl bg-surface-secondary border border-border">
+          <h4 className="text-sm font-black text-text-primary">تفاصيل التوصيل</h4>
 
           {/* Governorate */}
-          <div>
-            <label className="text-xs font-bold text-text-muted mb-2 block">اختار المحافظة</label>
-            <select
+          <div className="w-full">
+            <CustomDropdown
+              options={governorates.map((gov) => ({
+                value: gov.name,
+                label: `${gov.name} — ${gov.cost} جنيه`,
+              }))}
               value={selectedGov}
-              onChange={(e) => handleGovChange(e.target.value)}
-              className="input-gaming px-4 py-3 text-sm cursor-pointer"
-            >
-              <option value="" className="bg-surface-secondary bg-surface-secondary">
-                اختار المحافظة
-              </option>
-              {governorates.map((gov) => (
-                <option
-                  key={gov.name}
-                  value={gov.name}
-                  className="bg-surface-secondary bg-surface-secondary"
-                >
-                  {gov.name} — {gov.cost} جنيه
-                </option>
-              ))}
-            </select>
+              onChange={handleGovChange}
+              placeholder="اختار المحافظة"
+              className="w-full"
+            />
           </div>
 
           {/* Address Fields */}
@@ -159,7 +151,7 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
               <input
                 type="text"
                 placeholder="محمد أحمد علي"
-                className="input-gaming px-4 py-3 text-sm"
+                className="input-field px-4 py-3 text-sm w-full"
               />
             </div>
             <div>
@@ -168,7 +160,7 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
                 type="tel"
                 placeholder="201067957449"
                 dir="ltr"
-                className="input-gaming px-4 py-3 text-sm text-right"
+                className="input-field px-4 py-3 text-sm text-right w-full"
               />
             </div>
             <div>
@@ -178,7 +170,7 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
               <textarea
                 placeholder="الشارع، رقم المبنى، الدور، الشقة..."
                 rows={3}
-                className="input-gaming px-4 py-3 text-sm resize-none"
+                className="input-field px-4 py-3 text-sm resize-none w-full"
               />
             </div>
           </div>
@@ -195,22 +187,20 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
 
       {/* Store Pickup Details */}
       {method === 'pickup' && (
-        <div className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5 space-y-4">
-          <h4 className="text-sm font-black text-text-primary text-text-primary">موقع المحل</h4>
+        <div className="p-4 rounded-2xl bg-surface-secondary border border-border space-y-4">
+          <h4 className="text-sm font-black text-text-primary">موقع المحل</h4>
 
           <div className="flex items-start gap-3">
             <Icon name="MapPinIcon" size={18} className="text-brand-500 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm text-text-primary text-text-primary font-bold">
-                أبو كارتونة Gaming Store
-              </p>
+              <p className="text-sm text-text-primary font-bold">أبو كارتونة Gaming Store</p>
               <p className="text-xs text-text-muted mt-1">شارع الهرم، الجيزة — بجوار مول المحطة</p>
               <p className="text-xs text-text-muted mt-1">السبت – الخميس: 11 ص – 11 م</p>
             </div>
           </div>
 
           {/* Embedded Map Placeholder */}
-          <div className="relative h-40 rounded-xl overflow-hidden bg-bg-surface border border-white/5 flex items-center justify-center">
+          <div className="relative h-40 rounded-xl overflow-hidden bg-surface-tertiary border border-border flex items-center justify-center">
             <div className="text-center">
               <Icon name="MapIcon" size={32} className="text-brand-500 mx-auto mb-2" />
               <p className="text-xs text-text-muted">افتح الخريطة</p>
@@ -240,7 +230,7 @@ export default function DeliveryOptions({ onDeliveryChange }: DeliveryOptionsPro
               type="tel"
               placeholder="201067957449"
               dir="ltr"
-              className="input-gaming px-4 py-3 text-sm text-right"
+              className="input-field px-4 py-3 text-sm text-right w-full"
             />
           </div>
         </div>

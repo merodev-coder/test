@@ -9,7 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { useStore, type Product } from '@/store/useStore';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -72,7 +72,7 @@ export default function SalesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-surface bg-surface" dir="rtl">
+    <div className="min-h-screen bg-surface" dir="rtl">
       <Header />
 
       <AnimatePresence>
@@ -81,7 +81,7 @@ export default function SalesPage() {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-card px-6 py-3 rounded-2xl text-body-sm font-semibold text-text-primary text-text-primary shadow-elevated"
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-card px-6 py-3 rounded-2xl text-body-sm font-semibold text-text-primary shadow-elevated"
           >
             {notification}
           </motion.div>
@@ -89,7 +89,7 @@ export default function SalesPage() {
       </AnimatePresence>
 
       <main className="pt-20 pb-24">
-        <div className="bg-surface-secondary bg-surface-secondary/40 border-b border-border-light border-border mb-8">
+        <div className="bg-surface-secondary/40 border-b border-border mb-8">
           <div className="section-container py-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -97,7 +97,7 @@ export default function SalesPage() {
               transition={{ duration: 0.5 }}
             >
               <p className="section-label mb-2">العروض</p>
-              <h1 className="text-h1 md:text-display text-text-primary text-text-primary font-heading">
+              <h1 className="text-h1 md:text-display text-text-primary font-heading">
                 كل <span className="text-gradient-primary">العروض</span>
               </h1>
             </motion.div>
@@ -129,13 +129,11 @@ export default function SalesPage() {
               animate={{ opacity: 1 }}
               className="p-8 rounded-3xl glass-card text-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-surface-tertiary bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-surface-tertiary flex items-center justify-center mx-auto mb-4">
                 <Icon name="InboxIcon" size={28} className="text-text-muted" />
               </div>
-              <p className="text-h3 font-bold text-text-secondary text-text-secondary">
-                لا توجد عروض حالياً
-              </p>
-              <p className="text-body-sm text-text-muted text-text-muted mt-2">
+              <p className="text-h3 font-bold text-text-secondary">لا توجد عروض حالياً</p>
+              <p className="text-body-sm text-text-muted mt-2">
                 تفقد لاحقاً للحصول على أحدث العروض
               </p>
             </motion.div>

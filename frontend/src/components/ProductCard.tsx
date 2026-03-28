@@ -31,25 +31,20 @@ export default function ProductCard({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (flyingCloneRef.current) {
         flyingCloneRef.current.remove();
         flyingCloneRef.current = null;
       }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
-  // Brand selection state
   const [selectedBrand, setSelectedBrand] = useState('');
   const [showBrandSelector, setShowBrandSelector] = useState(false);
   const [brandError, setBrandError] = useState(false);
 
-  // Check if product requires brand selection
   const needsBrandSelection =
     product.isBrandActive && product.brands && product.brands.length > 0 && !isData;
 
@@ -77,15 +72,9 @@ export default function ProductCard({
       boxShadow: '0 10px 25px rgba(5,150,105,0.3)',
     });
 
-    // Cleanup any existing clone
-    if (flyingCloneRef.current) {
-      flyingCloneRef.current.remove();
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (flyingCloneRef.current) flyingCloneRef.current.remove();
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    // Assign to ref for tracking and cleanup
     flyingCloneRef.current = clone;
     document.body.appendChild(clone);
 
@@ -98,9 +87,7 @@ export default function ProductCard({
       clone.style.transform = 'scale(0.3) rotate(10deg)';
 
       timeoutRef.current = setTimeout(() => {
-        if (flyingCloneRef.current === clone) {
-          flyingCloneRef.current = null;
-        }
+        if (flyingCloneRef.current === clone) flyingCloneRef.current = null;
         clone.remove();
         cartIcon.classList.add('scale-125');
         timeoutRef.current = setTimeout(() => {
@@ -113,16 +100,12 @@ export default function ProductCard({
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    // If brand selection is required but not selected, navigate to product page
     if (needsBrandSelection && !selectedBrand) {
       router.push(`/product/${product.slug || product.id || product._id}`);
       return;
     }
-
     if (onAddToCart && inStock) {
       try {
-        // Add product with selected brand
         const productWithBrand = selectedBrand
           ? { ...product, selectedBrand, brand: selectedBrand }
           : product;
@@ -138,24 +121,20 @@ export default function ProductCard({
 
   const handleDriveAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (onAddToDrive) {
-      onAddToDrive(product);
-    }
+    if (onAddToDrive) onAddToDrive(product);
   };
 
   const hasOldPrice =
     product.oldPrice !== undefined && product.oldPrice !== null && product.oldPrice > 0;
 
-  const typeLabel =
-    product.type === 'laptops'
-      ? 'لابتوب'
-      : product.type === 'accessories'
-        ? 'إكسسوار'
-        : product.type === 'storage'
-          ? 'تخزين'
-          : 'داتا';
+  const typeConfig: Record<string, { label: string; color: string; dot: string }> = {
+    laptops: { label: 'لابتوب', color: 'rgba(99,179,255,0.15)', dot: '#63b3ff' },
+    accessories: { label: 'إكسسوار', color: 'rgba(167,139,250,0.15)', dot: '#a78bfa' },
+    storage: { label: 'تخزين', color: 'rgba(52,211,153,0.15)', dot: '#34d399' },
+    data: { label: 'داتا', color: 'rgba(251,191,36,0.15)', dot: '#fbbf24' },
+  };
+  const type = typeConfig[product.type] ?? typeConfig.data;
 
-  // Convert brands to dropdown options
   const brandOptions =
     product.brands?.map((brand) => ({
       value: brand,
@@ -163,266 +142,427 @@ export default function ProductCard({
       icon: 'TagIcon',
     })) || [];
 
+  const discountPct =
+    hasOldPrice && product.oldPrice
+      ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+      : 0;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{
-        y: -8,
-        rotateX: 5,
-        rotateY: -5,
-        scale: 1.02,
-      }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      style={{
-        transformStyle: 'preserve-3d',
-        perspective: '1000px',
-      }}
-      className="flex flex-col h-full bg-white bg-surface-secondary rounded-2xl overflow-hidden relative group shadow-card dark:shadow-card-dark border border-border-light border-border hover:shadow-glow-lg dark:hover:shadow-glow-lg hover:border-brand-500/50 dark:hover:border-brand-400/50 transition-all duration-300 preserve-3d"
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="group relative flex flex-col h-full"
+      style={{ perspective: '1200px' }}
     >
-      {/* Image Area */}
-      <div ref={imageRef} className="relative bg-surface-secondary bg-surface-tertiary">
-        <Link
-          href={`/product/${product.slug || product.id || product._id}`}
-          className="block relative w-full aspect-[4/3] overflow-hidden"
+      {/* ── Card Shell ── */}
+      <motion.div
+        whileHover={{ y: -6, rotateX: 3, rotateY: -3 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        style={{ transformStyle: 'preserve-3d' }}
+        className="relative flex flex-col h-full rounded-xl sm:rounded-2xl overflow-hidden hover:md:-translate-y-1.5"
+        // Glass-morphism dark card
+        css-data-card=""
+      >
+        {/* Ambient border glow — only on hover */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-2xl z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(ellipse at 50% 0%, ${type.dot}28 0%, transparent 70%)`,
+            boxShadow: `inset 0 0 0 1px ${type.dot}40`,
+          }}
+        />
+
+        {/* Static border */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-2xl z-10"
+          style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)' }}
+        />
+
+        {/* ── IMAGE ── */}
+        <div
+          ref={imageRef}
+          className="relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #0d1420 0%, #141e2e 100%)' }}
         >
-          <AppImage
-            src={product.images?.[0] || product.image || '/placeholder.png'}
-            alt={product.name}
-            fill
-            className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
-            sizes="(max-width: 768px) 50vw, 25vw"
-          />
-          {/* Subtle gradient overlay on image bottom */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-        </Link>
-
-        {/* Badges — top left */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-          {product.isSale && hasOldPrice && (
-            <span className="badge-error text-[10px] px-2 py-0.5">
-              <Icon name="FireIcon" size={10} />
-              خصم
-            </span>
-          )}
-          {isData && (product.gbSize ?? 0) > 0 && (
-            <span className="badge-new text-[10px] px-2 py-0.5">{product.gbSize} GB</span>
-          )}
-        </div>
-
-        {/* Quick-action on hover — add to cart floating button */}
-        {onAddToCart && inStock && !isData && (
-          <motion.button
-            onClick={handleAdd}
-            initial={{ opacity: 0, scale: 0.8, z: -50 }}
-            whileHover={{ scale: 1.15, z: 20 }}
-            className="absolute bottom-3 left-3 z-10 w-10 h-10 rounded-full bg-brand-500 bg-brand-400 text-white dark:text-brand-950 shadow-glow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200"
-            aria-label="أضف للسلة"
-            style={{
-              boxShadow: '0 0 20px rgba(5, 150, 105, 0.6), 0 4px 12px rgba(0, 0, 0, 0.15)',
-            }}
+          <Link
+            href={`/product/${product.slug || product.id || product._id}`}
+            className="block relative w-full aspect-[4/3]"
           >
-            <Icon name="ShoppingCartIcon" size={16} />
-          </motion.button>
-        )}
+            {/* Subtle grid texture */}
+            <div
+              className="absolute inset-0 z-[1] opacity-20"
+              style={{
+                backgroundImage:
+                  'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
+              }}
+            />
 
-        {/* Brand selector popup */}
-        <AnimatePresence>
-          {showBrandSelector && needsBrandSelection && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 z-20 flex items-center justify-center p-4"
-              onClick={() => setShowBrandSelector(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white bg-surface-secondary rounded-2xl p-4 w-full max-w-xs"
-                onClick={(e) => e.stopPropagation()}
+            <AppImage
+              src={product.images?.[0] || product.image || '/placeholder.png'}
+              alt={product.name}
+              fill
+              className="object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110 z-[2]"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+
+            {/* Bottom fade */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-24 z-[3] pointer-events-none"
+              style={{
+                background: 'linear-gradient(to top, #0e1623 0%, transparent 100%)',
+              }}
+            />
+          </Link>
+
+          {/* ── Badges top-left ── */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
+            {product.isSale && hasOldPrice && discountPct > 0 && (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full tracking-wide"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: '#fff',
+                  boxShadow: '0 2px 10px rgba(239,68,68,0.45)',
+                }}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-body font-bold text-text-primary text-text-primary">
-                    اختر الماركة
-                  </h3>
-                  <button
-                    onClick={() => setShowBrandSelector(false)}
-                    className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-surface-tertiary hover:bg-white/5 transition-colors"
-                  >
-                    <Icon name="XMarkIcon" size={14} className="text-text-muted" />
-                  </button>
-                </div>
+                <Icon name="FireIcon" size={10} />-{discountPct}%
+              </span>
+            )}
+            {isData && (product.gbSize ?? 0) > 0 && (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full tracking-wide"
+                style={{
+                  background: 'rgba(251,191,36,0.15)',
+                  color: '#fbbf24',
+                  border: '1px solid rgba(251,191,36,0.3)',
+                }}
+              >
+                {product.gbSize} GB
+              </span>
+            )}
+          </div>
 
-                <CustomDropdown
-                  options={brandOptions}
-                  value={selectedBrand}
-                  onChange={(value) => {
-                    setSelectedBrand(value);
-                    setBrandError(false);
-                  }}
-                  label=""
-                  placeholder="اختر الماركة..."
-                  error={brandError}
-                  errorMessage={brandError ? 'يرجى اختيار الماركة قبل الإضافة للسلة' : undefined}
-                  required
-                  size="sm"
-                />
-
-                <div className="flex gap-2 mt-4">
-                  <button
-                    onClick={() => setShowBrandSelector(false)}
-                    className="flex-1 py-2 rounded-lg text-body-sm font-medium text-text-muted hover:bg-surface-tertiary hover:bg-white/5 transition-colors"
-                  >
-                    إلغاء
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (selectedBrand && onAddToCart && inStock) {
-                        const productWithBrand = {
-                          ...product,
-                          selectedBrand,
-                          brand: selectedBrand,
-                        };
-                        onAddToCart(productWithBrand);
-                        triggerFlyingAnimation();
-                        setShowBrandSelector(false);
-                      }
-                    }}
-                    disabled={!selectedBrand}
-                    className="flex-1 py-2 rounded-lg text-body-sm font-medium bg-brand-500 text-white disabled:bg-surface-tertiary disabled:text-text-muted transition-colors"
-                  >
-                    أضف للسلة
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
+          {/* Out of stock overlay */}
+          {!inStock && (
+            <div
+              className="absolute inset-0 z-20 flex items-center justify-center"
+              style={{ background: 'rgba(10,14,22,0.75)', backdropFilter: 'blur(2px)' }}
+            >
+              <span
+                className="text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  color: '#f87171',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                }}
+              >
+                نفد المخزون
+              </span>
+            </div>
           )}
-        </AnimatePresence>
-      </div>
 
-      {/* Content Area */}
-      <div className="p-4 flex flex-col flex-1 relative z-10 bg-gradient-to-b from-transparent to-white/50 dark:to-surface-dark-secondary/50">
-        {/* Category badge */}
-        <div className="flex items-center gap-2 mb-2.5">
-          <span className="badge-primary text-[10px] px-2 py-0.5">{typeLabel}</span>
-          {!inStock && <span className="badge-error text-[10px] px-2 py-0.5">نفد</span>}
+          {/* Quick-add floating button */}
+          {onAddToCart && inStock && !isData && (
+            <motion.button
+              onClick={handleAdd}
+              initial={{ opacity: 0, scale: 0.7 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #059669, #10b981)',
+                boxShadow: '0 4px 15px rgba(16,185,129,0.5)',
+              }}
+              aria-label="أضف للسلة"
+            >
+              <Icon name="ShoppingCartIcon" size={16} className="text-white" />
+            </motion.button>
+          )}
+
+          {/* Brand selector overlay */}
+          <AnimatePresence>
+            {showBrandSelector && needsBrandSelection && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-30 flex items-center justify-center p-4"
+                style={{ background: 'rgba(5,10,20,0.9)', backdropFilter: 'blur(8px)' }}
+                onClick={() => setShowBrandSelector(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0, y: 8 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 8 }}
+                  className="w-full max-w-xs rounded-2xl p-4"
+                  style={{
+                    background: 'rgba(18,24,38,0.98)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: '0 24px 48px rgba(0,0,0,0.6)',
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold text-white">اختر الماركة</h3>
+                    <button
+                      onClick={() => setShowBrandSelector(false)}
+                      className="w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                    >
+                      <Icon name="XMarkIcon" size={14} className="text-white/50" />
+                    </button>
+                  </div>
+                  <CustomDropdown
+                    options={brandOptions}
+                    value={selectedBrand}
+                    onChange={(value) => {
+                      setSelectedBrand(value);
+                      setBrandError(false);
+                    }}
+                    label=""
+                    placeholder="اختر الماركة..."
+                    error={brandError}
+                    errorMessage={brandError ? 'يرجى اختيار الماركة قبل الإضافة للسلة' : undefined}
+                    required
+                    size="sm"
+                  />
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() => setShowBrandSelector(false)}
+                      className="flex-1 py-2 rounded-xl text-xs font-medium text-white/50 transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedBrand && onAddToCart && inStock) {
+                          onAddToCart({ ...product, selectedBrand });
+                          triggerFlyingAnimation();
+                          setShowBrandSelector(false);
+                        }
+                      }}
+                      disabled={!selectedBrand}
+                      className="flex-1 py-2 rounded-xl text-xs font-bold text-white transition-all disabled:opacity-40"
+                      style={{
+                        background: selectedBrand
+                          ? 'linear-gradient(135deg, #059669, #10b981)'
+                          : 'rgba(255,255,255,0.08)',
+                        boxShadow: selectedBrand ? '0 4px 15px rgba(16,185,129,0.3)' : 'none',
+                      }}
+                    >
+                      أضف للسلة
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Product Name */}
-        <Link
-          href={`/product/${product.slug || product.id || product._id}`}
-          className="block mb-auto"
+        {/* ── CONTENT ── */}
+        <div
+          className="flex flex-col flex-1 p-4 gap-3"
+          style={{ background: 'linear-gradient(180deg, #0e1623 0%, #0b1120 100%)' }}
         >
-          <h3 className="font-heading text-body font-bold text-text-primary text-text-primary leading-snug line-clamp-2 group-hover:text-brand-500 group-hover:text-brand-400 transition-colors duration-200">
-            {product.name}
-          </h3>
-        </Link>
-
-        {/* Brand indicator */}
-        {selectedBrand && needsBrandSelection && (
-          <div className="flex items-center gap-1.5 mt-2">
-            <Icon name="CheckBadgeIcon" size={12} className="text-brand-500" />
-            <span className="text-caption text-brand-500 text-brand-400 font-medium">
-              {selectedBrand}
+          {/* Type pill */}
+          <div className="flex items-center justify-between">
+            <span
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide"
+              style={{
+                background: type.color,
+                color: type.dot,
+                border: `1px solid ${type.dot}30`,
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: type.dot, boxShadow: `0 0 6px ${type.dot}` }}
+              />
+              {type.label}
             </span>
-          </div>
-        )}
 
-        {/* Price + CTA area */}
-        <div className="flex flex-col gap-3 mt-4 pt-3 border-t border-border-light border-border">
-          {/* Price */}
-          <div className="flex items-end justify-between">
-            {isFreeContent ? (
-              <span className="badge-success text-[10px] px-2 py-0.5">
-                <Icon name="GiftIcon" size={10} />
-                هدية مع الهاردات
-              </span>
-            ) : isData && hasDrive ? (
-              <span className="text-h3 font-bold text-brand-500 text-brand-400 font-heading">
-                مجاناً
-              </span>
-            ) : (
-              <div className="flex flex-col">
-                <span className="text-h3 font-bold text-text-primary text-text-primary leading-none font-heading">
-                  {product.price.toLocaleString('ar-EG')}
-                  <span className="text-caption text-text-muted text-text-muted font-normal me-1">
-                    جنيه
-                  </span>
-                </span>
-                {hasOldPrice && (
-                  <span className="text-text-muted line-through text-caption mt-1 decoration-error/50">
-                    {product.oldPrice?.toLocaleString('ar-EG')} جنيه
-                  </span>
-                )}
-              </div>
-            )}
+            {/* Stock indicator */}
             {inStock && !isFreeContent && (
-              <span className="badge-success text-[10px] px-2 py-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" />
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-medium"
+                style={{ color: '#34d399' }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 متوفر
               </span>
             )}
           </div>
 
-          {/* CTA Button */}
-          {(onAddToCart || onAddToDrive) && (
-            <div className="w-full">
-              {isFreeContent ? (
-                <Link
-                  href="/products?cat=storage"
-                  className="w-full py-2.5 rounded-full font-semibold text-body-sm bg-brand-500 bg-brand-400 text-white dark:text-brand-950 hover:bg-brand-600 dark:hover:bg-brand-300 shadow-btn hover:shadow-btn-hover transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-2"
-                >
-                  <Icon name="ShoppingBagIcon" size={15} />
-                  تسوق وحدات التخزين
-                </Link>
-              ) : isData && hasDrive ? (
-                <button
-                  onClick={handleDriveAdd}
-                  className="w-full py-2.5 rounded-full font-semibold text-body-sm bg-brand-500 bg-brand-400 text-white dark:text-brand-950 hover:bg-brand-600 dark:hover:bg-brand-300 shadow-btn hover:shadow-btn-hover transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-2"
-                >
-                  <Icon name="PlusCircleIcon" size={15} />
-                  أضف للدرايف
-                </button>
-              ) : (
-                <div className="space-y-2">
-                  {/* Brand selection hint */}
-                  {needsBrandSelection && !selectedBrand && (
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
-                      <Icon
-                        name="InformationCircleIcon"
-                        size={14}
-                        className="text-amber-600 dark:text-amber-400 flex-shrink-0"
-                      />
-                      <span className="text-xs text-amber-700 dark:text-amber-300">
-                        يجب اختيار الماركة أولاً
-                      </span>
-                    </div>
-                  )}
+          {/* Product name */}
+          <Link href={`/product/${product.slug || product.id || product._id}`}>
+            <h3
+              className="text-sm font-bold leading-snug line-clamp-2 transition-colors duration-300"
+              style={{ color: '#e2e8f0' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = type.dot)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#e2e8f0')}
+            >
+              {product.name}
+            </h3>
+          </Link>
 
+          {/* Selected brand */}
+          {selectedBrand && needsBrandSelection && (
+            <div
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg w-fit"
+              style={{
+                background: 'rgba(52,211,153,0.1)',
+                border: '1px solid rgba(52,211,153,0.2)',
+              }}
+            >
+              <Icon name="CheckBadgeIcon" size={12} className="text-emerald-400" />
+              <span className="text-[11px] font-semibold text-emerald-300">{selectedBrand}</span>
+            </div>
+          )}
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* ── Divider ── */}
+          <div
+            className="h-px w-full"
+            style={{
+              background:
+                'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)',
+            }}
+          />
+
+          {/* ── Price + CTA ── */}
+          <div className="flex flex-col gap-2.5">
+            {/* Price block */}
+            {isFreeContent ? (
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full w-fit"
+                style={{
+                  background: 'rgba(52,211,153,0.12)',
+                  color: '#34d399',
+                  border: '1px solid rgba(52,211,153,0.25)',
+                }}
+              >
+                <Icon name="GiftIcon" size={12} />
+                هدية مع الهاردات
+              </span>
+            ) : isData && hasDrive ? (
+              <span
+                className="text-2xl font-black"
+                style={{
+                  background: 'linear-gradient(135deg, #34d399, #10b981)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                مجاناً
+              </span>
+            ) : (
+              <div className="flex items-end gap-2">
+                <div>
+                  <span className="text-xl font-black leading-none" style={{ color: '#f1f5f9' }}>
+                    {product.price.toLocaleString('ar-EG')}
+                  </span>
+                  <span className="text-xs text-slate-500 font-normal me-1"> جنيه</span>
+                </div>
+                {hasOldPrice && (
+                  <span className="text-xs text-slate-600 line-through leading-none mb-0.5">
+                    {product.oldPrice?.toLocaleString('ar-EG')}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Brand hint */}
+            {needsBrandSelection && !selectedBrand && (
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl"
+                style={{
+                  background: 'rgba(251,191,36,0.08)',
+                  border: '1px solid rgba(251,191,36,0.2)',
+                }}
+              >
+                <Icon
+                  name="InformationCircleIcon"
+                  size={12}
+                  className="text-amber-400 flex-shrink-0"
+                />
+                <span className="text-[11px] text-amber-300/80">يجب اختيار الماركة أولاً</span>
+              </div>
+            )}
+
+            {/* CTA */}
+            {(onAddToCart || onAddToDrive) && (
+              <>
+                {isFreeContent ? (
+                  <Link
+                    href="/products?cat=storage"
+                    className="w-full py-2.5 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:brightness-110 active:scale-[0.97]"
+                    style={{
+                      background: 'linear-gradient(135deg, #059669, #10b981)',
+                      boxShadow: '0 4px 16px rgba(16,185,129,0.3)',
+                    }}
+                  >
+                    <Icon name="ShoppingBagIcon" size={14} />
+                    تسوق وحدات التخزين
+                  </Link>
+                ) : isData && hasDrive ? (
+                  <button
+                    onClick={handleDriveAdd}
+                    className="w-full py-2.5 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:brightness-110 active:scale-[0.97]"
+                    style={{
+                      background: 'linear-gradient(135deg, #059669, #10b981)',
+                      boxShadow: '0 4px 16px rgba(16,185,129,0.3)',
+                    }}
+                  >
+                    <Icon name="PlusCircleIcon" size={14} />
+                    أضف للدرايف
+                  </button>
+                ) : (
                   <button
                     onClick={handleAdd}
                     disabled={!inStock}
-                    className={`w-full py-2.5 rounded-full font-semibold text-body-sm transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-2 ${
+                    className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.97]"
+                    style={
                       inStock
-                        ? 'bg-brand-500 bg-brand-400 text-white dark:text-brand-950 hover:bg-brand-600 dark:hover:bg-brand-300 shadow-btn hover:shadow-btn-hover'
-                        : 'bg-surface-tertiary bg-white/5 text-text-muted text-text-muted cursor-not-allowed shadow-none'
-                    }`}
+                        ? {
+                            background: 'linear-gradient(135deg, #059669, #10b981)',
+                            color: '#fff',
+                            boxShadow: '0 4px 16px rgba(16,185,129,0.3)',
+                          }
+                        : {
+                            background: 'rgba(255,255,255,0.05)',
+                            color: 'rgba(255,255,255,0.25)',
+                            cursor: 'not-allowed',
+                          }
+                    }
+                    onMouseEnter={(e) => {
+                      if (inStock)
+                        (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                          '0 6px 24px rgba(16,185,129,0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (inStock)
+                        (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                          '0 4px 16px rgba(16,185,129,0.3)';
+                    }}
                   >
-                    <Icon name="ShoppingCartIcon" size={15} />
+                    <Icon name="ShoppingCartIcon" size={14} />
                     {!inStock
                       ? 'نفد المخزون'
                       : needsBrandSelection && !selectedBrand
                         ? 'اختر الماركة أولاً'
                         : 'أضف للسلة'}
                   </button>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/ui/AppIcon';
 
@@ -31,7 +31,7 @@ const steps = [
   },
 ];
 
-export default function HowItWorksSection() {
+const HowItWorksSection = memo(function HowItWorksSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -40,21 +40,25 @@ export default function HowItWorksSection() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.querySelectorAll('.reveal').forEach((el, i) => {
-              setTimeout(() => el.classList.add('active'), i * 150);
+              setTimeout(() => el.classList.add('active'), i * 100);
             });
+            observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '50px' }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={sectionRef} className="section-padding bg-surface dark:bg-black">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-500/5 rounded-full blur-[120px] pointer-events-none" />
+    <section
+      ref={sectionRef}
+      className="section-padding bg-surface dark:bg-black relative overflow-hidden"
+    >
+      {/* Background Glow - reduced blur intensity */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-brand-500/5 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6">
         {/* Header */}
@@ -121,4 +125,6 @@ export default function HowItWorksSection() {
       </div>
     </section>
   );
-}
+});
+
+export default HowItWorksSection;

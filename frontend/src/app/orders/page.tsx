@@ -12,27 +12,23 @@ export default function OrdersPage() {
   const pending = orders.filter((o) => o.status === 'pending');
 
   return (
-    <div className="min-h-screen bg-white bg-surface flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-surface flex flex-col" dir="rtl">
       <Header />
       <main className="flex-1 pt-20 pb-12">
-        <div className="bg-surface-secondary bg-surface-secondary/40 border-b border-white/5 mb-8">
+        <div className="bg-surface-secondary/40 border-b border-border mb-8">
           <div className="max-w-6xl mx-auto px-4 md:px-6 py-6">
             <p className="section-label mb-2">الأوردرات</p>
-            <h1 className="text-2xl md:text-3xl font-black text-text-primary text-text-primary">
-              طلباتك الحالية
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-black text-text-primary">طلباتك الحالية</h1>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           {pending.length === 0 ? (
             <div className="glass-card rounded-3xl p-8 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-surface-tertiary flex items-center justify-center mx-auto mb-4">
                 <Icon name="CubeIcon" size={28} className="text-text-muted" />
               </div>
-              <p className="text-lg font-black text-text-primary text-text-primary mb-1">
-                لا يوجد أوردرات Pending
-              </p>
+              <p className="text-lg font-black text-text-primary mb-1">لا يوجد أوردرات Pending</p>
               <p className="text-sm text-text-muted">اعمل أوردر من صفحة الشيك آوت وسيظهر هنا</p>
             </div>
           ) : (
@@ -42,10 +38,7 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <p className="text-xs text-text-muted">رقم الأوردر</p>
-                      <p
-                        className="text-sm font-black text-text-primary text-text-primary"
-                        dir="ltr"
-                      >
+                      <p className="text-sm font-black text-text-primary" dir="ltr">
                         #{o.id}
                       </p>
                     </div>
@@ -53,21 +46,21 @@ export default function OrdersPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5">
+                    <div className="p-4 rounded-2xl bg-surface-secondary border border-white/5">
                       <p className="text-xs text-text-muted mb-1">الهاردوير المختار</p>
-                      <p className="text-sm font-black text-text-primary text-text-primary line-clamp-2">
+                      <p className="text-sm font-black text-text-primary line-clamp-2">
                         {o.items
                           .map((i) => `${i.name}${i.selectedBrand ? ` (${i.selectedBrand})` : ''}`)
                           .join(' • ') || '—'}
                       </p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5">
+                    <div className="p-4 rounded-2xl bg-surface-secondary border border-white/5">
                       <p className="text-xs text-text-muted mb-1">إجمالي الداتا</p>
                       <p className="text-sm font-black text-brand-500">{o.totalGb} GB</p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5">
+                    <div className="p-4 rounded-2xl bg-surface-secondary border border-white/5">
                       <p className="text-xs text-text-muted mb-1">إثبات الدفع</p>
-                      <p className="text-sm font-black text-text-primary text-text-primary">
+                      <p className="text-sm font-black text-text-primary">
                         {o.paymentScreenshot || 'تم الرفع'}
                       </p>
                     </div>

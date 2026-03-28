@@ -67,15 +67,12 @@ export default function CategoriesSection() {
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="section-padding max-w-7xl mx-auto px-4 md:px-6 bg-surface dark:bg-black"
-    >
+    <section ref={sectionRef} className="section-padding max-w-7xl mx-auto px-4 md:px-6 bg-surface">
       {/* Header */}
       <div className="flex items-end justify-between mb-10 reveal">
         <div>
-          <p className="section-label mb-2 text-brand-500 dark:text-brand-500">تسوق حسب الفئة</p>
-          <h2 className="text-3xl md:text-4xl font-black text-text-primary text-text-primary font-arabic">
+          <p className="section-label mb-2 text-brand-500">تسوق حسب الفئة</p>
+          <h2 className="text-3xl md:text-4xl font-black text-text-primary font-arabic">
             اختار اللي يناسبك
           </h2>
         </div>
@@ -110,7 +107,7 @@ export default function CategoriesSection() {
               <span className="badge-new inline-block mb-2">{categories?.[0]?.badge}</span>
             )}
             <h3 className="text-2xl font-black text-white mb-1">{categories?.[0]?.label}</h3>
-            <p className="text-sm text-gray-300">{categories?.[0]?.sub}</p>
+            <p className="text-sm text-text-muted">{categories?.[0]?.sub}</p>
             <div className="flex items-center gap-2 mt-3 text-brand-500 text-sm font-bold">
               <span>تسوق الآن</span>
               <Icon

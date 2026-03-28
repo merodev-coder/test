@@ -172,14 +172,14 @@ export default function CheckoutPage() {
   }, [storedCart, storedDrive, hasStorageProduct]);
 
   return (
-    <div className="min-h-screen bg-surface bg-surface flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-surface flex flex-col" dir="rtl">
       <Header />
 
       <main className="flex-1 pt-20 pb-12">
         {/* Page Header */}
-        <div className="bg-surface-secondary bg-surface-secondary/40 border-b border-border-light border-border mb-8">
+        <div className="bg-surface-secondary/40 border-b border-border mb-8">
           <div className="max-w-6xl mx-auto px-4 md:px-6 py-6">
-            <h1 className="text-h1 md:text-display font-heading text-text-primary text-text-primary mb-6">
+            <h1 className="text-h1 md:text-display font-heading text-text-primary mb-6">
               إتمام الشراء
             </h1>
 
@@ -293,7 +293,7 @@ export default function CheckoutPage() {
                                   }`}
                                 >
                                   {/* Product Image */}
-                                  <div className="w-full aspect-[4/3] rounded-lg overflow-hidden mb-2 bg-surface-tertiary bg-white/5">
+                                  <div className="w-full aspect-[4/3] rounded-lg overflow-hidden mb-2 bg-surface-tertiary">
                                     {p.images?.[0] ? (
                                       <img
                                         src={p.images[0]}
@@ -368,7 +368,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={customerName}
                           onChange={(e) => setCustomerName(e.target.value)}
-                          className="input-field"
+                          className="input-field w-full"
                           placeholder="الاسم الثلاثي"
                         />
                       </div>
@@ -380,7 +380,7 @@ export default function CheckoutPage() {
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          className="input-field text-right"
+                          className="input-field text-right w-full"
                           placeholder="01xxxxxxxxx"
                         />
                       </div>
@@ -391,7 +391,7 @@ export default function CheckoutPage() {
                         <textarea
                           value={customerAddress}
                           onChange={(e) => setCustomerAddress(e.target.value)}
-                          className="input-field min-h-[100px] resize-none"
+                          className="input-field min-h-[100px] resize-none w-full"
                           placeholder="المحافظة، المنطقة، اسم الشارع، رقم العمارة، رقم الشقة"
                         />
                       </div>
@@ -466,12 +466,6 @@ export default function CheckoutPage() {
                 canConfirm={canConfirm && activeStep === 3}
                 isLoading={isLoading}
               />
-
-              {activeStep < 3 && (
-                <p className="text-caption text-text-muted text-text-muted text-center mt-3">
-                  أكمل كل الخطوات لتأكيد الأوردر
-                </p>
-              )}
             </div>
           </div>
         </div>

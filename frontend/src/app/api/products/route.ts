@@ -21,10 +21,10 @@ function mapProduct(doc: any) {
     isBrandActive: !!doc.isBrandActive,
     brands: Array.isArray(doc.brands) ? doc.brands : [],
     tags: Array.isArray(doc.tags)
-      ? doc.tags.map((t: any) => ({
-          id: String(t._id || t),
-          name: t.name || '',
-          slug: t.slug || '',
+      ? doc.tags.map((t: string) => ({
+          id: t,
+          name: t,
+          slug: t.toLowerCase().replace(/\s+/g, '-'),
         }))
       : [],
     createdAt: doc.createdAt ? new Date(doc.createdAt).toISOString() : '',
@@ -65,7 +65,7 @@ export async function GET(req: Request) {
     ];
   }
 
-  const docs = await Product.find(filter).populate('tags').sort({ createdAt: -1 }).lean();
+  const docs = await Product.find(filter).sort({ createdAt: -1 }).lean();
 
   const products = docs.map((doc: any) => mapProduct(doc));
 

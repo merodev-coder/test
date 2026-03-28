@@ -55,9 +55,7 @@ type StoreState = {
   orders: Order[];
   filters: Filters;
   products: Product[];
-  tags: Tag[];
   productsLoading: boolean;
-  tagsLoading: boolean;
   isAuthenticated: boolean;
   token: string | null;
 };
@@ -80,8 +78,6 @@ type StoreActions = {
   removeOrder: (id: string) => void;
   setProducts: (products: Product[]) => void;
   setProductsLoading: (loading: boolean) => void;
-  setTags: (tags: Tag[]) => void;
-  setTagsLoading: (loading: boolean) => void;
   fetchProducts: (params?: {
     searchQuery?: string;
     category?: string;
@@ -89,12 +85,9 @@ type StoreActions = {
     minPrice?: number;
     maxPrice?: number;
   }) => Promise<void>;
-  fetchTags: () => Promise<void>;
   createProduct: (product: Partial<Product>) => Promise<Product>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<Product>;
   deleteProduct: (id: string) => Promise<void>;
-  createTag: (name: string) => Promise<Tag>;
-  deleteTag: (id: string) => Promise<void>;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   getFilteredProducts: () => Product[];
@@ -129,11 +122,7 @@ export const useStore = create<StoreState & StoreActions>()(
       orders: [],
       filters: { searchQuery: '', category: 'all', tags: [], priceRange: [0, 50000] },
       products: [],
-      tags: [],
-      brands: [],
       productsLoading: false,
-      tagsLoading: false,
-      brandsLoading: false,
       isAuthenticated: false,
       token: null,
 
@@ -317,8 +306,6 @@ export const useStore = create<StoreState & StoreActions>()(
 
       setProducts: (products) => set({ products }),
       setProductsLoading: (loading) => set({ productsLoading: loading }),
-      setTags: (tags) => set({ tags }),
-      setTagsLoading: (loading) => set({ tagsLoading: loading }),
 
       fetchProducts: async (params) => {
         set({ productsLoading: true });
@@ -330,10 +317,15 @@ export const useStore = create<StoreState & StoreActions>()(
           if (params?.tags?.length) searchParams.set('tags', params.tags.join(','));
           if (params?.minPrice !== undefined) searchParams.set('minPrice', String(params.minPrice));
           if (params?.maxPrice !== undefined) searchParams.set('maxPrice', String(params.maxPrice));
-          const url = `/api/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          
+          const url = `http://localhost:5001/api/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          
           const res = await fetch(url, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch products');
+          
           const data = await res.json();
+          console.log('Fetched products:', data.products?.length || 0, 'products');
+          
           set({ products: data.products || [] });
         } catch (error) {
           console.error('Error fetching products:', error);
@@ -343,94 +335,99 @@ export const useStore = create<StoreState & StoreActions>()(
         }
       },
 
-      fetchTags: async () => {
-        set({ tagsLoading: true });
-        try {
-          const res = await fetch('/api/tags', { cache: 'no-store' });
-          if (!res.ok) throw new Error('Failed to fetch tags');
-          const data = await res.json();
-          set({ tags: data.tags || [] });
-        } catch (error) {
-          console.error('Error fetching tags:', error);
-          set({ tags: [] });
-        } finally {
-          set({ tagsLoading: false });
-        }
-      },
-
       createProduct: async (product) => {
-        const token = getCookie('admin_session');
+        const token = localStorage.getItem('token');
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (token) headers.Authorization = `Bearer ${token}`;
-        const res = await fetch('/api/admin/products', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(product),
-        });
-        if (!res.ok) {
+        
+        try {
+          const res = await fetch('http://localhost:5001/api/products', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(product),
+          });
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to create product');
+          }
           const data = await res.json();
-          throw new Error(data.error || 'Failed to create product');
+          // Refresh products list to get the latest data
+          await get().fetchProducts();
+          return data.product;
+        } catch (error) {
+          console.error('Create product error:', error);
+          throw error;
         }
-        const data = await res.json();
-        return data.product;
       },
 
       updateProduct: async (id, product) => {
-        const token = getCookie('admin_session');
+        const token = localStorage.getItem('token');
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (token) headers.Authorization = `Bearer ${token}`;
-        const res = await fetch(`/api/admin/products/${id}`, {
-          method: 'PUT',
-          headers,
-          body: JSON.stringify(product),
-        });
-        if (!res.ok) {
+        
+        try {
+          const res = await fetch(`http://localhost:5001/api/products/${id}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(product),
+          });
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to update product');
+          }
           const data = await res.json();
-          throw new Error(data.error || 'Failed to update product');
+          // Refresh products list to get the latest data
+          await get().fetchProducts();
+          return data.product;
+        } catch (error) {
+          console.error('Update product error:', error);
+          throw error;
         }
-        const data = await res.json();
-        // Update local products array with the updated product
-        set((state) => ({
-          products: state.products.map((p) => (p.id === id ? data.product : p)),
-        }));
-        return data.product;
       },
 
       deleteProduct: async (id) => {
-        const token = getCookie('admin_session');
+        const token = localStorage.getItem('token');
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
-        const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers });
-        if (!res.ok) throw new Error('Failed to delete product');
-        // Remove from local products array
-        set((state) => ({
-          products: state.products.filter((p) => p.id !== id),
-        }));
-      },
-
-      createTag: async (name) => {
-        const token = getCookie('admin_session');
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) headers.Authorization = `Bearer ${token}`;
-        const res = await fetch('/api/admin/tags', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ name }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Failed to create tag');
+        
+        console.log('Attempting to delete product:', id);
+        console.log('Using token:', token);
+        console.log('Request URL:', `http://localhost:5001/api/products/${id}`);
+        
+        try {
+          const res = await fetch(`http://localhost:5001/api/products/${id}`, { 
+            method: 'DELETE', 
+            headers 
+          });
+          
+          console.log('Delete response status:', res.status);
+          console.log('Delete response headers:', res.headers);
+          
+          // Try to get response text first to see what we received
+          const responseText = await res.text();
+          console.log('Delete response text:', responseText);
+          
+          if (!res.ok) {
+            // Try to parse as JSON, fallback to text if it fails
+            let errorData;
+            try {
+              errorData = JSON.parse(responseText);
+            } catch {
+              errorData = { error: responseText || 'Failed to delete product' };
+            }
+            console.error('Delete failed:', errorData);
+            throw new Error(errorData.error || 'Failed to delete product');
+          }
+          
+          console.log('Delete successful, removing from local state');
+          // Remove from local products array immediately
+          set((state) => ({
+            products: state.products.filter((p) => p.id !== id),
+          }));
+        } catch (error) {
+          console.error('Delete product error:', error);
+          throw error;
         }
-        const data = await res.json();
-        return data.tag;
-      },
-
-      deleteTag: async (id) => {
-        const token = getCookie('admin_session');
-        const headers: Record<string, string> = {};
-        if (token) headers.Authorization = `Bearer ${token}`;
-        const res = await fetch(`/api/admin/tags/${id}`, { method: 'DELETE', headers });
-        if (!res.ok) throw new Error('Failed to delete tag');
       },
 
       login: async (username, password) => {

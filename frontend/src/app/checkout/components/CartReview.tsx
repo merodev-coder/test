@@ -42,7 +42,7 @@ export default function CartReview({
       {/* Paid Products */}
       {items.length > 0 && (
         <div>
-          <h3 className="text-base font-black text-text-primary text-text-primary mb-4 flex items-center gap-2">
+          <h3 className="text-base font-black text-text-primary mb-4 flex items-center gap-2">
             <Icon name="ShoppingBagIcon" size={18} className="text-brand-500" />
             المنتجات المدفوعة
           </h3>
@@ -50,11 +50,11 @@ export default function CartReview({
             {items.map((item) => (
               <div
                 key={item.id}
-                className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5 group hover:border-brand-500/20 transition-colors"
+                className="p-4 rounded-2xl bg-surface-secondary border border-white/5 group hover:border-brand-500/20 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   {item.images?.[0] || item.image ? (
-                    <div className="w-14 h-14 rounded-xl bg-white bg-white/5 overflow-hidden relative flex-shrink-0">
+                    <div className="w-14 h-14 rounded-xl bg-surface-tertiary overflow-hidden relative flex-shrink-0">
                       <AppImage
                         src={item.images?.[0] || item.image || '/placeholder.png'}
                         alt={item.name}
@@ -63,15 +63,15 @@ export default function CartReview({
                       />
                     </div>
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-surface-tertiary bg-white/5 flex items-center justify-center flex-shrink-0">
+                    <div className="w-14 h-14 rounded-xl bg-surface-tertiary flex items-center justify-center flex-shrink-0">
                       <Icon name="PhotoIcon" size={20} className="text-text-muted" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-text-primary text-text-primary line-clamp-1">
+                    <h4 className="text-sm font-bold text-text-primary line-clamp-1">
                       {item.name}
                       {item.selectedBrand && (
-                        <span className="text-text-muted text-text-muted font-normal mr-1">
+                        <span className="text-text-muted font-normal mr-1">
                           ({item.selectedBrand})
                         </span>
                       )}
@@ -99,14 +99,14 @@ export default function CartReview({
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <button
                       onClick={() => onUpdateQty(item.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-lg bg-surface-tertiary bg-white/5 hover:bg-border hover:bg-white/10 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-lg bg-surface-tertiary hover:bg-white/10 flex items-center justify-center transition-colors"
                     >
                       <Icon name="MinusIcon" size={14} />
                     </button>
                     <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
                     <button
                       onClick={() => onUpdateQty(item.id, item.quantity + 1)}
-                      className="w-8 h-8 rounded-lg bg-surface-tertiary bg-white/5 hover:bg-border hover:bg-white/10 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-lg bg-surface-tertiary hover:bg-white/10 flex items-center justify-center transition-colors"
                     >
                       <Icon name="PlusIcon" size={14} />
                     </button>
@@ -127,7 +127,7 @@ export default function CartReview({
       {/* Drive Items (Free Data) */}
       {driveItems.length > 0 && (
         <div>
-          <h3 className="text-base font-black text-text-primary text-text-primary mb-3 flex items-center gap-2">
+          <h3 className="text-base font-black text-text-primary mb-3 flex items-center gap-2">
             <Icon name="CircleStackIcon" size={18} className="text-brand-500" />
             داتا مجانية مع الهارد
           </h3>
@@ -136,7 +136,7 @@ export default function CartReview({
           <div className="p-4 rounded-2xl bg-brand-500/5 border border-brand-500/15 mb-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-brand-500">سعة الهارد المستخدمة</span>
-              <span className="text-xs font-black text-text-primary text-text-primary">
+              <span className="text-xs font-black text-text-primary">
                 {storageUsed}/{storageTotal} GB
               </span>
             </div>
@@ -155,13 +155,13 @@ export default function CartReview({
             {driveItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 p-3 rounded-xl bg-surface-secondary bg-surface-secondary border border-brand-500/10 group"
+                className="flex items-center gap-3 p-3 rounded-xl bg-surface-secondary border border-brand-500/10 group"
               >
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-text-primary text-text-primary line-clamp-1">
+                  <h4 className="text-sm font-bold text-text-primary line-clamp-1">
                     {item.name}
                     {item.selectedBrand && (
-                      <span className="text-text-muted text-text-muted font-normal mr-1">
+                      <span className="text-text-muted font-normal mr-1">
                         ({item.selectedBrand})
                       </span>
                     )}
@@ -185,7 +185,7 @@ export default function CartReview({
 
       {items.length === 0 && driveItems.length === 0 && (
         <div className="text-center py-16">
-          <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-surface-tertiary flex items-center justify-center mx-auto mb-4">
             <Icon name="ShoppingCartIcon" size={28} className="text-text-muted" />
           </div>
           <p className="text-text-muted font-bold">السلة فاضية</p>

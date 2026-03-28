@@ -89,7 +89,7 @@ const BrandSelector = memo(function BrandSelector({
               ${
                 selectedBrand === brand
                   ? 'bg-gradient-to-r from-brand-500/10 to-brand-500/5 dark:from-brand-500/20 dark:to-brand-500/10 border border-brand-200 dark:border-brand-500/30'
-                  : 'bg-surface-secondary bg-surface-tertiary border border-border border-border hover:bg-surface-tertiary hover:bg-white/5'
+                  : 'bg-surface-secondary border border-border hover:bg-surface-tertiary'
               }
               ${disabled ? 'cursor-not-allowed opacity-60' : ''}
             `}
@@ -121,32 +121,26 @@ const BrandSelector = memo(function BrandSelector({
                 className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 ${
                   selectedBrand === brand
                     ? 'bg-brand-500 text-white shadow-brand-500/25'
-                    : 'bg-surface bg-white/10 text-text-muted'
+                    : 'bg-surface text-text-muted'
                 }
               `}
               >
                 <Icon
                   name="TagIcon"
                   size={14}
-                  className={
-                    selectedBrand === brand ? 'text-white' : 'text-text-muted text-text-muted'
-                  }
+                  className={selectedBrand === brand ? 'text-white' : 'text-text-muted'}
                 />
               </div>
               <div className="flex flex-col">
                 <span
                   className={`text-sm font-medium ${
-                    selectedBrand === brand
-                      ? 'text-brand-600 text-brand-400'
-                      : 'text-text-primary text-text-primary'
+                    selectedBrand === brand ? 'text-brand-500' : 'text-text-primary'
                   }`}
                 >
                   {brand}
                 </span>
                 {selectedBrand === brand && (
-                  <span className="text-xs text-brand-500/70 text-brand-400/70">
-                    الماركة المختارة
-                  </span>
+                  <span className="text-xs text-brand-500/70">الماركة المختارة</span>
                 )}
               </div>
             </div>
@@ -843,12 +837,34 @@ export default function ProductPage({ product, relatedProducts, categoryLabel }:
   }, [inStock, showBrandSelector, selectedBrand, quantity, product, addToCart]);
 
   return (
-    <div className="min-h-screen bg-surface bg-surface" dir="rtl">
+    <div className="min-h-screen bg-base" dir="rtl">
       <div className="section-container py-8 md:py-12 mt-10">
+        {/* Back Button */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mb-6"
+        >
+          <button
+            onClick={() => window.history.back()}
+            className="group flex items-center gap-2 text-body-sm text-text-muted hover:text-brand-500 transition-all duration-200 transform-gpu will-change-transform hover:translate-x-1"
+          >
+            <div className="w-10 h-10 rounded-full bg-surface-secondary border border-border flex items-center justify-center group-hover:border-brand-500/30 group-hover:bg-brand-500/10 transition-all duration-200">
+              <Icon
+                name="ArrowRightIcon"
+                size={18}
+                className="transition-transform duration-200 group-hover:-translate-x-0.5"
+              />
+            </div>
+            <span className="font-medium">رجوع</span>
+          </button>
+        </motion.div>
+
         {/* Split-View Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Left Side — Product Info Stack */}
-          <div className="order-2 lg:order-1 flex flex-col gap-6">
+          <div className="order-2 lg:order-1 flex flex-col gap-8">
             <ProductInfo
               product={product}
               selectedBrand={selectedBrand}
@@ -870,15 +886,11 @@ export default function ProductPage({ product, relatedProducts, categoryLabel }:
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="flex items-center gap-2 p-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/20"
+                className="flex items-center gap-3 p-4 rounded-xl glass-card border border-brand/30"
               >
-                <Icon name="CheckBadgeIcon" size={18} className="text-brand-500 text-brand-400" />
-                <span className="text-body-sm text-text-muted text-text-muted">
-                  الماركة المختارة:
-                </span>
-                <span className="text-body-sm font-bold text-brand-600 text-brand-400">
-                  {selectedBrand}
-                </span>
+                <Icon name="CheckBadgeIcon" size={20} className="text-brand" />
+                <span className="text-text-secondary text-sm">الماركة المختارة:</span>
+                <span className="text-brand font-bold">{selectedBrand}</span>
               </motion.div>
             )}
 

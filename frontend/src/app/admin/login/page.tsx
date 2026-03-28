@@ -2,12 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { useStore } from '@/store/useStore';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
-  const { login } = useStore();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -17,18 +13,26 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    try {
-      await login(username, password);
-      router.push('/admin');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'بيانات الدخول غير صحيحة');
-    } finally {
+    
+    // Read credentials from .env file
+    const validUser = process.env.NEXT_PUBLIC_ADMIN_USERNAME ;
+    const validPass = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ;
+
+    if (username === validUser && password === validPass) {
+      // Save authentication state to localStorage
+      localStorage.setItem('isAdminAuthenticated', 'true');
+      localStorage.setItem('token', 'bypass-token-for-admin');
+      
+      // Instant hard redirect to admin dashboard
+      window.location.href = 'http://localhost:4029/admin';
+    } else {
+      setError('بيانات الدخول غير صحيحة');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary bg-surface flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-surface flex flex-col" dir="rtl">
       <div className="flex-1 flex items-center justify-center px-4 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -36,8 +40,7 @@ export default function AdminLoginPage() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-md w-full"
         >
-          <div className="bg-white bg-surface-secondary rounded-2xl p-8 border border-border-light border-border shadow-elevated shadow-elevated relative overflow-hidden">
-            {/* Subtle gradient accent */}
+          <div className="bg-surface-secondary rounded-2xl p-8 border border-border shadow-elevated relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-brand" />
 
             <motion.div
@@ -46,7 +49,7 @@ export default function AdminLoginPage() {
               transition={{ delay: 0.2 }}
               className="flex items-center gap-3 mb-8"
             >
-              <div className="w-12 h-12 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-brand-500"
                   fill="none"
@@ -63,7 +66,7 @@ export default function AdminLoginPage() {
               </div>
               <div>
                 <p className="section-label mb-0.5">لوحة التحكم</p>
-                <h1 className="text-h3 text-text-primary text-text-primary">تسجيل الدخول</h1>
+                <h1 className="text-h3 text-text-primary">تسجيل الدخول</h1>
               </div>
             </motion.div>
 
@@ -83,7 +86,7 @@ export default function AdminLoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
+                <label className="text-caption font-semibold text-text-secondary mb-1.5 block">
                   اسم المستخدم
                 </label>
                 <input
@@ -101,7 +104,7 @@ export default function AdminLoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
+                <label className="text-caption font-semibold text-text-secondary mb-1.5 block">
                   كلمة المرور
                 </label>
                 <input
@@ -137,7 +140,7 @@ export default function AdminLoginPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="mt-6 pt-4 border-t border-border-light border-border text-center text-caption text-text-muted text-text-muted"
+              className="mt-6 pt-4 border-t border-border text-center text-caption text-text-muted"
             >
               أبو كارتونة — لوحة تحكم المتجر
             </motion.p>

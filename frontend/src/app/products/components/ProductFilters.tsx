@@ -185,7 +185,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
       >
         <div className="p-5">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-black text-text-primary text-text-primary">الفلاتر</h3>
+            <h3 className="text-base font-black text-text-primary">الفلاتر</h3>
             <div className="flex items-center gap-2">
               <motion.button
                 onClick={clearAll}
@@ -212,21 +212,67 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
               {categoryOptions.map((cat) => (
                 <motion.label
                   key={cat.id}
-                  className="flex items-center gap-3 cursor-pointer group"
+                  className={`
+                    flex items-center gap-3 cursor-pointer group
+                    px-3 py-2.5 rounded-xl transition-all duration-200
+                    ${
+                      filters.category === cat.id || selectedCats.includes(cat.id)
+                        ? 'bg-brand-500/10 border border-brand-500/30'
+                        : 'bg-surface-secondary/50 border border-transparent hover:bg-surface-secondary hover:border-border'
+                    }
+                  `}
                   whileHover={{ x: 4 }}
                 >
+                  <div
+                    className={`
+                    w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200
+                    ${
+                      filters.category === cat.id || selectedCats.includes(cat.id)
+                        ? 'bg-brand-500 border-brand-500'
+                        : 'border-border-dark bg-transparent group-hover:border-brand-500/50'
+                    }
+                  `}
+                  >
+                    {(filters.category === cat.id || selectedCats.includes(cat.id)) && (
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
                   <input
                     type="checkbox"
-                    className="filter-checkbox"
+                    className="sr-only"
                     checked={filters.category === cat.id || selectedCats.includes(cat.id)}
                     onChange={() => toggleCategory(cat.id)}
                   />
                   <Icon
                     name={cat.icon as any}
-                    size={16}
-                    className="text-text-muted group-hover:text-brand-500 transition-colors"
+                    size={18}
+                    className={`
+                      transition-colors duration-200
+                      ${
+                        filters.category === cat.id || selectedCats.includes(cat.id)
+                          ? 'text-brand-500'
+                          : 'text-text-muted group-hover:text-brand-500'
+                      }
+                    `}
                   />
-                  <span className="text-sm text-text-muted group-hover:text-brand-500 transition-colors flex-1">
+                  <span
+                    className={`
+                    text-sm font-medium flex-1 transition-colors duration-200
+                    ${
+                      filters.category === cat.id || selectedCats.includes(cat.id)
+                        ? 'text-brand-500'
+                        : 'text-text-muted group-hover:text-brand-500'
+                    }
+                  `}
+                  >
                     {cat.label}
                   </span>
                 </motion.label>
@@ -248,7 +294,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                     whileTap={{ scale: 0.95 }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                       selectedCats.includes(tag.slug) || filters.tags.includes(tag.slug)
-                        ? 'bg-brand-500 text-bg-deep text-text-primary'
+                        ? 'bg-brand-500 text-text-primary'
                         : 'btn-ghost'
                     }`}
                   >
@@ -267,13 +313,13 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-text-muted">الحد الأدنى:</span>
-                <span className="text-sm font-bold text-text-primary text-text-primary">
+                <span className="text-sm font-bold text-text-primary">
                   {localPriceRange[0].toLocaleString('ar-EG')} جنيه
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-text-muted">الحد الأقصى:</span>
-                <span className="text-sm font-bold text-text-primary text-text-primary">
+                <span className="text-sm font-bold text-text-primary">
                   {localPriceRange[1].toLocaleString('ar-EG')} جنيه
                 </span>
               </div>
@@ -282,10 +328,10 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
             {/* Dual Handle Range Slider */}
             <div
               id="price-slider-track"
-              className="relative w-full h-2 bg-surface-tertiary bg-white/10 rounded-full cursor-pointer select-none"
+              className="relative w-full h-2 bg-surface-tertiary rounded-full cursor-pointer select-none"
             >
               {/* Track Background */}
-              <div className="absolute inset-0 bg-surface-tertiary bg-white/10 rounded-full" />
+              <div className="absolute inset-0 bg-surface-tertiary rounded-full" />
 
               {/* Active Range Bar */}
               <div
@@ -298,7 +344,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
 
               {/* Min Handle (Right Side - Controls Low Price) */}
               <div
-                className="absolute w-5 h-5 bg-white border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-10 hover:shadow-brand-500/25"
+                className="absolute w-5 h-5 bg-surface border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-10 hover:shadow-brand-500/25"
                 style={{ right: `${(localPriceRange[0] / 50000) * 100}%` }}
                 onMouseDown={() => handleSliderMouseDown('min')}
               >
@@ -307,7 +353,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
 
               {/* Max Handle (Left Side - Controls High Price) */}
               <div
-                className="absolute w-5 h-5 bg-white border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-10 hover:shadow-brand-500/25"
+                className="absolute w-5 h-5 bg-surface border-2 border-brand-500 rounded-full shadow-lg cursor-grab active:cursor-grabbing transform translate-x-1/2 -translate-y-1/2 top-1/2 hover:scale-110 transition-all duration-200 ease-out z-10 hover:shadow-brand-500/25"
                 style={{ right: `${(localPriceRange[1] / 50000) * 100}%` }}
                 onMouseDown={() => handleSliderMouseDown('max')}
               >
@@ -326,7 +372,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                   step="500"
                   value={localPriceRange[0]}
                   onChange={(e) => handlePriceChange('min', parseInt(e.target.value) || 0)}
-                  className="w-full px-3 py-2 text-sm bg-surface-secondary bg-surface-secondary border border-border-light border-border rounded-lg text-text-primary text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all dark:bg-surface-dark-secondary dark:border-border-dark dark:text-text-dark-primary"
                   placeholder="0"
                 />
               </div>
@@ -339,7 +385,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                   step="500"
                   value={localPriceRange[1]}
                   onChange={(e) => handlePriceChange('max', parseInt(e.target.value) || 50000)}
-                  className="w-full px-3 py-2 text-sm bg-surface-secondary bg-surface-secondary border border-border-light border-border rounded-lg text-text-primary text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all dark:bg-surface-dark-secondary dark:border-border-dark dark:text-text-dark-primary"
                   placeholder="50000"
                 />
               </div>

@@ -6,6 +6,9 @@ import Icon from '@/components/ui/AppIcon';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
+// Icon name type for AppIcon component
+type IconName = string;
+
 interface Toast {
   id: string;
   message: string;
@@ -26,7 +29,7 @@ export function useToast() {
   return ctx;
 }
 
-const iconMap: Record<ToastType, string> = {
+const iconMap: Record<ToastType, IconName> = {
   success: 'CheckCircleIcon',
   error: 'XCircleIcon',
   warning: 'ExclamationTriangleIcon',
@@ -59,7 +62,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
       <div
         className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorMap[toast.type]}`}
       >
-        <Icon name={iconMap[toast.type] as any} size={16} />
+        <Icon name={iconMap[toast.type]} size={16} />
       </div>
       <p className="text-body-sm font-medium text-text-primary text-text-primary flex-1">
         {toast.message}

@@ -76,10 +76,10 @@ export default function PaymentDeposit({
       </div>
 
       {/* Deposit Amount */}
-      <div className="flex items-center justify-between p-5 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/8">
+      <div className="flex items-center justify-between p-5 rounded-2xl bg-surface-secondary border border-white/8">
         <div>
           <p className="text-xs text-text-muted mb-1">مبلغ العربون المطلوب</p>
-          <p className="text-3xl font-black text-text-primary text-text-primary">
+          <p className="text-3xl font-black text-text-primary">
             {depositAmount} <span className="text-lg text-text-muted">جنيه</span>
           </p>
         </div>
@@ -101,12 +101,12 @@ export default function PaymentDeposit({
               className={`p-4 rounded-2xl border transition-all text-right ${
                 selectedMethod === method.id
                   ? 'border-brand-500 bg-brand-500/10'
-                  : 'border-white/8 bg-surface-secondary bg-surface-secondary hover:border-white/20'
+                  : 'border-white/8 bg-surface-secondary hover:border-white/20'
               }`}
             >
               <span className="text-2xl block mb-2">{method.icon}</span>
               <p
-                className={`text-sm font-black ${selectedMethod === method.id ? 'text-text-primary text-text-primary' : 'text-text-muted'}`}
+                className={`text-sm font-black ${selectedMethod === method.id ? 'text-text-primary' : 'text-text-muted'}`}
               >
                 {method.name}
               </p>
@@ -116,7 +116,7 @@ export default function PaymentDeposit({
       </div>
 
       {/* Payment Instructions */}
-      <div className="p-4 rounded-2xl bg-surface-secondary bg-surface-secondary border border-white/5 space-y-3">
+      <div className="p-4 rounded-2xl bg-surface-secondary border border-white/5 space-y-3">
         <p className="text-xs font-black text-brand-500 uppercase tracking-wider">خطوات الدفع</p>
 
         <div className="space-y-2.5">
@@ -124,21 +124,16 @@ export default function PaymentDeposit({
             <div className="w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
               <span className="text-[10px] font-black text-brand-500">1</span>
             </div>
-            <p className="text-sm text-text-primary text-text-primary">
-              {activeMethod.instructions}
-            </p>
+            <p className="text-sm text-text-primary">{activeMethod.instructions}</p>
           </div>
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
               <span className="text-[10px] font-black text-brand-500">2</span>
             </div>
             <div>
-              <p className="text-sm text-text-primary text-text-primary mb-1">الرقم / الحساب:</p>
+              <p className="text-sm text-text-primary mb-1">الرقم / الحساب:</p>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-bg-surface border border-white/8">
-                <span
-                  className="text-sm font-black text-text-primary text-text-primary flex-1"
-                  dir="ltr"
-                >
+                <span className="text-sm font-black text-text-primary flex-1" dir="ltr">
                   {activeMethod.number}
                 </span>
                 <button
@@ -154,16 +149,14 @@ export default function PaymentDeposit({
             <div className="w-6 h-6 rounded-full bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
               <span className="text-[10px] font-black text-brand-500">3</span>
             </div>
-            <p className="text-sm text-text-primary text-text-primary">ارفع صورة الإيصال هنا تحت</p>
+            <p className="text-sm text-text-primary">ارفع صورة الإيصال هنا تحت</p>
           </div>
         </div>
       </div>
 
       {/* Receipt Upload */}
       <div>
-        <p className="text-sm font-black text-text-primary text-text-primary mb-3">
-          ارفع صورة الإيصال
-        </p>
+        <p className="text-sm font-black text-text-primary mb-3">ارفع صورة الإيصال</p>
 
         {previewUrl ? (
           <div className="relative rounded-2xl overflow-hidden border border-brand-500/30">

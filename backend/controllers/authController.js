@@ -1,11 +1,9 @@
-import bcrypt from 'bcryptjs';
-import { Admin } from '../models/Admin.js';
 import { generateToken } from '../utils/generateToken.js';
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  username: z.string().min(3).max(50),
-  password: z.string().min(8).max(100),
+  username: z.string().min(1).max(50),
+  password: z.string().min(1).max(100),
 });
 
 export async function login(req, res, next) {
@@ -13,29 +11,15 @@ export async function login(req, res, next) {
     const { username, password } = loginSchema.parse(req.body);
     
     const envUsername = process.env.ADMIN_USERNAME;
-    const envPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+    const envPassword = process.env.ADMIN_PASSWORD;
     
-    if (envUsername && envPasswordHash) {
-      const isMatch = await bcrypt.compare(password, envPasswordHash);
-      if (username === envUsername && isMatch) {
-        const token = generateToken({ username: envUsername, source: 'env' });
-        return res.json({ token });
-      }
-    }
+    // Simple plain text comparison from .env
+    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+    const token = generateToken({ username: process.env.ADMIN_USERNAME, role: 'admin' });
+    return res.json({ success: true, token });
+}
     
-    const admin = await Admin.findOne({ username });
-    if (!admin) {
-      await bcrypt.compare('dummy', '$2a$10$dummyhashfordummycomparison');
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    const match = await bcrypt.compare(password, admin.password);
-    if (!match) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    const token = generateToken({ id: admin._id, username: admin.username });
-    res.json({ token });
+    return res.status(401).json({ error: 'Invalid credentials' });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid input', details: err.errors });

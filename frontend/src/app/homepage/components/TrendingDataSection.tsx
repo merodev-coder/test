@@ -140,14 +140,14 @@ export default function TrendingDataSection() {
         );
 
   return (
-    <section ref={sectionRef} className="section-padding bg-surface dark:bg-black">
+    <section ref={sectionRef} className="section-padding bg-midnight">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 reveal">
           <div>
-            <p className="section-label mb-2">مكتبة الداتا</p>
-            <h2 className="text-3xl md:text-4xl font-black text-text-primary text-text-primary font-arabic">
-              الأكثر طلباً <span className="text-gradient-primary">هذا الأسبوع</span>
+            <p className="section-label mb-2 text-brand">مكتبة الداتا</p>
+            <h2 className="text-3xl md:text-4xl font-black text-text-primary font-arabic">
+              الأكثر طلباً <span className="text-brand">هذا الأسبوع</span>
             </h2>
           </div>
           {/* Filters */}
@@ -156,8 +156,10 @@ export default function TrendingDataSection() {
               <button
                 key={f}
                 onClick={() => setActiveFilter(f)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                  activeFilter === f ? 'bg-brand-500 text-bg-deep' : 'btn-ghost'
+                className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 ${
+                  activeFilter === f
+                    ? 'bg-brand text-midnight shadow-glow-sm'
+                    : 'btn-ghost text-text-secondary'
                 }`}
               >
                 {f}
@@ -171,7 +173,7 @@ export default function TrendingDataSection() {
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${canScrollRight ? 'btn-ghost hover:border-brand-500/40' : 'opacity-30 cursor-not-allowed btn-ghost'}`}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${canScrollRight ? 'btn-ghost hover:border-brand/40 text-text-secondary' : 'opacity-30 cursor-not-allowed btn-ghost'}`}
             aria-label="التالي"
           >
             <Icon name="ChevronRightIcon" size={16} />
@@ -179,7 +181,7 @@ export default function TrendingDataSection() {
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${canScrollLeft ? 'btn-ghost hover:border-brand-500/40' : 'opacity-30 cursor-not-allowed btn-ghost'}`}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${canScrollLeft ? 'btn-ghost hover:border-brand/40 text-text-secondary' : 'opacity-30 cursor-not-allowed btn-ghost'}`}
             aria-label="السابق"
           >
             <Icon name="ChevronLeftIcon" size={16} />
@@ -190,9 +192,9 @@ export default function TrendingDataSection() {
         <div ref={carouselRef} className="carousel-track" onScroll={handleScroll} dir="rtl">
           {filteredItems.map((item) => (
             <div key={item.id} className="carousel-item w-48 md:w-56">
-              <div className="product-card group cursor-pointer">
+              <div className="card-product group cursor-pointer">
                 {/* Cover Art */}
-                <div className="relative pt-6 px-3 border-b border-white/5 pb-4">
+                <div className="relative pt-6 px-3 border-b border-glass-border pb-4">
                   {item.badge && (
                     <div className="inline-block mb-2">
                       <span className="badge-new text-[9px]">{item.badge}</span>
@@ -206,20 +208,20 @@ export default function TrendingDataSection() {
                 {/* Info */}
                 <div className="p-3">
                   <div className="flex items-center gap-1.5 mb-1.5">
-                    <span className="text-[10px] font-bold text-brand-500 bg-brand-500/10 px-2 py-0.5 rounded-md">
+                    <span className="text-[10px] font-bold text-brand bg-glass-10 px-2 py-0.5 rounded-md">
                       {item.type}
                     </span>
                     <span className="text-[10px] text-text-muted">{item.genre}</span>
                   </div>
-                  <h3 className="text-sm font-bold text-text-primary text-text-primary leading-tight mb-2 line-clamp-2">
+                  <h3 className="text-sm font-black text-text-primary leading-tight mb-2 line-clamp-2">
                     {item.title}
                   </h3>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <Icon name="StarIcon" size={12} className="text-yellow-400" variant="solid" />
+                      <Icon name="StarIcon" size={12} className="text-warning" variant="solid" />
                       <span className="text-xs text-text-muted">{item.rating}</span>
                     </div>
-                    <button className="text-xs text-brand-500 font-bold hover:text-primary-bright transition-colors flex items-center gap-1">
+                    <button className="text-xs text-brand font-bold hover:text-brand-light transition-colors flex items-center gap-1">
                       <Icon name="PlusCircleIcon" size={14} />
                       <span>أضف</span>
                     </button>
@@ -234,7 +236,7 @@ export default function TrendingDataSection() {
         <div className="text-center mt-8 reveal">
           <Link
             href="/products?cat=games"
-            className="btn-secondary px-8 py-3 text-sm font-bold inline-flex items-center gap-2"
+            className="btn-secondary px-8 py-3 text-sm font-black inline-flex items-center gap-2 border border-brand text-brand hover:bg-surface/60 transition-all duration-300"
           >
             <span>عرض كل مكتبة الداتا</span>
             <Icon name="ArrowLeftIcon" size={14} />

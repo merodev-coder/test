@@ -156,9 +156,9 @@ export default function MonthlySalesPerformance() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center justify-center py-16 px-4 bg-white bg-surface-secondary rounded-2xl border border-border-light border-border"
+          className="flex flex-col items-center justify-center py-16 px-4 bg-surface-secondary rounded-2xl border border-border-light border-border"
         >
-          <div className="w-24 h-24 rounded-3xl bg-surface-tertiary bg-surface-tertiary flex items-center justify-center mb-6">
+          <div className="w-24 h-24 rounded-3xl bg-surface-tertiary flex items-center justify-center mb-6">
             <Icon name="ChartBarIcon" size={40} className="text-text-muted text-text-muted" />
           </div>
           <h3 className="text-h3 text-text-primary text-text-primary mb-2">لا توجد بيانات</h3>
@@ -173,7 +173,7 @@ export default function MonthlySalesPerformance() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white bg-surface-secondary rounded-xl p-5 border border-border-light border-border"
+              className="bg-surface-secondary rounded-xl p-5 border border-border-light border-border"
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="text-caption text-text-muted text-text-muted">إجمالي الإيرادات</p>
@@ -191,7 +191,7 @@ export default function MonthlySalesPerformance() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white bg-surface-secondary rounded-xl p-5 border border-border-light border-border"
+              className="bg-surface-secondary rounded-xl p-5 border border-border-light border-border"
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="text-caption text-text-muted text-text-muted">صافي الربح</p>
@@ -222,7 +222,7 @@ export default function MonthlySalesPerformance() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white bg-surface-secondary rounded-xl p-5 border border-border-light border-border"
+              className="bg-surface-secondary rounded-xl p-5 border border-border-light border-border"
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="text-caption text-text-muted text-text-muted">إجمالي الطلبات</p>
@@ -246,7 +246,7 @@ export default function MonthlySalesPerformance() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden"
+            className="bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden"
           >
             <div className="p-5 border-b border-border-light border-border">
               <h3 className="text-body font-bold text-text-primary text-text-primary flex items-center gap-2">
@@ -362,7 +362,7 @@ export default function MonthlySalesPerformance() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white bg-surface-secondary rounded-2xl p-6 border border-border-light border-border"
+            className="bg-surface-secondary rounded-2xl p-6 border border-border-light border-border"
           >
             <h3 className="text-body font-bold text-text-primary text-text-primary mb-6 flex items-center gap-2">
               <Icon name="PresentationChartLineIcon" size={18} className="text-brand-500" />
