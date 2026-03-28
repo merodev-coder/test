@@ -245,7 +245,10 @@ export const useStore = create<StoreState & StoreActions>()(
 
       placeOrder: async (paymentScreenshot) => {
         const state = get();
-        const totalGb = state.driveItems.reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
+        const allStorageItems = [...state.cartItems, ...state.driveItems];
+        const totalGb = allStorageItems
+          .filter((p) => p.type === 'storage')
+          .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
         const capacityGB = state.cartItems
           .filter((p) => p.type === 'storage')
           .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
@@ -478,7 +481,10 @@ export const useStore = create<StoreState & StoreActions>()(
       },
 
       getTotalDriveCapacity: () => {
-        return get().driveItems.reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
+        const allItems = [...get().cartItems, ...get().driveItems];
+        return allItems
+          .filter((p) => p.type === 'storage')
+          .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
       },
     }),
     {

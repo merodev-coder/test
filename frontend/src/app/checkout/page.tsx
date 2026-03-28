@@ -19,7 +19,7 @@ interface CartItem {
   image: string;
   price: number;
   quantity: number;
-  type: 'laptops' | 'accessories' | 'storage' | 'data';
+  type: 'laptops' | 'accessories' | 'storage' | 'data' | 'games';
   size?: string;
   selectedBrand?: string;
 }
@@ -57,7 +57,7 @@ export default function CheckoutPage() {
 
   const hasStorageProduct = storedCart.some((item) => item.type === 'storage');
 
-  const storageTotal = storedCart
+  const storageTotal = [...storedCart, ...storedDrive]
     .filter((p) => p.type === 'storage')
     .reduce((acc, p) => acc + (typeof p.storageCapacity === 'number' ? p.storageCapacity : 0), 0);
 

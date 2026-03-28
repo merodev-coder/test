@@ -10,7 +10,7 @@ interface CartItem {
   price: number;
   oldPrice?: number;
   quantity: number;
-  type: 'laptops' | 'accessories' | 'storage' | 'data';
+  type: 'laptops' | 'accessories' | 'storage' | 'data' | 'games';
   size?: string;
   specs?: string;
   images?: string[];

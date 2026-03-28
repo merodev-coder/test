@@ -1,1 +1,1 @@
-export type ProductType = 'laptops' | 'accessories' | 'storage' | 'data';
+export type ProductType = 'laptops' | 'accessories' | 'storage' | 'data' | 'games';
