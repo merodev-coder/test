@@ -14,7 +14,7 @@ const nextConfig = {
            {
         source: '/api/:path*',
         // ركز هنا: لازم https وبعدها (2 سلاش) والـ URL الكامل بتاع Railway
-        destination: 'https://considerate-celebration-production-558b.up.railway.app/api/:path*',
+        destination: 'https://considerate-celebration-production-558b.up.railway.app',
       },
         ];
     },
