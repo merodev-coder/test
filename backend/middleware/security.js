@@ -28,7 +28,11 @@ export const securityHeaders = helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "https:", "data:", "blob:"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:4028"],
+      connectSrc: ["'self'", 
+        process.env.FRONTEND_URL || "http://localhost:4028",
+        "https://abo-kartona.netlify.app",
+        "https://*.netlify.app"
+      ],
       fontSrc: ["'self'", "https:", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],

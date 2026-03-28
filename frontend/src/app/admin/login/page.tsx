@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
       localStorage.setItem('token', 'bypass-token-for-admin');
 
       // Instant hard redirect to admin dashboard
-      window.location.href = 'http://localhost:4029/admin';
+      window.location.href = '/admin';
     } else {
       setError('بيانات الدخول غير صحيحة');
       setLoading(false);

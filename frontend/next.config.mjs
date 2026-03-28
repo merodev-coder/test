@@ -14,7 +14,7 @@ const nextConfig = {
             {
                 source: '/api/:path*',
                 // شلنا localhost وحطينا رابط الـ Railway بتاعك
-                destination: 'https://considerate-celebration-production-558b.up.railway.app/api/:path*',
+                destination: 'https://abo-kartona-backend.onrender.com/api/:path*',
             },
         ];
     },
