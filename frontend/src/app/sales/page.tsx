@@ -9,7 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { useStore, type Product } from '@/store/useStore';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const containerVariants = {
   hidden: { opacity: 0 },
