@@ -1,4 +1,5 @@
 import type { ProductType } from '@/lib/productSchema';
+import { getApiUrl, getAdminApiUrl } from './apiConfig';
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -43,7 +44,8 @@ export async function fetchProducts(params?: {
   if (typeof params?.isSale !== 'undefined') {
     searchParams.set('isSale', String(params.isSale));
   }
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const baseUrl = getApiUrl('products');
+  const url = `${baseUrl}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to load products');
   const data: unknown = await res.json();
@@ -63,7 +65,7 @@ export async function createProduct(input: {
   isSale?: boolean;
   tags?: string[];
 }): Promise<Product> {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/admin/products`;
+  const url = getAdminApiUrl('products');
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const token = getCookie('abo_admin_token');
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -78,7 +80,7 @@ export async function createProduct(input: {
 }
 
 export async function deleteProduct(id: string): Promise<void> {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/admin/products/${id}`;
+  const url = getAdminApiUrl(`products/${id}`);
   const headers: Record<string, string> = {};
   const token = getCookie('abo_admin_token');
   if (token) headers.Authorization = `Bearer ${token}`;

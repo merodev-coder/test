@@ -3,7 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useStore, type Product, type Tag } from '@/store/useStore';
+import { getTotalStorageWithAggregation, createStorageSummary } from '@/lib/storageUtils';
+import { getApiUrl, getAdminApiUrl } from '@/lib/apiConfig';
+import type { Product, Tag } from '@/store/useStore';
+import { useStore } from '@/store/useStore';
 import { type ProductType } from '@/lib/productSchema';
 import Icon from '@/components/ui/AppIcon';
 import { UploadDropzone } from '@/utils/uploadthing';
@@ -882,7 +885,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
       const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
-      const res = await fetch('/api/admin/orders', { headers });
+      const res = await fetch(getAdminApiUrl('orders'), { headers });
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
@@ -903,7 +906,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
       const token = localStorage.getItem('token');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
-      const res = await fetch(`/api/admin/orders/${id}`, {
+      const res = await fetch(getAdminApiUrl(`orders/${id}`), {
         method: 'PATCH',
         headers,
         body: JSON.stringify({ status }),
@@ -920,7 +923,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
   const deleteOrder = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) return;
     try {
-      const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+      const res = await fetch(getAdminApiUrl(`orders/${id}`), { method: 'DELETE' });
       if (res.ok) {
         showNotification('تم حذف الطلب بنجاح');
         fetchOrders();

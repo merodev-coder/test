@@ -126,6 +126,7 @@ const HamburgerButton = ({ open, onClick }: { open: boolean; onClick: () => void
         strokeLinecap="round"
         animate={open ? { x1: 4, y1: 4, x2: 18, y2: 18 } : { x1: 3, y1: 7, x2: 19, y2: 7 }}
         transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+        initial={{ x1: 3, y1: 7, x2: 19, y2: 7 }}
       />
       <motion.line
         x1="3"
@@ -137,6 +138,7 @@ const HamburgerButton = ({ open, onClick }: { open: boolean; onClick: () => void
         strokeLinecap="round"
         animate={open ? { x1: 4, y1: 18, x2: 18, y2: 4 } : { x1: 3, y1: 15, x2: 19, y2: 15 }}
         transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+        initial={{ x1: 3, y1: 15, x2: 19, y2: 15 }}
       />
       <motion.line
         x1="3"
@@ -149,6 +151,7 @@ const HamburgerButton = ({ open, onClick }: { open: boolean; onClick: () => void
         animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
         transition={{ duration: 0.4, ease: [0.4, 0, 0.6, 1] }}
         style={{ originX: '50%', originY: '50%' }}
+        initial={{ opacity: 1, scaleX: 1 }}
       />
     </svg>
   </button>

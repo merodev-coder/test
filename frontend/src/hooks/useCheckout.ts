@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { withRetry } from '@/lib/retry';
 import type { Product } from '@/store/useStore';
+import { getApiUrl } from '@/lib/apiConfig';
 
 interface OrderItem {
   productId: string;
@@ -98,7 +99,7 @@ export function useCheckoutSubmission(): CheckoutState & CheckoutActions {
             formData.append('paymentScreenshot', orderData.paymentScreenshot);
           }
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/orders`, {
+          const response = await fetch(getApiUrl('orders'), {
             method: 'POST',
             body: formData,
             signal: abortControllerRef.current?.signal,

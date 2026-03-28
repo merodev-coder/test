@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
+import { getAdminApiUrl } from '@/lib/apiConfig';
 import { ThemedSelect } from '@/components/ui/ThemedSelect';
 import {
   AreaChart,
@@ -436,7 +437,7 @@ export default function MonthlySalesPerformance() {
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await fetch(`/api/admin/monthly-performance?year=${year}`, { headers });
+      const res = await fetch(getAdminApiUrl(`monthly-performance?year=${year}`), { headers });
       if (res.ok) {
         const result = await res.json();
         setData(result);

@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ProductType } from '@/lib/productSchema';
 import { getTotalStorageWithAggregation, createStorageSummary } from '@/lib/storageUtils';
+import { getApiUrl, getAdminApiUrl } from '@/lib/apiConfig';
 
 export type Tag = { id: string; name: string; slug: string };
 
@@ -196,20 +197,47 @@ export const useStore = create<StoreState & StoreActions>()(
           throw new Error('يرجى اختيار الماركة قبل إضافة المنتج للسلة');
         }
 
-        const existing = get().cartItems.find(
-          (p) => p.id === product.id && (p.selectedBrand || '') === (product.selectedBrand || '')
-        );
-        if (existing) {
-          set((state) => ({
-            cartItems: state.cartItems.map((p) =>
-              p.id === product.id && (p.selectedBrand || '') === (product.selectedBrand || '')
-                ? { ...p, quantity: (p.quantity || 1) + 1 }
-                : p
-            ),
-          }));
+        // For storage products, check for existing items with same model and storage capacity
+        if (product.type === 'storage') {
+          const existing = get().cartItems.find(
+            (p) => 
+              p.id === product.id && 
+              (p.selectedBrand || '') === (product.selectedBrand || '') &&
+              p.storageCapacity === product.storageCapacity
+          );
+          
+          if (existing) {
+            set((state) => ({
+              cartItems: state.cartItems.map((p) =>
+                p.id === product.id && 
+                (p.selectedBrand || '') === (product.selectedBrand || '') &&
+                p.storageCapacity === product.storageCapacity
+                  ? { ...p, quantity: (p.quantity || 1) + 1 }
+                  : p
+              ),
+            }));
+            return;
+          }
         } else {
-          set((state) => ({ cartItems: [...state.cartItems, { ...product, quantity: 1 }] }));
+          // For non-storage products, use existing logic
+          const existing = get().cartItems.find(
+            (p) => p.id === product.id && (p.selectedBrand || '') === (product.selectedBrand || '')
+          );
+          
+          if (existing) {
+            set((state) => ({
+              cartItems: state.cartItems.map((p) =>
+                p.id === product.id && (p.selectedBrand || '') === (product.selectedBrand || '')
+                  ? { ...p, quantity: (p.quantity || 1) + 1 }
+                  : p
+              ),
+            }));
+            return;
+          }
         }
+
+        // Add new item if no existing match found
+        set((state) => ({ cartItems: [...state.cartItems, { ...product, quantity: 1 }] }));
       },
 
       removeFromCart: (id) => {
@@ -295,7 +323,7 @@ export const useStore = create<StoreState & StoreActions>()(
         } else if (typeof paymentScreenshot === 'string') {
           form.set('paymentScreenshotUrl', paymentScreenshot);
         }
-        const res = await fetch('/api/orders', { method: 'POST', body: form });
+        const res = await fetch(getApiUrl('orders'), { method: 'POST', body: form });
         if (!res.ok) {
           const data = await res.json().catch(() => null);
           throw new Error(data?.error || data?.message || 'Failed to create order');
@@ -320,7 +348,7 @@ export const useStore = create<StoreState & StoreActions>()(
 
       fetchTags: async () => {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001'}/api/tags`, { cache: 'no-store' });
+          const res = await fetch(getApiUrl('tags'), { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch tags');
 
           const data = await res.json();
@@ -343,7 +371,8 @@ export const useStore = create<StoreState & StoreActions>()(
           if (params?.maxPrice !== undefined) searchParams.set('maxPrice', String(params.maxPrice));
 
           // Use the backend API directly
-          const url = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001'}/api/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+          const baseUrl = getApiUrl('products');
+          const url = `${baseUrl}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
           const res = await fetch(url, { cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch products');
@@ -367,7 +396,7 @@ export const useStore = create<StoreState & StoreActions>()(
 
         try {
           console.info('Sending product to API:', product);
-          const res = await fetch('/api/admin/products', {
+          const res = await fetch(getAdminApiUrl('products'), {
             method: 'POST',
             headers,
             body: JSON.stringify(product),
@@ -397,7 +426,7 @@ export const useStore = create<StoreState & StoreActions>()(
         if (token) headers.Authorization = `Bearer ${token}`;
 
         try {
-          const res = await fetch(`/api/admin/products`, {
+          const res = await fetch(getAdminApiUrl('products'), {
             method: 'PUT',
             headers,
             body: JSON.stringify({ id, ...product }),
@@ -422,7 +451,7 @@ export const useStore = create<StoreState & StoreActions>()(
         if (token) headers.Authorization = `Bearer ${token}`;
 
         try {
-          const res = await fetch(`/api/admin/products`, {
+          const res = await fetch(getAdminApiUrl('products'), {
             method: 'DELETE',
             headers,
             body: JSON.stringify({ id }),

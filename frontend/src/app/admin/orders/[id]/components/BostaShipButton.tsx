@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getAdminApiUrl } from '@/lib/apiConfig';
 import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 
@@ -20,7 +21,7 @@ export default function BostaShipButton({
   const handleShip = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/orders/ship', {
+      const res = await fetch(getAdminApiUrl('orders/ship'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId }),
