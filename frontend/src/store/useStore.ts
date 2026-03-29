@@ -32,6 +32,17 @@ export type Product = {
   selectedBrand?: string;
 };
 
+export type StorageDataMapping = {
+  storageItemId: string;
+  storageName: string;
+  storageCapacity: number;
+  assignedData: {
+    dataItemId: string;
+    dataName: string;
+    sizeGB: number;
+  }[];
+};
+
 export type Order = {
   id: string;
   status: 'pending' | 'completed' | 'cancelled';
@@ -40,6 +51,7 @@ export type Order = {
   totalGb: number;
   paymentScreenshot?: string;
   createdAt: number;
+  storageDataMapping?: StorageDataMapping[];
 };
 
 export type Filters = {

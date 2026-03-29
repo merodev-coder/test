@@ -141,6 +141,102 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                 ))}
               </div>
             </div>
+
+            {/* Storage-Data Mapping */}
+            {order.storageDataMapping && order.storageDataMapping.length > 0 && (
+              <div className="glass-card rounded-2xl p-6">
+                <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
+                  <Icon name="ServerStackIcon" size={20} className="text-brand-500" />
+                  توزيع البيانات على أجهزة التخزين
+                </h3>
+                <div className="space-y-4">
+                  {order.storageDataMapping.map((mapping: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="bg-surface-secondary rounded-xl border border-border overflow-hidden"
+                    >
+                      {/* Storage Device Header */}
+                      <div className="p-4 border-b border-border bg-brand-500/5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center">
+                              <Icon name="CircleStackIcon" size={18} className="text-brand-500" />
+                            </div>
+                            <div>
+                              <h4 className="text-body-sm font-bold text-text-primary">
+                                {mapping.storageName}
+                              </h4>
+                              <p className="text-caption text-text-muted">
+                                السعة: {mapping.storageCapacity?.toLocaleString('ar-EG')} GB
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-left">
+                            <span className="text-xs font-bold text-brand-500">
+                              {mapping.assignedData?.length || 0} ملف
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Assigned Data List */}
+                      {mapping.assignedData && mapping.assignedData.length > 0 && (
+                        <div className="p-3 space-y-2">
+                          {mapping.assignedData.map((data: any, dataIdx: number) => (
+                            <div
+                              key={dataIdx}
+                              className="flex items-center gap-3 p-2 rounded-lg bg-surface-tertiary/50"
+                            >
+                              <Icon name="FolderIcon" size={16} className="text-amber-400 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-text-primary line-clamp-1">
+                                  {data.dataName}
+                                </p>
+                              </div>
+                              <span className="text-[10px] text-text-muted flex-shrink-0">
+                                {data.sizeGB?.toLocaleString('ar-EG')} GB
+                              </span>
+                            </div>
+                          ))}
+                          
+                          {/* Total for this storage */}
+                          <div className="flex items-center justify-between pt-2 border-t border-border/50 mt-2">
+                            <span className="text-xs text-text-muted">إجمالي البيانات على هذا الجهاز:</span>
+                            <span className="text-xs font-bold text-brand-500">
+                              {mapping.assignedData.reduce((acc: number, d: any) => acc + (d.sizeGB || 0), 0).toLocaleString('ar-EG')} GB
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {(!mapping.assignedData || mapping.assignedData.length === 0) && (
+                        <div className="p-4 text-center">
+                          <p className="text-caption text-text-muted">لا توجد بيانات مخصصة لهذا الجهاز</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Summary */}
+                <div className="mt-4 p-4 rounded-xl bg-brand-500/5 border border-brand-500/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-sm font-bold text-text-primary">إجمالي أجهزة التخزين:</span>
+                    <span className="text-body-sm font-bold text-brand-500">
+                      {order.storageDataMapping.length} جهاز
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-body-sm font-bold text-text-primary">إجمالي البيانات المخزنة:</span>
+                    <span className="text-body-sm font-bold text-brand-500">
+                      {order.storageDataMapping.reduce((acc: number, m: any) => 
+                        acc + (m.assignedData?.reduce((a: number, d: any) => a + (d.sizeGB || 0), 0) || 0), 0
+                      ).toLocaleString('ar-EG')} GB
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="md:w-80 w-full space-y-6">
@@ -202,6 +298,25 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                   <p className="text-xs">لا يوجد إيصال مرفق</p>
                 </div>
               )}
+            </div>
+
+            {/* Terms of Service */}
+            <div className="glass-card rounded-2xl p-6">
+              <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
+                <Icon name="ShieldCheckIcon" size={20} className="text-amber-400" />
+                شروط الخدمة
+              </h3>
+              <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                <p className="text-sm text-text-primary leading-relaxed mb-3">
+                  ⚠️ العميل وافق على شروط الخدمة عند إتمام الطلب
+                </p>
+                <div className="space-y-2 text-xs text-text-muted">
+                  <p>• التعويض الكامل خلال 14 يوم في حالة ضرر المنتج أثناء الشحن</p>
+                  <p>• تصوير فيديو للمنتج قبل فتح الكارتونة (الضامن الوحيد)</p>
+                  <p>• مدة الإرجاع: 3 أيام بنفس الحالة</p>
+                  <p>• استرداد الأموال عبر المحافظ الإلكترونية أو التحويلات البنكية</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

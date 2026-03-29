@@ -25,6 +25,7 @@ interface OrderSummaryProps {
   onConfirm: () => void;
   canConfirm: boolean;
   isLoading: boolean;
+  termsAgreed?: boolean;
 }
 
 export default function OrderSummary({
@@ -36,6 +37,7 @@ export default function OrderSummary({
   onConfirm,
   canConfirm,
   isLoading,
+  termsAgreed = true,
 }: OrderSummaryProps) {
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const total = subtotal + shippingCost;
@@ -157,9 +159,9 @@ export default function OrderSummary({
       {/* Confirm Button */}
       <button
         onClick={onConfirm}
-        disabled={!canConfirm || isLoading}
+        disabled={!canConfirm || isLoading || !termsAgreed}
         className={`btn-primary w-full py-4 text-base font-black flex items-center justify-center gap-2 relative z-10 ${
-          !canConfirm || isLoading ? 'opacity-50 cursor-not-allowed' : ''
+          !canConfirm || isLoading || !termsAgreed ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
         {isLoading ? (
@@ -178,6 +180,12 @@ export default function OrderSummary({
       {!canConfirm && (
         <p className="text-xs text-amber-400 text-center mt-2 font-bold">
           ارفع صورة الإيصال لتأكيد الأوردر
+        </p>
+      )}
+
+      {!termsAgreed && (
+        <p className="text-xs text-red-400 text-center mt-2 font-bold">
+          يجب الموافقة على شروط الخدمة
         </p>
       )}
     </div>

@@ -1,11 +1,12 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebookF, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
+import TermsOfServiceModal from './TermsOfServiceModal';
 
-const footerLinks = {
+const footerLinks: Record<string, { title: string; links: Array<{ label: string; href: string; isTerms?: boolean }> }> = {
   products: {
     title: 'المنتجات',
     links: [
@@ -13,6 +14,12 @@ const footerLinks = {
       { label: ' اللابتوبات', href: '/products?cat=laptops' },
       { label: 'إكسسوارات', href: '/products?cat=accessories' },
       { label: 'هارد درايف', href: '/products?cat=storage' },
+    ],
+  },
+  legal: {
+    title: 'القانونية',
+    links: [
+      { label: 'شروط الخدمة', href: '#', isTerms: true },
     ],
   },
 };
@@ -27,8 +34,11 @@ const socialLinks = [
 ];
 
 const Footer = memo(function Footer() {
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+
   return (
     <footer className="relative mt-20 overflow-hidden border-t border-border-light dark:border-border-dark bg-surface dark:bg-surface-dark">
+      <TermsOfServiceModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
       <div className="section-container relative z-10 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
@@ -71,13 +81,23 @@ const Footer = memo(function Footer() {
               <ul className="space-y-4">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-text-muted dark:text-text-dark-muted hover:text-brand-500 transition-all duration-200 flex items-center group will-change-transform"
-                    >
-                      <span className="h-[1px] w-0 bg-brand-500 mr-0 group-hover:w-3 group-hover:ml-2 transition-all duration-200" />
-                      {link.label}
-                    </Link>
+                    {link.isTerms ? (
+                      <button
+                        onClick={() => setIsTermsOpen(true)}
+                        className="text-sm text-text-muted dark:text-text-dark-muted hover:text-brand-500 transition-all duration-200 flex items-center group will-change-transform text-right"
+                      >
+                        <span className="h-[1px] w-0 bg-brand-500 mr-0 group-hover:w-3 group-hover:ml-2 transition-all duration-200" />
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-text-muted dark:text-text-dark-muted hover:text-brand-500 transition-all duration-200 flex items-center group will-change-transform"
+                      >
+                        <span className="h-[1px] w-0 bg-brand-500 mr-0 group-hover:w-3 group-hover:ml-2 transition-all duration-200" />
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

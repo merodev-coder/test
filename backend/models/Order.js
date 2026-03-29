@@ -20,6 +20,25 @@ const driveItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const assignedDataSchema = new mongoose.Schema(
+  {
+    dataItemId: { type: String, required: true },
+    dataName: { type: String, required: true },
+    sizeGB: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+const storageDataMappingSchema = new mongoose.Schema(
+  {
+    storageItemId: { type: String, required: true },
+    storageName: { type: String, required: true },
+    storageCapacity: { type: Number, required: true },
+    assignedData: [assignedDataSchema],
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     orderID: { type: String, required: true, unique: true },
@@ -37,6 +56,7 @@ const orderSchema = new mongoose.Schema(
     requiredDeposit: { type: Number, default: 0 },
     trackingNumber: { type: String },
     deliveryId: { type: String },
+    storageDataMapping: [storageDataMappingSchema],
     status: {
       type: String,
       enum: ['Pending', 'Completed', 'Cancelled'],

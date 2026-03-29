@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CartReview from './components/CartReview';
@@ -11,9 +11,11 @@ import Icon from '@/components/ui/AppIcon';
 import WhatsAppButton from '../homepage/components/WhatsAppButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useStore, Product as StoreProduct } from '@/store/useStore';
+import { useStore, Product as StoreProduct, StorageDataMapping } from '@/store/useStore';
 import { createStorageSummary, getDataItemEffectivePrices, calculateCartTotals, parseCapacityGB } from '@/lib/storageUtils';
 import { getApiUrl } from '@/lib/apiConfig';
+import PerStorageTracker, { StorageDevice, DataItem, StorageAssignment } from './components/PerStorageTracker';
+import TermsOfServiceModal from '@/components/TermsOfServiceModal';
 
 interface CartItem {
   id: string;
@@ -60,6 +62,9 @@ export default function CheckoutPage() {
   const [customerEmail, setCustomerEmail] = useState('');
   const [selectedShippingMethod, setSelectedShippingMethod] = useState('');
   const [requiredDeposit, setRequiredDeposit] = useState(0);
+  const [storageAssignments, setStorageAssignments] = useState<StorageAssignment[]>([]);
+  const [termsAgreed, setTermsAgreed] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   const hasStorageProduct = storedCart.some((item) => item.type === 'storage');
 
@@ -118,6 +123,7 @@ export default function CheckoutPage() {
     setIsLoading(true);
 
     const orderID = `AC-${Math.floor(Math.random() * 90000) + 10000}`;
+    const storageDataMapping = generateStorageDataMapping();
 
     try {
       const res = await fetch(getApiUrl('orders'), {
@@ -138,6 +144,7 @@ export default function CheckoutPage() {
           totalPrice: subtotal + shippingCost,
           capacityGB: storageTotal,
           uploadedPhotoUrl: receiptFile,
+          storageDataMapping,
         }),
       });
 
@@ -156,12 +163,14 @@ export default function CheckoutPage() {
         customerName,
         phone,
         address: customerAddress,
+        storageDataMapping,
       };
       existingOrders.push(newOrder);
       localStorage.setItem('abuKartona_userOrders', JSON.stringify(existingOrders));
 
       clearCart();
       clearDrive();
+      setStorageAssignments([]);
       router.push(
         `/checkout/success?orderId=${orderID}&total=${subtotal + shippingCost}&deposit=${depositAmount}&drive=${driveItems.length}`
       );
@@ -175,6 +184,67 @@ export default function CheckoutPage() {
     receiptFile !== null && cartItems.length > 0 && !!customerName && !!phone && !!customerAddress && !!customerEmail;
 
   const dataEffectivePrices = getDataItemEffectivePrices(storedCart);
+
+  // Get storage devices from cart
+  const storageDevices: StorageDevice[] = useMemo(() => {
+    return storedCart
+      .filter((p) => p.type === 'storage')
+      .map((p, index) => ({
+        id: `${p.id}-${index}-${p.storageCapacity || 0}`,
+        name: p.name,
+        subtype: p.subtype || 'Storage',
+        capacityGB: parseCapacityGB(p.storageCapacity, p.name),
+        quantity: (p as any).quantity || 1,
+      }));
+  }, [storedCart]);
+
+  // Get data items from cart
+  const dataItems: DataItem[] = useMemo(() => {
+    return storedCart
+      .filter((p) => p.type === 'data')
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        sizeGB: p.gbSize || 0,
+        quantity: (p as any).quantity || 1,
+        image: p.images?.[0],
+      }));
+  }, [storedCart]);
+
+  // Handle assignment changes
+  const handleAssignmentChange = (storageId: string, dataId: string, assigned: boolean) => {
+    if (assigned) {
+      setStorageAssignments((prev) => [...prev, { storageId, dataId }]);
+    } else {
+      setStorageAssignments((prev) => 
+        prev.filter((a) => !(a.storageId === storageId && a.dataId === dataId))
+      );
+    }
+  };
+
+  // Generate storage data mapping for order
+  const generateStorageDataMapping = (): StorageDataMapping[] => {
+    return storageDevices.map((device) => {
+      const assignedData = storageAssignments
+        .filter((a) => a.storageId === device.id)
+        .map((a) => {
+          const dataItem = dataItems.find((d) => d.id === a.dataId);
+          return dataItem ? {
+            dataItemId: dataItem.id,
+            dataName: dataItem.name,
+            sizeGB: dataItem.sizeGB * dataItem.quantity,
+          } : null;
+        })
+        .filter(Boolean) as { dataItemId: string; dataName: string; sizeGB: number }[];
+
+      return {
+        storageItemId: device.id,
+        storageName: device.name,
+        storageCapacity: device.capacityGB * device.quantity,
+        assignedData,
+      };
+    }).filter((mapping) => mapping.assignedData.length > 0);
+  };
 
   const toCartItems = (items: StoreProduct[]): CartItem[] =>
     items.map((p) => {
@@ -277,54 +347,31 @@ export default function CheckoutPage() {
 
                   {hasStorageProduct && storageTotal > 0 && (
                     <>
-                      {/* Storage Tracker */}
-                      <div className="mt-6 p-4 rounded-2xl bg-surface-secondary bg-surface-tertiary/60 border border-brand-200 dark:border-brand-500/25">
-                        <h3 className="text-body-sm font-bold text-text-primary text-text-primary mb-3 flex items-center gap-2">
+                      {/* Per-Storage Trackers */}
+                      <div className="mt-6">
+                        <h3 className="text-body-sm font-bold text-text-primary mb-3 flex items-center gap-2">
                           <Icon name="CircleStackIcon" size={18} className="text-brand-500" />
-                          تتبع مساحة الهارد
+                          تتبع مساحة التخزين لكل جهاز
                         </h3>
+                        <p className="text-caption text-text-muted mb-4">
+                          اختر البيانات التي تريد تخزينها على كل جهاز تخزين. يمكنك توزيع البيانات بين الأجهزة المختلفة.
+                        </p>
                         
-                        {/* Storage Summary */}
-                        {storageSummary !== '0GB' && (
-                          <div className="mb-3 p-2 rounded-lg bg-brand-50 border border-brand-200">
-                            <p className="text-xs font-semibold text-brand-600 text-center">
-                              {storageSummary}
-                            </p>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center justify-between mb-2 text-caption">
-                          <span className="text-text-muted text-text-muted">
-                            السعة:{' '}
-                            <span className="font-bold text-text-primary text-text-primary">
-                              {storageTotal} GB
-                            </span>
-                          </span>
-                          <span className="text-text-muted text-text-muted">
-                            المستخدم:{' '}
-                            <span className="font-bold text-brand-500">{usedDataGB} GB</span>
-                          </span>
-                        </div>
-                        <div className="storage-bar-track h-2 rounded-full overflow-hidden">
-                          <div
-                            className="storage-bar-fill h-full"
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                Math.round((usedDataGB / Math.max(storageTotal, 1)) * 100)
-                              )}%`,
-                            }}
-                          />
-                        </div>
+                        <PerStorageTracker
+                          storageDevices={storageDevices}
+                          dataItems={dataItems}
+                          assignments={storageAssignments}
+                          onAssignmentChange={handleAssignmentChange}
+                        />
                       </div>
 
                       {/* Free Data Selection */}
                       <div className="mt-6">
-                        <h3 className="text-body-sm font-bold text-text-primary text-text-primary mb-2">
+                        <h3 className="text-body-sm font-bold text-text-primary mb-2">
                           اختر الداتا المجانية لهاردك
                         </h3>
-                        <p className="text-caption text-text-muted text-text-muted mb-4">
-                          كل الداتا هتتحسب مجاناً (0 جنيه) طول ما الهارد موجود في السلة.
+                        <p className="text-caption text-text-muted mb-4">
+                          أضف منتجات DATA لسلتك، ثم اختر الجهاز المناسب لكل بيانات أعلاه.
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {(products || [])
@@ -361,14 +408,14 @@ export default function CheckoutPage() {
                                   </div>
 
                                   <div className="flex items-start justify-between gap-2 mb-1">
-                                    <span className="text-caption text-text-muted text-text-muted line-clamp-1">
+                                    <span className="text-caption text-text-muted line-clamp-1">
                                       {p.subtype}
                                     </span>
                                     <span className="badge-new text-[9px] flex-shrink-0">
                                       مجاني
                                     </span>
                                   </div>
-                                  <p className="text-caption font-bold text-text-primary text-text-primary mb-2 line-clamp-2">
+                                  <p className="text-caption font-bold text-text-primary mb-2 line-clamp-2">
                                     {p.name}
                                   </p>
                                   <div className="flex items-center justify-between">
@@ -504,6 +551,33 @@ export default function CheckoutPage() {
                     receiptFile={receiptFile}
                   />
 
+                  {/* Terms Agreement */}
+                  <div className="mt-6 p-4 rounded-2xl bg-surface-secondary border border-border">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={termsAgreed}
+                        onChange={(e) => setTermsAgreed(e.target.checked)}
+                        className="w-5 h-5 rounded border-border bg-surface-tertiary text-brand-500 focus:ring-brand-500 mt-0.5"
+                      />
+                      <div className="flex-1">
+                        <span className="text-sm text-text-primary">
+                          أوافق على{' '}
+                          <button
+                            type="button"
+                            onClick={() => setIsTermsModalOpen(true)}
+                            className="text-brand-500 font-bold hover:underline"
+                          >
+                            شروط الخدمة
+                          </button>
+                        </span>
+                        <p className="text-xs text-text-muted mt-1">
+                          يجب الموافقة على الشروط لإتمام الطلب
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
                   <div className="flex gap-3 mt-6">
                     <button
                       onClick={() => setActiveStep(2)}
@@ -528,6 +602,7 @@ export default function CheckoutPage() {
                 onConfirm={handleConfirm}
                 canConfirm={canConfirm && activeStep === 3}
                 isLoading={isLoading}
+                termsAgreed={termsAgreed}
               />
             </div>
           </div>
@@ -536,6 +611,12 @@ export default function CheckoutPage() {
 
       <Footer />
       <WhatsAppButton />
+      <TermsOfServiceModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+        onAgree={() => setTermsAgreed(true)}
+        showAgreeButton={true}
+      />
     </div>
   );
 }

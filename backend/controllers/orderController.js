@@ -42,6 +42,7 @@ export async function createOrder(req, res, next) {
       ? `/uploads/${req.file.filename}`
       : body.paymentScreenshotUrl || null;
     const uploadedPhotoUrl = body.uploadedPhotoUrl || null;
+    const storageDataMapping = body.storageDataMapping || [];
     const order = await Order.create({
       orderID,
       customerDetails: body.customerDetails || {},
@@ -56,6 +57,7 @@ export async function createOrder(req, res, next) {
       selectedShippingMethod: body.selectedShippingMethod || null,
       shippingCost: Number(body.shippingCost || 0),
       requiredDeposit: Number(body.requiredDeposit || 0),
+      storageDataMapping,
       status: 'Pending',
     });
     res.status(201).json({ order });
