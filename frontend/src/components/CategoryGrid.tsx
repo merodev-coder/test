@@ -56,9 +56,9 @@ const categories: Category[] = [
     color: 'from-brand/20 to-brand/10',
   },
   {
-    id: 'gaming',
-    name: 'ألعاب',
-    slug: 'gaming',
+    id: 'data',
+    name: 'ألعاب و أفلام',
+    slug: 'data',
     icon: <Gamepad2 className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />,
     productCount: 28,
     color: 'from-brand/20 to-brand/10',

@@ -81,7 +81,12 @@ export default function CartReview({
                     )}
                     <div className="flex items-center gap-2 mt-1">
                       {item.type === 'data' ? (
-                        <p className="text-sm font-bold text-brand-500">{item.size || '—'}</p>
+                        <>
+                          {item.size && <span className="badge-size text-[9px]">{item.size}</span>}
+                          <p className="text-sm font-bold text-brand-500">
+                            {item.price === 0 ? 'مجاناً 🎁' : `${item.price.toLocaleString('ar-EG')} جنيه`}
+                          </p>
+                        </>
                       ) : (
                         <>
                           <p className="text-sm font-bold text-brand-500">

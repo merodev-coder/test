@@ -484,11 +484,11 @@ export function BuyBox({ product }: { product: any }) {
       <div className="bg-surface-secondary dark:bg-white/[0.03] rounded-xl p-3 text-caption text-text-muted text-text-muted space-y-1">
         <div className="flex justify-between">
           <span>يُشحن من</span>
-          <span className="font-semibold text-text-primary text-text-primary">أبو كارتونة</span>
+          <span className="font-semibold text-text-primary text-text-primary">أبوكارتونةspan>
         </div>
         <div className="flex justify-between">
           <span>يُباع بواسطة</span>
-          <span className="font-semibold text-text-primary text-text-primary">أبو كارتونة</span>
+          <span className="font-semibold text-text-primary text-text-primary">أبوكارتونة</span>
         </div>
       </div>
     </motion.div>

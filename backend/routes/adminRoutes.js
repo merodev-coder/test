@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/authMiddleware.js';
-import { listOrders, updateOrderStatus } from '../controllers/orderController.js';
+import { listOrders, updateOrderStatus, deleteOrder } from '../controllers/orderController.js';
 import {
   createProduct,
   updateProduct,
@@ -14,6 +14,15 @@ import {
   deleteBrand,
 } from '../controllers/brandController.js';
 import {
+  listShippingMethods,
+  createShippingMethod,
+  updateShippingMethod,
+  deleteShippingMethod,
+  addGovernorateToMethod,
+  updateGovernorateInMethod,
+  removeGovernorateFromMethod,
+} from '../controllers/shippingController.js';
+import {
   getMonthlyPerformance,
   getMonthlyAudit,
   getTopSellingItems,
@@ -24,6 +33,7 @@ const router = Router();
 
 router.get('/orders', authMiddleware, listOrders);
 router.patch('/orders/:id', authMiddleware, updateOrderStatus);
+router.delete('/orders/:id', authMiddleware, deleteOrder);
 
 router.post('/inventory', authMiddleware, createProduct);
 router.put('/inventory/:id', authMiddleware, updateProduct);
@@ -40,6 +50,17 @@ router.get('/brands', authMiddleware, listBrands);
 router.post('/brands', authMiddleware, createBrand);
 router.patch('/brands/:id', authMiddleware, updateBrand);
 router.delete('/brands/:id', authMiddleware, deleteBrand);
+
+// Shipping Methods
+router.get('/shipping/methods', authMiddleware, listShippingMethods);
+router.post('/shipping/methods', authMiddleware, createShippingMethod);
+router.patch('/shipping/methods/:id', authMiddleware, updateShippingMethod);
+router.delete('/shipping/methods/:id', authMiddleware, deleteShippingMethod);
+
+// Per-method Governorates
+router.post('/shipping/methods/:id/governorates', authMiddleware, addGovernorateToMethod);
+router.patch('/shipping/methods/:id/governorates/:govId', authMiddleware, updateGovernorateInMethod);
+router.delete('/shipping/methods/:id/governorates/:govId', authMiddleware, removeGovernorateFromMethod);
 
 // Analytics routes
 router.get('/monthly-performance', authMiddleware, getMonthlyPerformance);

@@ -6,8 +6,11 @@ export function validateCapacity({ capacityGB, driveItems }) {
         return acc + value;
       }, 0)
     : 0;
-  if (capacity <= 0) {
+  if (capacity <= 0 && totalGB > 0) {
     return { ok: false, totalGB, capacityGB: capacity, reason: 'NO_CAPACITY_DEFINED' };
+  }
+  if (capacity <= 0 && totalGB === 0) {
+    return { ok: true, totalGB, capacityGB: capacity, reason: null };
   }
   if (totalGB > capacity) {
     return { ok: false, totalGB, capacityGB: capacity, reason: 'EXCEEDED_CAPACITY' };

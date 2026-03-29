@@ -1,5 +1,6 @@
 import { Order } from '../models/Order.js';
 import { validateCapacity } from '../utils/capacityGuard.js';
+import { sendOrderReceipt } from '../utils/emailService.js';
 
 function buildOrderID() {
   const n = Math.floor(Math.random() * 90000) + 10000;
@@ -51,9 +52,29 @@ export async function createOrder(req, res, next) {
       capacityGB: capacityResult.capacityGB,
       paymentScreenshotUrl,
       uploadedPhotoUrl,
+      cityCode: body.cityCode,
+      selectedShippingMethod: body.selectedShippingMethod || null,
+      shippingCost: Number(body.shippingCost || 0),
+      requiredDeposit: Number(body.requiredDeposit || 0),
       status: 'Pending',
     });
     res.status(201).json({ order });
+
+    const customerEmail = body.customerEmail;
+    if (customerEmail) {
+      sendOrderReceipt({
+        customerEmail,
+        customerName: body.customerName || body.customerDetails?.name || '',
+        orderID,
+        items: rawItems.map((item) => ({
+          name: item.name,
+          price: Number(item.price || 0),
+          quantity: Number(item.quantity || 1),
+          type: item.type || '',
+        })),
+        totalPrice: Number(body.totalPrice || 0),
+      }).catch((err) => console.error('[Email] Failed to send receipt:', err.message));
+    }
   } catch (err) {
     next(err);
   }
@@ -63,6 +84,19 @@ export async function listOrders(req, res, next) {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json({ orders });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteOrder(req, res, next) {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByIdAndDelete(id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    res.json({ message: 'Order deleted successfully' });
   } catch (err) {
     next(err);
   }

@@ -488,7 +488,10 @@ export default function ProductCard({
                 <div className="flex items-end gap-2">
                   <div>
                     <span className="text-xl font-black leading-none" style={{ color: '#f1f5f9' }}>
-                      {product.price.toLocaleString('ar-EG')}
+                      {(isData && (!product.price || product.price === 0) && (product.gbSize ?? 0) > 0
+                        ? (product.gbSize! * 0.5)
+                        : product.price
+                      ).toLocaleString('ar-EG')}
                     </span>
                     <span className="text-xs text-slate-500 font-normal me-1"> جنيه</span>
                   </div>

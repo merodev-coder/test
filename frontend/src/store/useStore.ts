@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ProductType } from '@/lib/productSchema';
-import { getTotalStorageWithAggregation, createStorageSummary } from '@/lib/storageUtils';
+import { getTotalStorageWithAggregation, createStorageSummary, calculateCartTotals } from '@/lib/storageUtils';
 import { getApiUrl, getAdminApiUrl } from '@/lib/apiConfig';
 
 export type Tag = { id: string; name: string; slug: string };
@@ -257,8 +257,8 @@ export const useStore = create<StoreState & StoreActions>()(
       addToDrive: (product) => {
         const capacityGB = get()
           .cartItems.filter((p) => p.type === 'storage')
-          .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
-        const usedGB = get().driveItems.reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
+          .reduce((acc, p) => acc + (p.storageCapacity || 0) * ((p as any).quantity || 1), 0);
+        const usedGB = get().driveItems.reduce((acc, p) => acc + (p.storageCapacity || 0) * ((p as any).quantity || 1), 0);
         const nextSize = product.storageCapacity || 0;
         if (capacityGB > 0 && usedGB + nextSize > capacityGB) {
           return { ok: false, reason: 'EXCEEDED_CAPACITY' };
@@ -283,7 +283,7 @@ export const useStore = create<StoreState & StoreActions>()(
         const capacityGB = state.cartItems
           .filter((p) => p.type === 'storage')
           .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
-        const totalPrice = state.cartItems.reduce((acc, p) => acc + p.price * (p.quantity || 1), 0);
+        const totalPrice = calculateCartTotals(state.cartItems).total;
         const order: Order = {
           id: `AK-${Math.floor(Math.random() * 90000) + 10000}`,
           status: 'pending',
@@ -509,14 +509,14 @@ export const useStore = create<StoreState & StoreActions>()(
       },
 
       getTotalCartPrice: () => {
-        return get().cartItems.reduce((acc, p) => acc + p.price * (p.quantity || 1), 0);
+        return calculateCartTotals(get().cartItems).total;
       },
 
       getTotalDriveCapacity: () => {
         const allItems = [...get().cartItems, ...get().driveItems];
         return allItems
           .filter((p) => p.type === 'storage')
-          .reduce((acc, p) => acc + (p.storageCapacity || 0), 0);
+          .reduce((acc, p) => acc + (p.storageCapacity || 0) * ((p as any).quantity || 1), 0);
       },
 
       getStorageAggregation: () => {

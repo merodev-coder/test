@@ -21,6 +21,7 @@ interface OrderSummaryProps {
   driveItems: CartItem[];
   shippingCost: number;
   depositAmount: number;
+  dataDiscount?: number;
   onConfirm: () => void;
   canConfirm: boolean;
   isLoading: boolean;
@@ -31,6 +32,7 @@ export default function OrderSummary({
   driveItems,
   shippingCost,
   depositAmount,
+  dataDiscount = 0,
   onConfirm,
   canConfirm,
   isLoading,
@@ -71,7 +73,9 @@ export default function OrderSummary({
               </span>
             </div>
             <span className="text-xs font-bold text-text-primary flex-shrink-0">
-              {(item.price * item.quantity).toLocaleString('ar-EG')} جنيه
+              {item.price * item.quantity === 0
+              ? <span className="text-brand-500 font-bold">مجاناً</span>
+              : <>{(item.price * item.quantity).toLocaleString('ar-EG')} جنيه</>}
             </span>
           </div>
         ))}
@@ -95,6 +99,15 @@ export default function OrderSummary({
             {subtotal.toLocaleString('ar-EG')} جنيه
           </span>
         </div>
+        {dataDiscount > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-green-400 flex items-center gap-1">
+              <Icon name="GiftIcon" size={14} />
+              داتا مجانية مع الهارد
+            </span>
+            <span className="text-sm font-bold text-green-400">-{dataDiscount.toLocaleString('ar-EG')} جنيه</span>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-muted">تكلفة الشحن</span>
           <span

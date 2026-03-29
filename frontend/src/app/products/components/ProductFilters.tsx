@@ -17,6 +17,7 @@ interface ProductFiltersProps {
 }
 
 const categoryOptions = [
+  { id: 'data', label: 'ألعاب و أفلام', icon: 'PlayIcon' },
   { id: 'laptops', label: 'لاب توب', icon: 'ComputerDesktopIcon' },
   { id: 'accessories', label: 'إكسسوارات', icon: 'CpuChipIcon' },
   { id: 'storage', label: 'تخزين', icon: 'CircleStackIcon' },

@@ -18,9 +18,9 @@ import CyberSwitch from '@/components/ui/CyberSwitch';
 import InventoryAudit from '@/components/admin/InventoryAudit';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { AnalyticsErrorBoundary } from '@/components/error/ErrorBoundary';
-import { isFreeDigitalContent } from '@/lib/freeContentUtils';
 
-type TabType = 'products' | 'orders' | 'analytics';
+
+type TabType = 'products' | 'orders' | 'analytics' | 'shipping';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold text-text-primary leading-tight font-readex tracking-tight">
                 لوحة التحكم
               </h1>
-              <span className="text-text-secondary text-sm opacity-80">أبو كارتونة</span>
+              <span className="text-text-secondary text-sm opacity-80">أبوكارتونة</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -196,6 +196,7 @@ export default function AdminDashboard() {
             { id: 'products' as TabType, label: 'المنتجات', icon: 'CubeIcon' },
             { id: 'analytics' as TabType, label: 'التحليلات', icon: 'ChartBarIcon' },
             { id: 'orders' as TabType, label: 'الطلبات', icon: 'ShoppingBagIcon' },
+            { id: 'shipping' as TabType, label: 'الشحن', icon: 'TruckIcon' },
           ].map((tab) => (
             <motion.button
               key={tab.id}
@@ -257,6 +258,18 @@ export default function AdminDashboard() {
               transition={{ duration: 0.3 }}
             >
               <OrdersManager showNotification={showNotification} />
+            </motion.div>
+          )}
+
+          {activeTab === 'shipping' && (
+            <motion.div
+              key="shipping"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ShippingManager showNotification={showNotification} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -327,16 +340,21 @@ function ProductsManager({
     }
   }, [editingProduct, showForm]);
 
+  useEffect(() => {
+    if (formData.type === 'data') {
+      setFormData((prev) => ({ ...prev, price: prev.gbSize * 0.5 }));
+    }
+  }, [formData.type, formData.gbSize]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Auto-set price to 0 for free digital content (Games, Movies, Apps)
-      const isFreeContent = isFreeDigitalContent(formData.subtype);
+      const isDataProduct = formData.type === 'data';
       const submitData = {
         ...formData,
-        price: isFreeContent ? 0 : formData.price,
-        oldPrice: isFreeContent ? 0 : formData.oldPrice,
+        price: isDataProduct ? formData.gbSize * 0.5 : formData.price,
+        oldPrice: isDataProduct ? 0 : formData.oldPrice,
       };
 
       console.log('Submitting product data:', submitData);
@@ -479,12 +497,13 @@ function ProductsManager({
                       onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                       className="input-field w-full disabled:opacity-50 disabled:cursor-not-allowed"
                       required
-                      disabled={isFreeDigitalContent(formData.subtype)}
+                      disabled={formData.type === 'data'}
+                      readOnly={formData.type === 'data'}
                     />
-                    {isFreeDigitalContent(formData.subtype) && (
+                    {formData.type === 'data' && (
                       <p className="text-caption text-brand-500 mt-1.5 flex items-center gap-1">
-                        <Icon name="GiftIcon" size={12} />
-                        هذا المحتوى الرقمي مجاني مع شراء الهاردوير
+                        <Icon name="CalculatorIcon" size={12} />
+                        تلقائي: {formData.gbSize} GB × 0.5 = {formData.gbSize * 0.5} جنيه
                       </p>
                     )}
                   </div>
@@ -499,7 +518,7 @@ function ProductsManager({
                         setFormData({ ...formData, oldPrice: Number(e.target.value) })
                       }
                       className="input-field w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={isFreeDigitalContent(formData.subtype)}
+                      disabled={formData.type === 'data'}
                     />
                   </div>
                   <div>
@@ -830,10 +849,10 @@ function ProductsManager({
               )}
 
               <div className="flex items-baseline gap-2 mb-3">
-                {isFreeDigitalContent(product.subtype) ? (
+                {product.type === 'data' ? (
                   <span className="text-body font-bold text-brand-500 flex items-center gap-1">
-                    <Icon name="GiftIcon" size={14} />
-                    هدية مع الهاردات
+                    <Icon name="CalculatorIcon" size={14} />
+                    {product.price.toLocaleString('ar-EG')} جنيه
                   </span>
                 ) : (
                   <>
@@ -845,7 +864,7 @@ function ProductsManager({
                 )}
                 {product.oldPrice &&
                   product.oldPrice > 0 &&
-                  !isFreeDigitalContent(product.subtype) && (
+                  product.type !== 'data' && (
                     <span className="text-text-muted line-through text-body-sm">
                       {product.oldPrice.toLocaleString('ar-EG')}
                     </span>
@@ -923,7 +942,10 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
   const deleteOrder = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) return;
     try {
-      const res = await fetch(getAdminApiUrl(`orders/${id}`), { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(getAdminApiUrl(`orders/${id}`), { method: 'DELETE', headers });
       if (res.ok) {
         showNotification('تم حذف الطلب بنجاح');
         fetchOrders();
@@ -978,7 +1000,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
               <tbody>
                 {orders.map((order: any) => (
                   <tr
-                    key={order.id}
+                    key={order._id || order.orderID}
                     className="border-b border-border-light border-border last:border-b-0 hover:bg-surface-secondary dark:hover:bg-white/[0.02] transition-colors"
                   >
                     <td className="p-4">
@@ -1007,22 +1029,18 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
                     <td className="p-4">
                       <span
                         className={`px-2.5 py-1 rounded-lg text-caption font-semibold ${
-                          order.status === 'pending'
+                          order.status === 'Pending'
                             ? 'bg-warning-light text-warning-dark dark:bg-warning/10 dark:text-warning'
-                            : order.status === 'shipped'
-                              ? 'bg-info-light text-info-dark dark:bg-info/10 dark:text-info'
-                              : order.status === 'completed'
-                                ? 'bg-success-light text-success-dark dark:bg-success/10 dark:text-success'
-                                : 'bg-error-light text-error-dark dark:bg-error/10 dark:text-error'
+                            : order.status === 'Completed'
+                              ? 'bg-success-light text-success-dark dark:bg-success/10 dark:text-success'
+                              : 'bg-error-light text-error-dark dark:bg-error/10 dark:text-error'
                         }`}
                       >
-                        {order.status === 'pending'
+                        {order.status === 'Pending'
                           ? 'معلق'
-                          : order.status === 'shipped'
-                            ? 'قيد الشحن'
-                            : order.status === 'completed'
-                              ? 'مكتمل'
-                              : 'ملغي'}
+                          : order.status === 'Completed'
+                            ? 'مكتمل'
+                            : 'ملغي'}
                       </span>
                     </td>
                     <td className="p-4">
@@ -1035,7 +1053,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
                           <Icon name="ArrowLeftIcon" size={12} />
                         </Link>
                         <button
-                          onClick={() => deleteOrder(order.id || order._id)}
+                          onClick={() => deleteOrder(order._id)}
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-caption font-semibold text-error hover:bg-error-light dark:hover:bg-error/10 rounded-lg transition-colors"
                         >
                           <Icon name="TrashIcon" size={13} />
@@ -1048,6 +1066,238 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ShippingManager({ showNotification }: { showNotification: (msg: string) => void }) {
+  const [methods, setMethods] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newMethod, setNewMethod] = useState({ name: '', depositType: 'shipping_only' });
+  const [editMethod, setEditMethod] = useState<any | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [newGovByMethod, setNewGovByMethod] = useState<Record<string, { name: string; cost: string }>>({});
+  const [editGov, setEditGov] = useState<{ methodId: string; gov: any } | null>(null);
+
+  const authHeaders = useCallback(() => {
+    const token = localStorage.getItem('token');
+    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) h.Authorization = `Bearer ${token}`;
+    return h;
+  }, []);
+
+  const fetchMethods = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(getAdminApiUrl('shipping/methods'), { headers: authHeaders() });
+      if (res.ok) { const d = await res.json(); setMethods(d.methods || []); }
+    } finally { setLoading(false); }
+  }, [authHeaders]);
+
+  useEffect(() => { fetchMethods(); }, [fetchMethods]);
+
+  const saveMethod = async () => {
+    if (!newMethod.name.trim()) return;
+    const res = await fetch(getAdminApiUrl('shipping/methods'), {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(newMethod),
+    });
+    if (res.ok) { setNewMethod({ name: '', depositType: 'shipping_only' }); fetchMethods(); showNotification('تم إضافة طريقة الشحن'); }
+  };
+
+  const updateMethodReq = async (id: string, data: any) => {
+    const res = await fetch(getAdminApiUrl(`shipping/methods/${id}`), {
+      method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+    });
+    if (res.ok) { setEditMethod(null); fetchMethods(); showNotification('تم تحديث طريقة الشحن'); }
+  };
+
+  const deleteMethod = async (id: string) => {
+    if (!confirm('حذف طريقة الشحن وكل محافظاتها؟')) return;
+    await fetch(getAdminApiUrl(`shipping/methods/${id}`), { method: 'DELETE', headers: authHeaders() });
+    fetchMethods(); showNotification('تم الحذف');
+  };
+
+  const addGov = async (methodId: string) => {
+    const g = newGovByMethod[methodId];
+    if (!g?.name?.trim() || !g?.cost) return;
+    const res = await fetch(getAdminApiUrl(`shipping/methods/${methodId}/governorates`), {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ name: g.name, cost: Number(g.cost) }),
+    });
+    if (res.ok) {
+      setNewGovByMethod(p => ({ ...p, [methodId]: { name: '', cost: '' } }));
+      fetchMethods(); showNotification('تم إضافة المحافظة');
+    }
+  };
+
+  const saveEditGov = async () => {
+    if (!editGov) return;
+    const res = await fetch(getAdminApiUrl(`shipping/methods/${editGov.methodId}/governorates/${editGov.gov._id}`), {
+      method: 'PATCH', headers: authHeaders(),
+      body: JSON.stringify({ name: editGov.gov.name, cost: Number(editGov.gov.cost) }),
+    });
+    if (res.ok) { setEditGov(null); fetchMethods(); showNotification('تم تحديث المحافظة'); }
+  };
+
+  const deleteGov = async (methodId: string, govId: string) => {
+    await fetch(getAdminApiUrl(`shipping/methods/${methodId}/governorates/${govId}`), {
+      method: 'DELETE', headers: authHeaders(),
+    });
+    fetchMethods(); showNotification('تم الحذف');
+  };
+
+  const depositLabel = (t: string) => t === 'shipping_only' ? 'عربون = تكلفة الشحن' : 'عربون = الإجمالي الكامل';
+
+  return (
+    <div className="space-y-4">
+      {/* Header + Add Form */}
+      <div className="bg-surface-secondary rounded-2xl border border-border overflow-hidden">
+        <div className="p-6 border-b border-border flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center">
+            <Icon name="TruckIcon" size={20} className="text-brand-500" />
+          </div>
+          <div>
+            <h2 className="text-h3 text-text-primary font-bold">طرق الشحن</h2>
+            <p className="text-caption text-text-muted">كل طريقة شحن لها قائمة محافظات وتكاليف مستقلة</p>
+          </div>
+        </div>
+        <div className="p-6 bg-surface-tertiary/30">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="اسم طريقة الشحن (مثال: Bosta، شركة محلية)"
+              value={newMethod.name}
+              onChange={(e) => setNewMethod(p => ({ ...p, name: e.target.value }))}
+              className="input-field flex-1"
+            />
+            <select
+              value={newMethod.depositType}
+              onChange={(e) => setNewMethod(p => ({ ...p, depositType: e.target.value }))}
+              className="input-field sm:w-56"
+            >
+              <option value="shipping_only">عربون = تكلفة الشحن</option>
+              <option value="total_amount">عربون = الإجمالي الكامل</option>
+            </select>
+            <button onClick={saveMethod} className="btn-primary px-6 py-2 font-semibold flex items-center gap-2 whitespace-nowrap">
+              <Icon name="PlusIcon" size={16} />
+              إضافة طريقة
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Methods + Their Governorates */}
+      {loading ? (
+        <div className="p-8 text-center"><div className="w-6 h-6 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin mx-auto" /></div>
+      ) : methods.length === 0 ? (
+        <div className="p-8 text-center text-text-muted text-sm bg-surface-secondary rounded-2xl border border-border">لا توجد طرق شحن مضافة بعد</div>
+      ) : (
+        <div className="space-y-4">
+          {methods.map((m) => {
+            const isExpanded = expandedId === m._id;
+            const ngov = newGovByMethod[m._id] || { name: '', cost: '' };
+            return (
+              <div key={m._id} className="bg-surface-secondary rounded-2xl border border-border overflow-hidden">
+                {/* Method Header */}
+                <div className="p-4 flex items-center gap-3">
+                  {editMethod?._id === m._id ? (
+                    <div className="flex flex-1 flex-col sm:flex-row gap-2">
+                      <input value={editMethod.name} onChange={(e) => setEditMethod((p: any) => ({ ...p, name: e.target.value }))} className="input-field flex-1 py-2 text-sm" />
+                      <select value={editMethod.depositType} onChange={(e) => setEditMethod((p: any) => ({ ...p, depositType: e.target.value }))} className="input-field sm:w-48 py-2 text-sm">
+                        <option value="shipping_only">عربون = تكلفة الشحن</option>
+                        <option value="total_amount">عربون = الإجمالي الكامل</option>
+                      </select>
+                      <div className="flex gap-2">
+                        <button onClick={() => updateMethodReq(m._id, editMethod)} className="btn-primary px-4 py-2 text-sm font-semibold">حفظ</button>
+                        <button onClick={() => setEditMethod(null)} className="btn-ghost px-4 py-2 text-sm">إلغاء</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button onClick={() => setExpandedId(isExpanded ? null : m._id)} className="flex-1 flex items-center gap-3 text-right min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0">
+                          <Icon name="TruckIcon" size={16} className="text-brand-500" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-body-sm font-bold text-text-primary">{m.name}</p>
+                          <p className="text-caption text-text-muted">{depositLabel(m.depositType)} · {m.governorates?.length || 0} محافظة</p>
+                        </div>
+                        <Icon name={isExpanded ? 'ChevronUpIcon' : 'ChevronDownIcon'} size={16} className="text-text-muted flex-shrink-0" />
+                      </button>
+                      <button onClick={() => setEditMethod({ ...m })} className="p-2 hover:bg-brand-500/10 rounded-lg transition-colors flex-shrink-0">
+                        <Icon name="PencilIcon" size={15} className="text-brand-500" />
+                      </button>
+                      <button onClick={() => deleteMethod(m._id)} className="p-2 hover:bg-error-light dark:hover:bg-error/10 rounded-lg transition-colors flex-shrink-0">
+                        <Icon name="TrashIcon" size={15} className="text-error" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Governorates Panel */}
+                {isExpanded && (
+                  <div className="border-t border-border">
+                    {/* Add Governorate */}
+                    <div className="p-4 bg-surface-tertiary/30 border-b border-border flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        placeholder="اسم المحافظة"
+                        value={ngov.name}
+                        onChange={(e) => setNewGovByMethod(p => ({ ...p, [m._id]: { ...ngov, name: e.target.value } }))}
+                        className="input-field flex-1 py-2 text-sm"
+                      />
+                      <input
+                        type="number"
+                        placeholder="التكلفة (جنيه)"
+                        value={ngov.cost}
+                        min={0}
+                        onChange={(e) => setNewGovByMethod(p => ({ ...p, [m._id]: { ...ngov, cost: e.target.value } }))}
+                        className="input-field sm:w-36 py-2 text-sm"
+                      />
+                      <button onClick={() => addGov(m._id)} className="btn-primary px-4 py-2 text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap">
+                        <Icon name="PlusIcon" size={14} />
+                        إضافة
+                      </button>
+                    </div>
+
+                    {/* Governorates List */}
+                    {!m.governorates?.length ? (
+                      <div className="p-4 text-center text-sm text-text-muted">لا توجد محافظات — أضف أولى المحافظات أعلاه</div>
+                    ) : (
+                      <div className="divide-y divide-border">
+                        {m.governorates.map((g: any) => (
+                          <div key={g._id} className="px-4 py-3 flex items-center gap-3">
+                            {editGov?.methodId === m._id && editGov?.gov?._id === g._id ? (
+                              <div className="flex flex-1 gap-2">
+                                <input value={editGov!.gov.name} onChange={(e) => setEditGov(p => p ? { ...p, gov: { ...p.gov, name: e.target.value } } : null)} className="input-field flex-1 py-1.5 text-sm" />
+                                <input type="number" value={editGov!.gov.cost} min={0} onChange={(e) => setEditGov(p => p ? { ...p, gov: { ...p.gov, cost: e.target.value } } : null)} className="input-field w-28 py-1.5 text-sm" />
+                                <button onClick={saveEditGov} className="btn-primary px-3 py-1.5 text-xs font-semibold">حفظ</button>
+                                <button onClick={() => setEditGov(null)} className="btn-ghost px-3 py-1.5 text-xs">إلغاء</button>
+                              </div>
+                            ) : (
+                              <>
+                                <Icon name="MapPinIcon" size={14} className="text-text-muted flex-shrink-0" />
+                                <span className="flex-1 text-sm text-text-primary font-medium">{g.name}</span>
+                                <span className="text-sm font-bold text-brand-500">{g.cost} جنيه</span>
+                                <button onClick={() => setEditGov({ methodId: m._id, gov: { ...g } })} className="p-1.5 hover:bg-brand-500/10 rounded-lg transition-colors">
+                                  <Icon name="PencilIcon" size={13} className="text-brand-500" />
+                                </button>
+                                <button onClick={() => deleteGov(m._id, g._id)} className="p-1.5 hover:bg-error-light dark:hover:bg-error/10 rounded-lg transition-colors">
+                                  <Icon name="TrashIcon" size={13} className="text-error" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -348,6 +348,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
 
   const refs = {
+    data: useRef<HTMLDivElement>(null),
     sales: useRef<HTMLDivElement>(null),
     laptops: useRef<HTMLDivElement>(null),
     accessories: useRef<HTMLDivElement>(null),
@@ -357,8 +358,9 @@ export default function HomePage() {
   // Optimized data fetching with error handling
   useEffect(() => {
     const controller = new AbortController();
+    const apiUrl = getApiUrl('products');
 
-    fetch(getApiUrl('products'), {
+    fetch(apiUrl, {
       cache: 'no-store',
       signal: controller.signal,
     })
@@ -390,6 +392,7 @@ export default function HomePage() {
   // Memoized filtered products
   const filteredProducts = React.useMemo(
     () => ({
+      data: products.filter((p) => p.type === 'data'),
       sales: products.filter((p) => !!p.isSale),
       laptops: products.filter((p) => p.type === 'laptops'),
       accessories: products.filter((p) => p.type === 'accessories'),
@@ -468,14 +471,37 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="space-y-8">
+              {/* Data Section - Games, Movies, etc. */}
+              {filteredProducts.data.length > 0 ? (
+                <SectionWrapper glowSide="center">
+                  <SectionHeader
+                    label="Digital Content"
+                    title="ألعاب و أفلام و برامج"
+                    accent="مجانية مع الهارد"
+                    href="/products?cat=data"
+                    index={0}
+                  />
+                  <ProductGrid
+                    items={filteredProducts.data.slice(0, 8)}
+                    gridRef={refs.data}
+                    onAddToCart={handleAddToCart}
+                  />
+                </SectionWrapper>
+              ) : (
+                <SectionWrapper glowSide="center">
+                  <SectionHeader label="Digital Content" title="ألعاب و أفلام و برامج" accent="مجانية مع الهارد" />
+                  <EmptySection message="لا توجد محتوى رقمي متاح حالياً" />
+                </SectionWrapper>
+              )}
+
               {/* Sales Section */}
               {filteredProducts.sales.length > 0 ? (
                 <SectionWrapper glowSide="center">
                   <SectionHeader
                     label="Exclusive Offers"
                     title="عروض"
-                    accent="أبو كارتونة"
-                    index={0}
+                    accent="أبوكارتونة"
+                    index={1}
                   />
                   <ProductGrid
                     items={filteredProducts.sales}
@@ -485,7 +511,7 @@ export default function HomePage() {
                 </SectionWrapper>
               ) : (
                 <SectionWrapper glowSide="center">
-                  <SectionHeader label="Exclusive Offers" title="عروض" accent="أبو كارتونة" />
+                  <SectionHeader label="Exclusive Offers" title="عروض" accent="أبوكارتونة" />
                   <EmptySection message="لا توجد عروض حالياً" />
                 </SectionWrapper>
               )}
@@ -497,7 +523,7 @@ export default function HomePage() {
                   title="أحدث"
                   accent="اللابتوبات"
                   href="/products?cat=laptops"
-                  index={1}
+                  index={2}
                 />
                 {filteredProducts.laptops.length > 0 ? (
                   <ProductGrid
@@ -517,7 +543,7 @@ export default function HomePage() {
                   title="إكسسوارات"
                   accent="احترافية"
                   href="/products?cat=accessories"
-                  index={2}
+                  index={3}
                 />
                 {filteredProducts.accessories.length > 0 ? (
                   <ProductGrid
@@ -538,7 +564,7 @@ export default function HomePage() {
                     title="وحدات"
                     accent="التخزين"
                     href="/products?cat=storage"
-                    index={3}
+                    index={4}
                   />
                   <ProductGrid
                     items={filteredProducts.storage.slice(0, 4)}

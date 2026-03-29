@@ -1,5 +1,84 @@
 import type { Product } from '@/store/useStore';
 
+export function parseCapacityGB(capacityGB: number | null | undefined, name: string): number {
+  if (typeof capacityGB === 'number' && capacityGB > 0) return capacityGB;
+  const match = name.match(/(\d+(?:\.\d+)?)\s*(TB|GB)/i);
+  if (!match) return 0;
+  const value = parseFloat(match[1]);
+  return match[2].toUpperCase() === 'TB' ? value * 1000 : value;
+}
+
+export interface CartItemForCalc {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  quantity?: number;
+  storageCapacity?: number | null;
+  gbSize?: number | null;
+}
+
+export interface CartTotals {
+  hardwareSubtotal: number;
+  totalPhysicalStorageGB: number;
+  totalDataGB: number;
+  freeDataGB: number;
+  payableDataGB: number;
+  dataCost: number;
+  total: number;
+}
+
+export function calculateCartTotals(cartItems: CartItemForCalc[]): CartTotals {
+  const getQty = (item: { quantity?: number }) => item.quantity || 1;
+
+  const hardwareSubtotal = cartItems
+    .filter((p) => p.type !== 'data')
+    .reduce((acc, p) => acc + p.price * getQty(p), 0);
+
+  const totalPhysicalStorageGB = cartItems
+    .filter((p) => p.type === 'storage')
+    .reduce((acc, p) => acc + parseCapacityGB(p.storageCapacity, p.name) * getQty(p), 0);
+
+  const totalDataGB = cartItems
+    .filter((p) => p.type === 'data')
+    .reduce((acc, p) => acc + (p.gbSize || 0) * getQty(p), 0);
+
+  const freeDataGB = Math.min(totalDataGB, totalPhysicalStorageGB);
+  const payableDataGB = Math.max(0, totalDataGB - totalPhysicalStorageGB);
+  const dataCost = payableDataGB * 0.5;
+
+  return {
+    hardwareSubtotal,
+    totalPhysicalStorageGB,
+    totalDataGB,
+    freeDataGB,
+    payableDataGB,
+    dataCost,
+    total: hardwareSubtotal + dataCost,
+  };
+}
+
+export function getDataItemEffectivePrices(cartItems: CartItemForCalc[]): Map<string, number> {
+  const priceMap = new Map<string, number>();
+
+  const totalPhysicalStorageGB = cartItems
+    .filter((p) => p.type === 'storage')
+    .reduce((acc, p) => acc + parseCapacityGB(p.storageCapacity, p.name) * (p.quantity || 1), 0);
+
+  let remainingFreeGB = totalPhysicalStorageGB;
+
+  for (const item of cartItems.filter((p) => p.type === 'data')) {
+    const itemTotalGB = (item.gbSize || 0) * (item.quantity || 1);
+    const freeGB = Math.min(itemTotalGB, remainingFreeGB);
+    const payableGB = itemTotalGB - freeGB;
+    const qty = item.quantity || 1;
+    priceMap.set(item.id, qty > 0 ? (payableGB * 0.5) / qty : 0);
+    remainingFreeGB = Math.max(0, remainingFreeGB - freeGB);
+  }
+
+  return priceMap;
+}
+
 export interface StorageAggregation {
   type: string;
   subtype: string;
@@ -20,11 +99,12 @@ export function aggregateStorageByType(products: Product[]): StorageAggregation[
     .filter((product) => product.type === 'storage' && product.storageCapacity && product.storageCapacity > 0)
     .forEach((product) => {
       const capacity = product.storageCapacity!; // We know it's not null from the filter
+      const qty = (product as any).quantity ?? 1;
       const key = `${product.type}-${product.subtype}-${capacity}`;
       const existing = storageMap.get(key);
 
       if (existing) {
-        existing.count += 1;
+        existing.count += qty;
         existing.totalCapacityGB = existing.count * existing.capacityGB;
       } else {
         const displayName = generateStorageDisplayName(product);
@@ -32,8 +112,8 @@ export function aggregateStorageByType(products: Product[]): StorageAggregation[
           type: product.type,
           subtype: product.subtype,
           capacityGB: capacity,
-          count: 1,
-          totalCapacityGB: capacity,
+          count: qty,
+          totalCapacityGB: capacity * qty,
           displayName,
         });
       }

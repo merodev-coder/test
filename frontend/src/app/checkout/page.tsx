@@ -12,7 +12,7 @@ import WhatsAppButton from '../homepage/components/WhatsAppButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStore, Product as StoreProduct } from '@/store/useStore';
-import { createStorageSummary } from '@/lib/storageUtils';
+import { createStorageSummary, getDataItemEffectivePrices, calculateCartTotals, parseCapacityGB } from '@/lib/storageUtils';
 import { getApiUrl } from '@/lib/apiConfig';
 
 interface CartItem {
@@ -57,21 +57,26 @@ export default function CheckoutPage() {
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState('');
+  const [requiredDeposit, setRequiredDeposit] = useState(0);
 
   const hasStorageProduct = storedCart.some((item) => item.type === 'storage');
 
   const storageTotal = [...storedCart, ...storedDrive]
     .filter((p) => p.type === 'storage')
-    .reduce((acc, p) => acc + (typeof p.storageCapacity === 'number' ? p.storageCapacity : 0), 0);
+    .reduce((acc, p) => acc + parseCapacityGB(p.storageCapacity, p.name) * ((p as any).quantity || 1), 0);
 
   const usedDataGB = storedCart
     .filter((p) => p.type === 'data')
-    .reduce((acc, p) => acc + (typeof p.gbSize === 'number' ? p.gbSize : 0), 0);
+    .reduce((acc, p) => acc + (typeof p.gbSize === 'number' ? p.gbSize : 0) * ((p as any).quantity || 1), 0);
 
-  const storageUsed = usedDataGB;
+  const cartTotals = calculateCartTotals(storedCart);
+  const storageUsed = cartTotals.freeDataGB;
+  const dataDiscount = cartTotals.freeDataGB * 0.5;
   const storageSummary = getStorageSummary();
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const depositAmount = Math.max(50, Math.round(shippingCost > 0 ? shippingCost : 50));
+  const depositAmount = requiredDeposit > 0 ? Math.round(requiredDeposit) : Math.max(50, Math.round(shippingCost > 0 ? shippingCost : 50));
 
   const handleUpdateQty = (id: string, qty: number) => {
     if (qty <= 0) {
@@ -98,10 +103,15 @@ export default function CheckoutPage() {
     _method: string,
     _gov: string,
     cost: number,
-    _cityCode?: string
+    _cityCode?: string,
+    shippingMethodName?: string,
+    _depositType?: string,
+    deposit?: number
   ) => {
     setShippingCost(cost);
     setCityCode(_cityCode);
+    if (shippingMethodName !== undefined) setSelectedShippingMethod(shippingMethodName);
+    if (deposit !== undefined) setRequiredDeposit(deposit);
   };
 
   const handleConfirm = async () => {
@@ -118,7 +128,11 @@ export default function CheckoutPage() {
           customerName,
           phone,
           address: customerAddress,
+          customerEmail,
           cityCode,
+          selectedShippingMethod,
+          shippingCost,
+          requiredDeposit: depositAmount,
           items: cartItems,
           driveItems,
           totalPrice: subtotal + shippingCost,
@@ -158,12 +172,16 @@ export default function CheckoutPage() {
   };
 
   const canConfirm =
-    receiptFile !== null && cartItems.length > 0 && !!customerName && !!phone && !!customerAddress;
+    receiptFile !== null && cartItems.length > 0 && !!customerName && !!phone && !!customerAddress && !!customerEmail;
+
+  const dataEffectivePrices = getDataItemEffectivePrices(storedCart);
 
   const toCartItems = (items: StoreProduct[]): CartItem[] =>
     items.map((p) => {
       const isData = p.type === 'data';
-      const effectivePrice = hasStorageProduct && isData ? 0 : p.price;
+      const effectivePrice = isData
+        ? (dataEffectivePrices.get(p.id) ?? p.price)
+        : p.price;
       return {
         id: p.id,
         name: p.name,
@@ -426,6 +444,19 @@ export default function CheckoutPage() {
                           placeholder="المحافظة، المنطقة، اسم الشارع، رقم العمارة، رقم الشقة"
                         />
                       </div>
+                      <div>
+                        <label className="block text-body-sm text-text-secondary text-text-secondary mb-1.5">
+                          البريد الإلكتروني (لاستلام الإيصال)
+                        </label>
+                        <input
+                          type="email"
+                          value={customerEmail}
+                          onChange={(e) => setCustomerEmail(e.target.value)}
+                          className="input-field w-full"
+                          placeholder="example@email.com"
+                          dir="ltr"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -435,7 +466,7 @@ export default function CheckoutPage() {
                       <Icon name="TruckIcon" size={20} className="text-brand-500" />
                       خيارات التوصيل
                     </h2>
-                    <DeliveryOptions onDeliveryChange={handleDeliveryChange} />
+                    <DeliveryOptions onDeliveryChange={handleDeliveryChange} orderSubtotal={subtotal} />
 
                     <div className="flex gap-3 mt-6">
                       <button
@@ -447,8 +478,8 @@ export default function CheckoutPage() {
                       </button>
                       <button
                         onClick={() => {
-                          if (customerName && phone && customerAddress) setActiveStep(3);
-                          else alert('برجاء إكمال بيانات العميل أولاً');
+                          if (customerName && phone && customerAddress && customerEmail) setActiveStep(3);
+                          else alert('برجاء إكمال بيانات العميل أولاً (تأكد من إدخال البريد الإلكتروني)');
                         }}
                         className="btn-primary flex-1 py-4 text-body font-semibold flex items-center justify-center gap-2"
                       >
@@ -493,6 +524,7 @@ export default function CheckoutPage() {
                 driveItems={driveItems}
                 shippingCost={shippingCost}
                 depositAmount={depositAmount}
+                dataDiscount={dataDiscount}
                 onConfirm={handleConfirm}
                 canConfirm={canConfirm && activeStep === 3}
                 isLoading={isLoading}

@@ -10,7 +10,6 @@ import { useStore } from '@/store/useStore';
 const navItems = [
   { label: 'منتجات', href: '/products' },
   { label: 'عروض', href: '/sales' },
-  { label: 'طلباتي', href: '/orders' },
 ];
 
 // ─── Nav Link ────────────────────────────────────────────────────────────────
@@ -109,53 +108,56 @@ const CartButton = ({ cartCount }: { cartCount: number }) => {
 };
 
 // ─── Hamburger ────────────────────────────────────────────────────────────────
-const HamburgerButton = ({ open, onClick }: { open: boolean; onClick: () => void }) => (
-  <button
-    onClick={onClick}
-    aria-label={open ? 'إغلاق القائمة' : 'فتح القائمة'}
-    className="text-white hover:text-brand-400 p-2 md:hidden transition-colors duration-400 rounded-full hover:bg-surface/60"
-  >
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <motion.line
-        x1="3"
-        y1="7"
-        x2="19"
-        y2="7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        animate={open ? { x1: 4, y1: 4, x2: 18, y2: 18 } : { x1: 3, y1: 7, x2: 19, y2: 7 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-        initial={{ x1: 3, y1: 7, x2: 19, y2: 7 }}
-      />
-      <motion.line
-        x1="3"
-        y1="15"
-        x2="19"
-        y2="15"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        animate={open ? { x1: 4, y1: 18, x2: 18, y2: 4 } : { x1: 3, y1: 15, x2: 19, y2: 15 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-        initial={{ x1: 3, y1: 15, x2: 19, y2: 15 }}
-      />
-      <motion.line
-        x1="3"
-        y1="11"
-        x2="19"
-        y2="11"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.6, 1] }}
-        style={{ originX: '50%', originY: '50%' }}
-        initial={{ opacity: 1, scaleX: 1 }}
-      />
-    </svg>
-  </button>
-);
+function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void }) {
+  if (open === null || open === undefined) return null;
+  return (
+    <button
+      onClick={onClick}
+      aria-label={open ? 'إغلاق القائمة' : 'فتح القائمة'}
+      className="text-white hover:text-brand-400 p-2 md:hidden transition-colors duration-400 rounded-full hover:bg-surface/60"
+    >
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <motion.line
+          x1={open ? 4 : 3}
+          y1={open ? 4 : 7}
+          x2={open ? 18 : 19}
+          y2={open ? 18 : 7}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          animate={open ? { x1: 4, y1: 4, x2: 18, y2: 18 } : { x1: 3, y1: 7, x2: 19, y2: 7 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+          initial={{ x1: 3, y1: 7, x2: 19, y2: 7 }}
+        />
+        <motion.line
+          x1={open ? 4 : 3}
+          y1={open ? 18 : 15}
+          x2={open ? 18 : 19}
+          y2={open ? 4 : 15}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          animate={open ? { x1: 4, y1: 18, x2: 18, y2: 4 } : { x1: 3, y1: 15, x2: 19, y2: 15 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+          initial={{ x1: 3, y1: 15, x2: 19, y2: 15 }}
+        />
+        <motion.line
+          x1={3}
+          y1={11}
+          x2={19}
+          y2={11}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.6, 1] }}
+          style={{ originX: '50%', originY: '50%' }}
+          initial={{ opacity: 1, scaleX: 1 }}
+        />
+      </svg>
+    </button>
+  );
+}
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 export default function Header() {
@@ -280,7 +282,7 @@ export default function Header() {
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 28 }}
                 >
-                  أبو كارتونة
+                  أبوكارتونة
                 </motion.span>
               </Link>
 

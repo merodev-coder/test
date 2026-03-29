@@ -744,11 +744,11 @@ function ProductDetails({
       <div className="bg-surface-secondary rounded-xl p-3 text-caption text-text-muted space-y-1">
         <div className="flex justify-between">
           <span>يُشحن من</span>
-          <span className="font-semibold text-text-primary">أبو كارتونة</span>
+          <span className="font-semibold text-text-primary">أبوكارتونة</span>
         </div>
         <div className="flex justify-between">
           <span>يُباع بواسطة</span>
-          <span className="font-semibold text-text-primary">أبو كارتونة</span>
+          <span className="font-semibold text-text-primary">أبوكارتونة</span>
         </div>
       </div>
     </motion.div>

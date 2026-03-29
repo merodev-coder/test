@@ -39,7 +39,7 @@ const categories = [
     label: 'مكتبة الداتا',
     sub: 'ألعاب • أفلام • برامج',
     image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=800',
-    href: '/products?cat=games',
+    href: '/products?cat=data',
     icon: 'FolderIcon',
     badge: '✨ مجاناً مع الهارد',
     featured: true,

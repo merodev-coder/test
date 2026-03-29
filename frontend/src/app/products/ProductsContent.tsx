@@ -25,6 +25,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 const tabOptions = [
   { id: 'all', label: 'الكل' },
+  { id: 'data', label: 'ألعاب و أفلام' },
   { id: 'storage', label: 'التخزين' },
   { id: 'laptops', label: 'ال اللابتوبات' },
   { id: 'accessories', label: 'الإكسسوارات' },
@@ -96,6 +97,9 @@ function ProductsContent() {
     } else if (cat === 'accessories') {
       setCategory('accessories');
       setActiveTab('accessories');
+    } else if (cat === 'data') {
+      setCategory('data');
+      setActiveTab('data');
     } else if (cat === 'storage' || cat === 'hdd' || cat === 'ssd' || cat === 'flash') {
       setCategory('storage');
       setActiveTab('storage');
@@ -169,9 +173,6 @@ function ProductsContent() {
     const [minPrice, maxPrice] = filters.priceRange;
 
     let filtered = products.filter((p) => {
-      // Hide data products from general listing
-      if (p.type === 'data') return false;
-
       // Category filtering
       if (activeCategory && activeCategory !== 'all' && p.type !== activeCategory) {
         return false;
@@ -304,7 +305,7 @@ function ProductsContent() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setFiltersOpen(true)}
-                    className="hidden btn-ghost px-4 py-2.5 font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200"
+                    className="hidden btn-ghost px-4 py-2.5 font-semibold items-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200"
                   >
                     <Icon name="FunnelIcon" size={16} />
                     <span>فلاتر</span>

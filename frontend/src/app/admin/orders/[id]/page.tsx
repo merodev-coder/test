@@ -73,22 +73,18 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                 <div className="flex flex-col items-end gap-2">
                   <span
                     className={`px-4 py-1.5 rounded-lg text-sm font-bold ${
-                      order.status === 'pending'
+                      order.status === 'Pending'
                         ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                        : order.status === 'shipped'
-                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                          : order.status === 'completed'
-                            ? 'bg-brand-500/10 text-brand-500 border border-brand-500/20'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                        : order.status === 'Completed'
+                          ? 'bg-brand-500/10 text-brand-500 border border-brand-500/20'
+                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
                     }`}
                   >
-                    {order.status === 'pending'
+                    {order.status === 'Pending'
                       ? 'معلق'
-                      : order.status === 'shipped'
-                        ? 'قيد الشحن'
-                        : order.status === 'completed'
-                          ? 'مكتمل'
-                          : 'ملغي'}
+                      : order.status === 'Completed'
+                        ? 'مكتمل'
+                        : 'ملغي'}
                   </span>
                 </div>
               </div>

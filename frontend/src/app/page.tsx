@@ -7,7 +7,7 @@ import FeaturedProducts from '@/components/FeaturedProducts';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'أبو كارتونة',
+  title: 'أبوكارتونة',
   description:
     'تسوق أحدث الكمبيوترات والإكسسوارات، واملأ هارد درايف بالألعاب والأفلام مجاناً. شحن لجميع محافظات مصر.',
 };

@@ -9,6 +9,7 @@ const footerLinks = {
   products: {
     title: 'المنتجات',
     links: [
+      { label: 'ألعاب و أفلام', href: '/products?cat=data' },
       { label: ' اللابتوبات', href: '/products?cat=laptops' },
       { label: 'إكسسوارات', href: '/products?cat=accessories' },
       { label: 'هارد درايف', href: '/products?cat=storage' },
@@ -37,7 +38,7 @@ const Footer = memo(function Footer() {
               </div>
               <div className="flex flex-col leading-tight">
                 <span className="font-heading font-black text-2xl tracking-tight text-text-primary dark:text-text-dark-primary">
-                  أبو كارتونة
+                  أبوكارتونة
                 </span>
                 <span className="text-[10px] uppercase tracking-[0.2em] text-brand-500 font-bold">
                   Premium Hardware Hub
@@ -115,7 +116,7 @@ const Footer = memo(function Footer() {
         <div className="mt-12 pt-8 border-t border-border-light dark:border-border-dark flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs text-text-muted dark:text-text-dark-muted font-medium">
             {new Date().getFullYear()}{' '}
-            <span className="text-text-secondary dark:text-text-dark-secondary">أبو كارتونة</span>.
+            <span className="text-text-secondary dark:text-text-dark-secondary">أبوكارتونة</span>.
             جميع الحقوق محفوظة.
           </p>
 

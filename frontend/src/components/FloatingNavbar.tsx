@@ -57,7 +57,7 @@ export default function FloatingNavbar({ cartCount = 0 }: FloatingNavbarProps) {
                 <Laptop className="w-5 h-5 text-[#2ab88a] transition-transform duration-300 group-hover:scale-110" />
                 <Database className="w-4 h-4 text-[#2ab88a]/70 transition-transform duration-300 group-hover:scale-110" />
               </div>
-              <span className="text-white font-bold text-xl tracking-tight">أبو كارتونة</span>
+              <span className="text-white font-bold text-xl tracking-tight">أبوكارتونة/span>
             </Link>
 
             {/* Nav Links */}
@@ -127,7 +127,7 @@ export default function FloatingNavbar({ cartCount = 0 }: FloatingNavbarProps) {
             {/* Mobile Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Laptop className="w-5 h-5 text-[#2ab88a]" />
-              <span className="text-white font-bold text-lg">أبو كارتونة</span>
+              <span className="text-white font-bold text-lg">أبوكارتونة</span>
             </Link>
 
             {/* Mobile Menu Toggle + Cart */}

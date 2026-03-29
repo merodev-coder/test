@@ -9,6 +9,7 @@ interface SalesChartProps {
 }
 
 export default function SalesChart({ data }: SalesChartProps) {
+  if (!data || data.length === 0) return null;
   return (
     <div className="p-6 rounded-glass bg-surface border border-border backdrop-blur-glass">
       <h3 className="text-lg font-semibold text-text-primary mb-6">مبيعات الأسبوع</h3>

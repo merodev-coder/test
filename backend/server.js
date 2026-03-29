@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import shippingRoutes from './routes/shippingRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { 
   apiLimiter, 
@@ -29,7 +30,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(cors({
   origin: '*', // مؤقتاً عشان نكسر الـ CORS خالص
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true
 }));
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/tags', getTags);
 app.use('/api/orders', orderRoutes);
+app.use('/api/shipping', shippingRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use(notFound);
