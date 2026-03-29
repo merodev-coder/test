@@ -503,26 +503,14 @@ export default function ProductCard({
                 </div>
               )}
 
-              {/* Brand hint - reserve space to maintain consistent card height */}
-              <div
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl"
-                style={{
-                  background:
-                    needsBrandSelection && !selectedBrand ? 'rgba(251,191,36,0.08)' : 'transparent',
-                  border:
-                    needsBrandSelection && !selectedBrand
-                      ? '1px solid rgba(251,191,36,0.2)'
-                      : '1px solid transparent',
-                  minHeight: '34px',
-                  visibility: needsBrandSelection && !selectedBrand ? 'visible' : 'hidden',
-                }}
-              >
-                <Icon
-                  name="InformationCircleIcon"
-                  size={12}
-                  className="text-amber-400 flex-shrink-0"
-                />
-                <span className="text-[11px] text-amber-300/80">يجب اختيار الماركة أولاً</span>
+              {/* Brand hint — small inline note, not a box */}
+              <div style={{ minHeight: '20px' }}>
+                {needsBrandSelection && !selectedBrand && (
+                  <p className="flex items-center gap-1 text-[10px] text-amber-400/70 px-1">
+                    <Icon name="InformationCircleIcon" size={10} className="flex-shrink-0" />
+                    اختر الماركة للمتابعة
+                  </p>
+                )}
               </div>
 
               {/* CTA */}
