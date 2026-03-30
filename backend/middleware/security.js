@@ -5,11 +5,18 @@ import hpp from 'hpp';
 
 // Rate limiting for general API
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: { error: 'Too many requests, please try again later' },
+  windowMs: 15 * 60 * 1000, // 15 دقيقة
+  max: 100, // حد أقصى 100 طلب من كل IP
   standardHeaders: true,
   legacyHeaders: false,
+  // إضافة السطر ده للتأكد من عدم حدوث الـ Error تاني
+  validate: { xForwardedForHeader: false }, 
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too many requests, please try again later.',
+      message: 'يا عمار، شكلك بتجرب كتير، اهدى شوية وارجع كمان 15 دقيقة!'
+    });
+  }
 });
 
 // Stricter rate limit for auth endpoints

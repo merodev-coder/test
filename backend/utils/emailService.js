@@ -1,27 +1,43 @@
 import nodemailer from 'nodemailer';
 
 export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice }) {
+  // 1. التحقق من وجود البيانات الأساسية
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn('[Email] EMAIL_USER or EMAIL_PASS not set — skipping receipt email.');
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    tls: { rejectUnauthorized: false },
-  });
-
-  try {
-    await transporter.verify();
-  } catch (verifyErr) {
-    console.error('[Email] Transporter verify failed:', verifyErr.message);
+  if (!customerEmail) {
+    console.error('[Email] No customer email provided for order:', orderID);
     return;
   }
 
+  // 2. إعداد الـ Transporter بطريقة الـ Host المباشر (أسرع وأضمن للـ Timeout)
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // يجب أن يكون false مع Port 587
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS, // الـ 16 حرف (App Password)
+    },
+    tls: {
+      rejectUnauthorized: false, // لتجاوز مشاكل الـ SSL في بعض السيرفرات
+    },
+    connectionTimeout: 15000, // زيادة الوقت لـ 15 ثانية لمواجهة بطء السيرفر
+    greetingTimeout: 10000,
+  });
+
+  try {
+    // التحقق من الاتصال قبل البدء
+    await transporter.verify();
+  } catch (verifyErr) {
+    console.error('[Email] Transporter verify failed (Timeout/Auth):', verifyErr.message);
+    // لو فشل الـ Verify بنخرج بدل ما السيرفر يعلق
+    return;
+  }
+
+  // 3. فلترة العناصر (تجاهل الـ Data لو في منتجات تانية)
   const nonDataItems = items.filter((item) => item.type !== 'data');
   const displayItems = nonDataItems.length > 0 ? nonDataItems : items;
 
@@ -49,24 +65,20 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 <body style="margin: 0; padding: 0; background-color: #0a1628; font-family: 'Segoe UI', Arial, sans-serif;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #0f1f35; border-radius: 16px; overflow: hidden; border: 1px solid #1a2a3a;">
 
-    <!-- Header -->
     <div style="background: linear-gradient(135deg, #00d4aa 0%, #0099ff 100%); padding: 32px 24px; text-align: center;">
       <h1 style="margin: 0; color: #0a1628; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">أبوكارتونة</h1>
       <p style="margin: 8px 0 0; color: #0a1628; font-size: 14px; opacity: 0.8;">Gaming Store</p>
     </div>
 
-    <!-- Body -->
     <div style="padding: 32px 24px;">
       <p style="color: #94a3b8; font-size: 16px; margin: 0 0 8px;">مرحباً، <strong style="color: #e2e8f0;">${customerName}</strong> 👋</p>
       <p style="color: #94a3b8; font-size: 15px; margin: 0 0 24px;">تم استلام طلبك بنجاح! فيما يلي تفاصيل الإيصال.</p>
 
-      <!-- Order ID -->
       <div style="background-color: #0a1628; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid #1a3a5c;">
         <p style="margin: 0; color: #94a3b8; font-size: 13px;">رقم الطلب</p>
         <p style="margin: 4px 0 0; color: #00d4aa; font-size: 20px; font-weight: 900; letter-spacing: 1px;">${orderID}</p>
       </div>
 
-      <!-- Products Table -->
       <h3 style="color: #e2e8f0; font-size: 16px; margin: 0 0 12px;">المنتجات المطلوبة</h3>
       <table style="width: 100%; border-collapse: collapse; background-color: #0a1628; border-radius: 12px; overflow: hidden; border: 1px solid #1a2a3a;">
         <thead>
@@ -81,24 +93,21 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
         </tbody>
       </table>
 
-      <!-- Total -->
-      <div style="background: linear-gradient(135deg, #00d4aa15 0%, #0099ff15 100%); border: 1px solid #00d4aa40; border-radius: 12px; padding: 16px 20px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="background: linear-gradient(135deg, #00d4aa15 0%, #0099ff15 100%); border: 1px solid #00d4aa40; border-radius: 12px; padding: 16px 20px; margin-top: 20px;">
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
-            <td style="color: #94a3b8; font-size: 15px; padding: 0;">الإجمالي</td>
+            <td style="color: #94a3b8; font-size: 15px; padding: 0;">الإجمالي النهائي</td>
             <td style="color: #00d4aa; font-size: 22px; font-weight: 900; text-align: left; padding: 0;">${(totalPrice || 0).toLocaleString('ar-EG')} جنيه</td>
           </tr>
         </table>
       </div>
 
-      <!-- Note -->
       <p style="color: #64748b; font-size: 13px; margin: 24px 0 0; text-align: center;">
         سيتواصل معك فريقنا لتأكيد الطلب قريباً.<br/>
         شكراً لثقتك في أبوكارتونة Gaming Store ❤️
       </p>
     </div>
 
-    <!-- Footer -->
     <div style="background-color: #0a1628; padding: 16px 24px; text-align: center; border-top: 1px solid #1a2a3a;">
       <p style="margin: 0; color: #475569; font-size: 12px;">© ${new Date().getFullYear()} أبوكارتونة Gaming Store — جميع الحقوق محفوظة</p>
     </div>
@@ -106,12 +115,15 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 </body>
 </html>`;
 
-  await transporter.sendMail({
-    from: `"أبوكارتونة Gaming" <${process.env.EMAIL_USER}>`,
-    to: customerEmail,
-    subject: `✅ إيصال طلبك ${orderID} — أبوكارتونة`,
-    html,
-  });
-
-  console.log(`[Email] Receipt sent to ${customerEmail} for order ${orderID}`);
+  try {
+    await transporter.sendMail({
+      from: `"أبوكارتونة Gaming" <${process.env.EMAIL_USER}>`,
+      to: customerEmail,
+      subject: `✅ إيصال طلبك ${orderID} — أبوكارتونة`,
+      html,
+    });
+    console.log(`[Email] Receipt sent to ${customerEmail} for order ${orderID}`);
+  } catch (mailErr) {
+    console.error('[Email] Failed to send email:', mailErr.message);
+  }
 }
