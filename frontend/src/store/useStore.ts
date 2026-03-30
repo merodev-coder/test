@@ -438,10 +438,10 @@ export const useStore = create<StoreState & StoreActions>()(
         if (token) headers.Authorization = `Bearer ${token}`;
 
         try {
-          const res = await fetch(getAdminApiUrl('products'), {
+          const res = await fetch(getAdminApiUrl(`products/${id}`), {
             method: 'PUT',
             headers,
-            body: JSON.stringify({ id, ...product }),
+            body: JSON.stringify(product),
           });
           if (!res.ok) {
             const data = await res.json();
@@ -463,10 +463,9 @@ export const useStore = create<StoreState & StoreActions>()(
         if (token) headers.Authorization = `Bearer ${token}`;
 
         try {
-          const res = await fetch(getAdminApiUrl('products'), {
+          const res = await fetch(getAdminApiUrl(`products/${id}`), {
             method: 'DELETE',
             headers,
-            body: JSON.stringify({ id }),
           });
 
           if (!res.ok) {
