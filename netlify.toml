@@ -8,8 +8,14 @@
   NPM_VERSION = "10"
 
 [[redirects]]
+  from = "/api/uploadthing"
+  to = "/api/uploadthing"
+  status = 200
+  force = false
+
+[[redirects]]
   from = "/api/*"
-  to = "https://abo-kartona-backend.onrender.com/api/:splat"
+  to = "https://considerate-celebration-production-558b.up.railway.app/api/:splat"
   status = 200
 
 [[redirects]]
