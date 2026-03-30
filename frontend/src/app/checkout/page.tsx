@@ -65,6 +65,7 @@ export default function CheckoutPage() {
   const [storageAssignments, setStorageAssignments] = useState<StorageAssignment[]>([]);
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
 
   const hasStorageProduct = storedCart.some((item) => item.type === 'storage');
 
@@ -81,7 +82,7 @@ export default function CheckoutPage() {
   const dataDiscount = cartTotals.freeDataGB * 0.5;
   const storageSummary = getStorageSummary();
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const depositAmount = requiredDeposit > 0 ? Math.round(requiredDeposit) : Math.max(50, Math.round(shippingCost > 0 ? shippingCost : 50));
+  const depositAmount = deliveryMethod === 'pickup' ? 0 : (requiredDeposit > 0 ? Math.round(requiredDeposit) : Math.max(50, Math.round(shippingCost > 0 ? shippingCost : 50)));
 
   const handleUpdateQty = (id: string, qty: number) => {
     if (qty <= 0) {
@@ -113,6 +114,7 @@ export default function CheckoutPage() {
     _depositType?: string,
     deposit?: number
   ) => {
+    setDeliveryMethod(_method as 'delivery' | 'pickup');
     setShippingCost(cost);
     setCityCode(_cityCode);
     if (shippingMethodName !== undefined) setSelectedShippingMethod(shippingMethodName);
@@ -181,7 +183,7 @@ export default function CheckoutPage() {
   };
 
   const canConfirm =
-    receiptFile !== null && cartItems.length > 0 && !!customerName && !!phone && !!customerAddress && !!customerEmail;
+    (deliveryMethod === 'pickup' || receiptFile !== null) && cartItems.length > 0 && !!customerName && !!phone && !!customerAddress && !!customerEmail;
 
   const dataEffectivePrices = getDataItemEffectivePrices(storedCart);
 
@@ -543,13 +545,25 @@ export default function CheckoutPage() {
                 <div className="card rounded-3xl p-6">
                   <h2 className="text-h3 text-text-primary text-text-primary mb-6 flex items-center gap-2">
                     <Icon name="CreditCardIcon" size={20} className="text-brand-500" />
-                    دفع العربون
+                    {deliveryMethod === 'pickup' ? 'تأكيد الطلب' : 'دفع العربون'}
                   </h2>
-                  <PaymentDeposit
-                    depositAmount={depositAmount}
-                    onReceiptUpload={setReceiptFile as any}
-                    receiptFile={receiptFile}
-                  />
+                  {deliveryMethod === 'pickup' ? (
+                    <div className="p-4 rounded-2xl bg-brand-500/5 border border-brand-500/20 flex items-start gap-3">
+                      <Icon name="BuildingStorefrontIcon" size={20} className="text-brand-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-black text-brand-500 mb-1">استلام من المحل — بدون عربون</p>
+                        <p className="text-xs text-text-muted leading-relaxed">
+                          اخترت استلام الطلب من المحل مباشرة. لا يلزمك دفع عربون. قم بمراجعة شروط الخدمة والموافقة عليها لإتمام الطلب.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <PaymentDeposit
+                      depositAmount={depositAmount}
+                      onReceiptUpload={setReceiptFile as any}
+                      receiptFile={receiptFile}
+                    />
+                  )}
 
                   {/* Terms Agreement */}
                   <div className="mt-6 p-4 rounded-2xl bg-surface-secondary border border-border">
@@ -603,6 +617,7 @@ export default function CheckoutPage() {
                 canConfirm={canConfirm && activeStep === 3}
                 isLoading={isLoading}
                 termsAgreed={termsAgreed}
+                isPickup={deliveryMethod === 'pickup'}
               />
             </div>
           </div>

@@ -26,6 +26,7 @@ interface OrderSummaryProps {
   canConfirm: boolean;
   isLoading: boolean;
   termsAgreed?: boolean;
+  isPickup?: boolean;
 }
 
 export default function OrderSummary({
@@ -38,6 +39,7 @@ export default function OrderSummary({
   canConfirm,
   isLoading,
   termsAgreed = true,
+  isPickup = false,
 }: OrderSummaryProps) {
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const total = subtotal + shippingCost;
@@ -128,18 +130,28 @@ export default function OrderSummary({
             {total.toLocaleString('ar-EG')} جنيه
           </span>
         </div>
-        <div className="border-t border-border pt-2 mt-2 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-amber-400 font-bold">عربون الشحن (الآن)</span>
-            <span className="text-xs font-black text-amber-400">{depositAmount} جنيه</span>
+        {!isPickup && (
+          <div className="border-t border-border pt-2 mt-2 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-amber-400 font-bold">عربون الشحن (الآن)</span>
+              <span className="text-xs font-black text-amber-400">{depositAmount} جنيه</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-text-muted">المتبقي عند الاستلام</span>
+              <span className="text-xs font-bold text-text-muted">
+                {remaining.toLocaleString('ar-EG')} جنيه
+              </span>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-text-muted">المتبقي عند الاستلام</span>
-            <span className="text-xs font-bold text-text-muted">
-              {remaining.toLocaleString('ar-EG')} جنيه
-            </span>
+        )}
+        {isPickup && (
+          <div className="border-t border-border pt-2 mt-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-brand-500 font-bold">استلام من المحل — بدون عربون</span>
+              <span className="text-xs font-black text-brand-500">مجاناً</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Trust Badges */}

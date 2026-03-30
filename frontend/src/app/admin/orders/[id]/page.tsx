@@ -1,32 +1,93 @@
-import React from 'react';
-import { connectDB } from '@/lib/db';
-import { Order } from '@/models/Order';
-import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
 import AppImage from '@/components/ui/AppImage';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import BostaShipButton from './components/BostaShipButton';
+import Footer from '@/components/Footer';
 
-export default async function AdminOrderDetails({ params }: { params: Promise<{ id: string }> }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+  type?: string;
+}
 
-  if (!token) {
-    redirect('/admin/login');
+interface AssignedData {
+  dataItemId: string;
+  dataName: string;
+  sizeGB: number;
+}
+
+interface StorageMapping {
+  storageItemId: string;
+  storageName: string;
+  storageCapacity: number;
+  assignedData: AssignedData[];
+}
+
+interface Order {
+  id: string;
+  orderID: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  items: OrderItem[];
+  driveItems: OrderItem[];
+  totalPrice: number;
+  capacityGB: number;
+  uploadedPhotoUrl: string | null;
+  status: string;
+  trackingNumber: string | null;
+  storageDataMapping: StorageMapping[];
+  createdAt: string;
+}
+
+export default function AdminOrderDetails({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [orderId, setOrderId] = useState<string>('');
+
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem('isAdminAuthenticated');
+    if (!isAuthenticated || isAuthenticated !== 'true') {
+      router.replace('/admin/login');
+      return;
+    }
+
+    params.then(({ id }) => {
+      setOrderId(id);
+      fetch(`/api/admin/orders/${id}`, { credentials: 'include' })
+        .then((r) => {
+          if (r.status === 404) { setNotFound(true); return null; }
+          if (!r.ok) throw new Error('fetch failed');
+          return r.json();
+        })
+        .then((data) => {
+          if (data?.order) setOrder(data.order);
+          else if (data !== null) setNotFound(true);
+        })
+        .catch(() => setNotFound(true))
+        .finally(() => setLoading(false));
+    });
+  }, [params, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center" dir="rtl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin" />
+          <p className="text-text-muted">جاري تحميل الطلب...</p>
+        </div>
+      </div>
+    );
   }
 
-  await connectDB();
-  const { id } = await params;
-
-  // Natively fetch specific order directly bypassing API wrapper
-  const doc = (await Order.findOne({
-    $or: [{ orderID: id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }],
-  }).lean()) as any;
-
-  if (!doc) {
+  if (notFound || !order) {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
         <h1 className="text-xl font-black text-text-primary mb-2">الطلب غير موجود</h1>
@@ -37,9 +98,7 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
     );
   }
 
-  // Sanitize the lean doc
-  const order = { ...doc, _id: doc._id.toString() };
-  const proofImage = order.uploadedPhotoUrl || order.paymentScreenshot;
+  const proofImage = order.uploadedPhotoUrl;
 
   return (
     <div className="min-h-screen bg-surface flex flex-col" dir="rtl">
@@ -61,52 +120,42 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h2 className="text-xl font-black text-text-primary font-heading mb-1">
-                    الطلب {order.orderID || `#${order._id.slice(-6)}`}
+                    الطلب {order.orderID || `#${order.id.slice(-6)}`}
                   </h2>
                   <p className="text-body-sm text-text-muted">
-                    {new Date(order.createdAt).toLocaleString('ar-EG', {
-                      dateStyle: 'full',
-                      timeStyle: 'short',
-                    })}
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleString('ar-EG', {
+                          dateStyle: 'full',
+                          timeStyle: 'short',
+                        })
+                      : '—'}
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span
-                    className={`px-4 py-1.5 rounded-lg text-sm font-bold ${
-                      order.status === 'Pending'
-                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                        : order.status === 'Completed'
-                          ? 'bg-brand-500/10 text-brand-500 border border-brand-500/20'
-                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                    }`}
-                  >
-                    {order.status === 'Pending'
-                      ? 'معلق'
+                <span
+                  className={`px-4 py-1.5 rounded-lg text-sm font-bold ${
+                    order.status === 'Pending'
+                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                       : order.status === 'Completed'
-                        ? 'مكتمل'
-                        : 'ملغي'}
-                  </span>
-                </div>
+                        ? 'bg-brand-500/10 text-brand-500 border border-brand-500/20'
+                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                  }`}
+                >
+                  {order.status === 'Pending' ? 'معلق' : order.status === 'Completed' ? 'مكتمل' : 'ملغي'}
+                </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-surface-secondary p-4 rounded-xl border border-border">
                   <p className="text-caption text-text-muted mb-1">اسم العميل</p>
-                  <p className="text-body-sm font-bold text-text-primary">
-                    {order.customerName || 'بدون اسم'}
-                  </p>
+                  <p className="text-body-sm font-bold text-text-primary">{order.customerName || 'بدون اسم'}</p>
                 </div>
                 <div className="bg-surface-secondary p-4 rounded-xl border border-border">
                   <p className="text-caption text-text-muted mb-1">رقم الموبايل</p>
-                  <p className="text-body-sm font-bold text-text-primary" dir="ltr">
-                    {order.phone || '—'}
-                  </p>
+                  <p className="text-body-sm font-bold text-text-primary" dir="ltr">{order.phone || '—'}</p>
                 </div>
                 <div className="bg-surface-secondary p-4 rounded-xl border border-border sm:col-span-2 md:col-span-1">
                   <p className="text-caption text-text-muted mb-1">العنوان</p>
-                  <p className="text-body-sm text-text-primary line-clamp-3">
-                    {order.address || '—'}
-                  </p>
+                  <p className="text-body-sm text-text-primary line-clamp-3">{order.address || '—'}</p>
                 </div>
               </div>
             </div>
@@ -116,7 +165,7 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                 المنتجات المطلوبة
               </h3>
               <div className="space-y-3">
-                {order.items?.map((item: any, idx: number) => (
+                {order.items?.map((item, idx) => (
                   <div
                     key={idx}
                     className="flex items-center gap-4 bg-surface-secondary p-3 rounded-xl border border-border"
@@ -125,12 +174,8 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                       <Icon name="CubeIcon" size={20} className="text-text-muted" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-body-sm font-bold text-text-primary line-clamp-1">
-                        {item.name}
-                      </h4>
-                      <p className="text-caption text-text-muted mt-0.5">
-                        الكمية: {item.quantity || 1}
-                      </p>
+                      <h4 className="text-body-sm font-bold text-text-primary line-clamp-1">{item.name}</h4>
+                      <p className="text-caption text-text-muted mt-0.5">الكمية: {item.quantity || 1}</p>
                     </div>
                     <div className="text-left flex-shrink-0">
                       <p className="text-body-sm font-bold text-brand-500">
@@ -150,12 +195,8 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                   توزيع البيانات على أجهزة التخزين
                 </h3>
                 <div className="space-y-4">
-                  {order.storageDataMapping.map((mapping: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="bg-surface-secondary rounded-xl border border-border overflow-hidden"
-                    >
-                      {/* Storage Device Header */}
+                  {order.storageDataMapping.map((mapping, idx) => (
+                    <div key={idx} className="bg-surface-secondary rounded-xl border border-border overflow-hidden">
                       <div className="p-4 border-b border-border bg-brand-500/5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -163,53 +204,39 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                               <Icon name="CircleStackIcon" size={18} className="text-brand-500" />
                             </div>
                             <div>
-                              <h4 className="text-body-sm font-bold text-text-primary">
-                                {mapping.storageName}
-                              </h4>
+                              <h4 className="text-body-sm font-bold text-text-primary">{mapping.storageName}</h4>
                               <p className="text-caption text-text-muted">
                                 السعة: {mapping.storageCapacity?.toLocaleString('ar-EG')} GB
                               </p>
                             </div>
                           </div>
-                          <div className="text-left">
-                            <span className="text-xs font-bold text-brand-500">
-                              {mapping.assignedData?.length || 0} ملف
-                            </span>
-                          </div>
+                          <span className="text-xs font-bold text-brand-500">
+                            {mapping.assignedData?.length || 0} ملف
+                          </span>
                         </div>
                       </div>
 
-                      {/* Assigned Data List */}
-                      {mapping.assignedData && mapping.assignedData.length > 0 && (
+                      {mapping.assignedData && mapping.assignedData.length > 0 ? (
                         <div className="p-3 space-y-2">
-                          {mapping.assignedData.map((data: any, dataIdx: number) => (
-                            <div
-                              key={dataIdx}
-                              className="flex items-center gap-3 p-2 rounded-lg bg-surface-tertiary/50"
-                            >
+                          {mapping.assignedData.map((data, dataIdx) => (
+                            <div key={dataIdx} className="flex items-center gap-3 p-2 rounded-lg bg-surface-tertiary/50">
                               <Icon name="FolderIcon" size={16} className="text-amber-400 flex-shrink-0" />
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-text-primary line-clamp-1">
-                                  {data.dataName}
-                                </p>
+                                <p className="text-xs font-medium text-text-primary line-clamp-1">{data.dataName}</p>
                               </div>
                               <span className="text-[10px] text-text-muted flex-shrink-0">
                                 {data.sizeGB?.toLocaleString('ar-EG')} GB
                               </span>
                             </div>
                           ))}
-                          
-                          {/* Total for this storage */}
                           <div className="flex items-center justify-between pt-2 border-t border-border/50 mt-2">
                             <span className="text-xs text-text-muted">إجمالي البيانات على هذا الجهاز:</span>
                             <span className="text-xs font-bold text-brand-500">
-                              {mapping.assignedData.reduce((acc: number, d: any) => acc + (d.sizeGB || 0), 0).toLocaleString('ar-EG')} GB
+                              {mapping.assignedData.reduce((acc, d) => acc + (d.sizeGB || 0), 0).toLocaleString('ar-EG')} GB
                             </span>
                           </div>
                         </div>
-                      )}
-
-                      {(!mapping.assignedData || mapping.assignedData.length === 0) && (
+                      ) : (
                         <div className="p-4 text-center">
                           <p className="text-caption text-text-muted">لا توجد بيانات مخصصة لهذا الجهاز</p>
                         </div>
@@ -218,7 +245,6 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                   ))}
                 </div>
 
-                {/* Summary */}
                 <div className="mt-4 p-4 rounded-xl bg-brand-500/5 border border-brand-500/20">
                   <div className="flex items-center justify-between">
                     <span className="text-body-sm font-bold text-text-primary">إجمالي أجهزة التخزين:</span>
@@ -229,9 +255,10 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-body-sm font-bold text-text-primary">إجمالي البيانات المخزنة:</span>
                     <span className="text-body-sm font-bold text-brand-500">
-                      {order.storageDataMapping.reduce((acc: number, m: any) => 
-                        acc + (m.assignedData?.reduce((a: number, d: any) => a + (d.sizeGB || 0), 0) || 0), 0
-                      ).toLocaleString('ar-EG')} GB
+                      {order.storageDataMapping
+                        .reduce((acc, m) => acc + (m.assignedData?.reduce((a, d) => a + (d.sizeGB || 0), 0) || 0), 0)
+                        .toLocaleString('ar-EG')}{' '}
+                      GB
                     </span>
                   </div>
                 </div>
@@ -241,9 +268,7 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
 
           <div className="md:w-80 w-full space-y-6">
             <div className="glass-card rounded-2xl p-6">
-              <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading">
-                إجمالي الحساب
-              </h3>
+              <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading">إجمالي الحساب</h3>
               <div className="space-y-3 mb-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-text-muted">إجمالي المنتجات</span>
@@ -263,9 +288,9 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
             </div>
 
             <BostaShipButton
-              orderId={order.orderID || order._id.toString()}
+              orderId={order.orderID || order.id}
               status={order.status}
-              trackingNumber={order.trackingNumber}
+              trackingNumber={order.trackingNumber ?? undefined}
             />
 
             <div className="glass-card rounded-2xl p-6">
@@ -278,7 +303,7 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
                   href={proofImage}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 bg-white/5 group border border-gray-200 dark:border-white/10 hover:border-brand-500/50 transition-colors"
+                  className="block relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white/5 group border border-white/10 hover:border-brand-500/50 transition-colors"
                 >
                   <AppImage
                     src={proofImage}
@@ -300,7 +325,6 @@ export default async function AdminOrderDetails({ params }: { params: Promise<{ 
               )}
             </div>
 
-            {/* Terms of Service */}
             <div className="glass-card rounded-2xl p-6">
               <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
                 <Icon name="ShieldCheckIcon" size={20} className="text-amber-400" />
