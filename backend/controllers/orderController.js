@@ -82,6 +82,22 @@ export async function createOrder(req, res, next) {
   }
 }
 
+export async function getOrderById(req, res, next) {
+  try {
+    const { id } = req.params;
+    const isMongoId = /^[0-9a-fA-F]{24}$/.test(id);
+    const order = await Order.findOne(
+      isMongoId ? { $or: [{ _id: id }, { orderID: id }] } : { orderID: id }
+    );
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    res.json({ order });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listOrders(req, res, next) {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -94,7 +110,10 @@ export async function listOrders(req, res, next) {
 export async function deleteOrder(req, res, next) {
   try {
     const { id } = req.params;
-    const order = await Order.findByIdAndDelete(id);
+    const isMongoId = /^[0-9a-fA-F]{24}$/.test(id);
+    const order = await Order.findOneAndDelete(
+      isMongoId ? { $or: [{ _id: id }, { orderID: id }] } : { orderID: id }
+    );
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
@@ -111,7 +130,12 @@ export async function updateOrderStatus(req, res, next) {
     if (!['Pending', 'Completed', 'Cancelled'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
-    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    const isMongoId = /^[0-9a-fA-F]{24}$/.test(id);
+    const order = await Order.findOneAndUpdate(
+      isMongoId ? { $or: [{ _id: id }, { orderID: id }] } : { orderID: id },
+      { status },
+      { new: true }
+    );
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }

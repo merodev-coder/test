@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BostaShipButton from './components/BostaShipButton';
 import Footer from '@/components/Footer';
+import { getApiUrl } from '@/lib/apiConfig';
 
 interface OrderItem {
   name: string;
@@ -61,16 +62,8 @@ export default function AdminOrderDetails({ params }: { params: Promise<{ id: st
 
     params.then(({ id }) => {
       setOrderId(id);
-      const adminKey = process.env.NEXT_PUBLIC_ADMIN_USERNAME || '';
-      fetch(`/api/admin/orders/${id}`, {
-        credentials: 'include',
-        headers: { 'x-admin-key': adminKey },
-      })
+      fetch(getApiUrl(`orders/${id}`))
         .then((r) => {
-          if (r.status === 401 || r.status === 403) {
-            router.replace('/admin/login');
-            return null;
-          }
           if (r.status === 404) { setNotFound(true); return null; }
           if (!r.ok) throw new Error('fetch failed');
           return r.json();

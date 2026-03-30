@@ -1,29 +1,25 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
-
-function getApiBase(): string {
-  const base = API_BASE_URL.replace(/\/+$/, '');
-  // يضمن وجود /api مرة واحدة فقط في نهاية الرابط
-  return base.endsWith('/api') ? base : `${base}/api`;
-}
+const API_BASE_URL = 'https://considerate-celebration-production-558b.up.railway.app';
 
 export function getApiUrl(endpoint: string): string {
   const cleanEndpoint = endpoint.replace(/^\/+/, '');
-  return `${getApiBase()}/${cleanEndpoint}`;
+  // بنضمن إننا بنكلم /api/ وبعدها الـ endpoint مباشرة
+  return `${API_BASE_URL}/api/${cleanEndpoint}`;
 }
 
-// تعديل حاسم: الـ Admin في الغالب يستخدم نفس الـ routes مع اختلاف الـ Auth
 export function getAdminApiUrl(endpoint: string): string {
   const cleanEndpoint = endpoint.replace(/^\/+/, '');
-  // إذا كان الـ Backend لديك يستخدم /api/admin/orders اتركها كما هي
-  // إذا كان يستخدم /api/orders مباشرة، استخدم السطر القادم:
-  return `${getApiBase()}/${cleanEndpoint}`;
+  
+  // لو الأوردرات بتيجي من orderRoutes مباشرة:
+  if (cleanEndpoint.includes('orders')) {
+    return getApiUrl(cleanEndpoint); 
+  }
+  
+  // لو حاجات تانية تبع الـ adminRoutes:
+  return getApiUrl(`admin/${cleanEndpoint}`);
 }
 
 export const API_ENDPOINTS = {
   PRODUCTS: 'products',
-  TAGS: 'tags',
   ORDERS: 'orders',
-  ADMIN_PRODUCTS: 'products',
-  ADMIN_ORDERS: 'orders',
-  UPLOADTHING: 'uploadthing',
+  ADMIN_ORDERS: 'orders', // خليتها orders مباشرة عشان تروح لـ /api/orders
 } as const;
