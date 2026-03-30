@@ -36,8 +36,26 @@ const STEPS = [
   { id: 2, label: 'البيانات والدفع' },
 ];
 
-const slide = { initial: { opacity: 0, x: 28 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -28 }, transition: { duration: 0.22, ease: 'easeOut' } };
-const fadeUp = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -10 }, transition: { duration: 0.2 } };
+function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return <div className={`backdrop-blur-sm bg-white/[0.03] border border-white/10 rounded-2xl ${className}`}>{children}</div>;
+}
+
+function SectionTitle({ icon, label, sub }: { icon: string; label: string; sub?: string }) {
+  return (
+    <div className="mb-5">
+      <h2 className="text-h3 font-heading text-text-primary flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-brand-500/15 flex items-center justify-center flex-shrink-0">
+          <Icon name={icon as any} size={16} className="text-brand-500" />
+        </div>
+        {label}
+      </h2>
+      {sub && <p className="text-caption text-text-muted mt-1 mr-10">{sub}</p>}
+    </div>
+  );
+}
+
+const slide = { initial: { opacity: 0, x: 28 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -28 }, transition: { duration: 0.22, ease: 'easeOut' as const } };
+const fadeUp = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -10 }, transition: { duration: 0.2, ease: 'easeOut' as const } };
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -215,22 +233,6 @@ export default function CheckoutPage() {
       setIsLoading(false);
     }
   };
-
-  const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-    <div className={`backdrop-blur-sm bg-white/[0.03] border border-white/10 rounded-2xl ${className}`}>{children}</div>
-  );
-
-  const SectionTitle = ({ icon, label, sub }: { icon: string; label: string; sub?: string }) => (
-    <div className="mb-5">
-      <h2 className="text-h3 font-heading text-text-primary flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-brand-500/15 flex items-center justify-center flex-shrink-0">
-          <Icon name={icon as any} size={16} className="text-brand-500" />
-        </div>
-        {label}
-      </h2>
-      {sub && <p className="text-caption text-text-muted mt-1 mr-10">{sub}</p>}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-surface flex flex-col" dir="rtl">

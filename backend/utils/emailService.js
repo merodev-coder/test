@@ -1,9 +1,8 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice }) {
-  // 1. التحقق من وجود البيانات الأساسية
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('[Email] EMAIL_USER or EMAIL_PASS not set — skipping receipt email.');
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Email] RESEND_API_KEY not set — skipping receipt email.');
     return;
   }
 
@@ -12,30 +11,7 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
     return;
   }
 
-  // 2. إعداد الـ Transporter بطريقة الـ Host المباشر (أسرع وأضمن للـ Timeout)
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // يجب أن يكون false مع Port 587
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // الـ 16 حرف (App Password)
-    },
-    tls: {
-      rejectUnauthorized: false, // لتجاوز مشاكل الـ SSL في بعض السيرفرات
-    },
-    connectionTimeout: 15000, // زيادة الوقت لـ 15 ثانية لمواجهة بطء السيرفر
-    greetingTimeout: 10000,
-  });
-
-  try {
-    // التحقق من الاتصال قبل البدء
-    await transporter.verify();
-  } catch (verifyErr) {
-    console.error('[Email] Transporter verify failed (Timeout/Auth):', verifyErr.message);
-    // لو فشل الـ Verify بنخرج بدل ما السيرفر يعلق
-    return;
-  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   // 3. فلترة العناصر (تجاهل الـ Data لو في منتجات تانية)
   const nonDataItems = items.filter((item) => item.type !== 'data');
@@ -116,13 +92,18 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 </html>`;
 
   try {
-    await transporter.sendMail({
-      from: `"أبوكارتونة Gaming" <${process.env.EMAIL_USER}>`,
+    const fromAddress = process.env.EMAIL_FROM || 'أبوكارتونة Gaming <onboarding@resend.dev>';
+    const { error } = await resend.emails.send({
+      from: fromAddress,
       to: customerEmail,
       subject: `✅ إيصال طلبك ${orderID} — أبوكارتونة`,
       html,
     });
-    console.log(`[Email] Receipt sent to ${customerEmail} for order ${orderID}`);
+    if (error) {
+      console.error('[Email] Resend error:', error.message);
+    } else {
+      console.log(`[Email] Receipt sent to ${customerEmail} for order ${orderID}`);
+    }
   } catch (mailErr) {
     console.error('[Email] Failed to send email:', mailErr.message);
   }
