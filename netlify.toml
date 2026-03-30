@@ -17,6 +17,7 @@
   from = "/api/*"
   to = "https://considerate-celebration-production-558b.up.railway.app/api/:splat"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/admin/*"
