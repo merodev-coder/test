@@ -12,13 +12,22 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
+    tls: { rejectUnauthorized: false },
   });
 
+  try {
+    await transporter.verify();
+  } catch (verifyErr) {
+    console.error('[Email] Transporter verify failed:', verifyErr.message);
+    return;
+  }
+
   const nonDataItems = items.filter((item) => item.type !== 'data');
+  const displayItems = nonDataItems.length > 0 ? nonDataItems : items;
 
-  if (nonDataItems.length === 0) return;
+  if (displayItems.length === 0) return;
 
-  const itemRows = nonDataItems
+  const itemRows = displayItems
     .map(
       (item) => `
         <tr style="border-bottom: 1px solid #1a2a3a;">
@@ -85,7 +94,7 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
       <!-- Note -->
       <p style="color: #64748b; font-size: 13px; margin: 24px 0 0; text-align: center;">
         سيتواصل معك فريقنا لتأكيد الطلب قريباً.<br/>
-        شكراً لثقتك في أبوكارتونةaming Store ❤️
+        شكراً لثقتك في أبوكارتونة Gaming Store ❤️
       </p>
     </div>
 

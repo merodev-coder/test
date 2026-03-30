@@ -43,9 +43,17 @@ export async function createOrder(req, res, next) {
       : body.paymentScreenshotUrl || null;
     const uploadedPhotoUrl = body.uploadedPhotoUrl || null;
     const storageDataMapping = body.storageDataMapping || [];
+    const customerDetails = body.customerDetails && Object.keys(body.customerDetails).length > 0
+      ? body.customerDetails
+      : {
+          name: body.customerName || '',
+          phone: body.phone || '',
+          email: body.customerEmail || '',
+          address: body.address || '',
+        };
     const order = await Order.create({
       orderID,
-      customerDetails: body.customerDetails || {},
+      customerDetails,
       items,
       driveItems,
       totalPrice,
@@ -62,11 +70,11 @@ export async function createOrder(req, res, next) {
     });
     res.status(201).json({ order });
 
-    const customerEmail = body.customerEmail;
+    const customerEmail = body.customerEmail || customerDetails.email || '';
     if (customerEmail) {
       sendOrderReceipt({
         customerEmail,
-        customerName: body.customerName || body.customerDetails?.name || '',
+        customerName: customerDetails.name || body.customerName || '',
         orderID,
         items: rawItems.map((item) => ({
           name: item.name,
@@ -82,6 +90,21 @@ export async function createOrder(req, res, next) {
   }
 }
 
+function normalizeOrder(order) {
+  const o = order.toObject ? order.toObject() : order;
+  const cd = o.customerDetails || {};
+  return {
+    ...o,
+    id: String(o._id),
+    customerName: cd.name || o.customerName || '',
+    phone: cd.phone || o.phone || '',
+    address: cd.address || o.address || '',
+    email: cd.email || o.email || '',
+    trackingNumber: o.trackingNumber || null,
+    storageDataMapping: o.storageDataMapping || [],
+  };
+}
+
 export async function getOrderById(req, res, next) {
   try {
     const { id } = req.params;
@@ -92,7 +115,7 @@ export async function getOrderById(req, res, next) {
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    res.json({ order });
+    res.json({ order: normalizeOrder(order) });
   } catch (err) {
     next(err);
   }
@@ -101,7 +124,7 @@ export async function getOrderById(req, res, next) {
 export async function listOrders(req, res, next) {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
-    res.json({ orders });
+    res.json({ orders: orders.map(normalizeOrder) });
   } catch (err) {
     next(err);
   }
