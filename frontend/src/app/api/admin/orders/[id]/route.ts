@@ -4,6 +4,12 @@ import { connectDB } from '@/lib/db';
 import { Order } from '@/models/Order';
 
 function isAuthed(req: Request) {
+  // Accept simple header auth (matches localStorage-based admin login)
+  const adminKey = req.headers.get('x-admin-key');
+  const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
+  if (adminKey && adminUsername && adminKey === adminUsername) return true;
+
+  // Legacy JWT cookie auth
   const cookie = req.headers.get('cookie') || '';
   const matchSession = cookie.match(/(?:^|;\s*)admin_session=([^;]+)/);
   const matchToken = cookie.match(/(?:^|;\s*)abo_admin_token=([^;]+)/);
