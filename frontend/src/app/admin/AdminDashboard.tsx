@@ -22,6 +22,22 @@ import { AnalyticsErrorBoundary } from '@/components/error/ErrorBoundary';
 
 type TabType = 'products' | 'orders' | 'analytics' | 'shipping';
 
+const ORDER_STATUS_LABEL: Record<string, string> = {
+  Pending: 'معلق',
+  AwaitingPickup: 'في انتظار الاستلام',
+  Shipping: 'جاري شحن الطلب',
+  Completed: 'تم الاستلام',
+  Cancelled: 'ملغي',
+};
+
+const ORDER_STATUS_STYLE: Record<string, string> = {
+  Pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  AwaitingPickup: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  Shipping: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  Completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  Cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
+};
+
 export default function AdminDashboard() {
   const router = useRouter();
   const {
@@ -895,16 +911,34 @@ function ProductsManager({
   );
 }
 
+const STATUS_FILTERS = [
+  { value: 'all', label: 'الكل' },
+  { value: 'Pending', label: 'معلق' },
+  { value: 'AwaitingPickup', label: 'في انتظار الاستلام' },
+  { value: 'Shipping', label: 'جاري الشحن' },
+  { value: 'Completed', label: 'تم الاستلام' },
+  { value: 'Cancelled', label: 'ملغي' },
+];
+
 function OrdersManager({ showNotification }: { showNotification: (msg: string) => void }) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (search: string, status: string) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
-      const res = await fetch(getAdminApiUrl('orders'), { headers });
+      const params = new URLSearchParams();
+      if (search.trim()) params.set('search', search.trim());
+      if (status !== 'all') params.set('status', status);
+      const qs = params.toString();
+      const res = await fetch(`${getAdminApiUrl('orders')}${qs ? `?${qs}` : ''}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
@@ -917,8 +951,8 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
   }, []);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    fetchOrders(searchQuery, statusFilter);
+  }, [fetchOrders, searchQuery, statusFilter]);
 
   const updateOrderStatus = async (id: string, status: string) => {
     try {
@@ -932,7 +966,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
       });
       if (res.ok) {
         showNotification('تم تحديث حالة الطلب');
-        fetchOrders();
+        fetchOrders(searchQuery, statusFilter);
       }
     } catch (err) {
       showNotification(err instanceof Error ? err.message : 'حدث خطأ');
@@ -948,7 +982,7 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
       const res = await fetch(getAdminApiUrl(`orders/${id}`), { method: 'DELETE', headers });
       if (res.ok) {
         showNotification('تم حذف الطلب بنجاح');
-        fetchOrders();
+        fetchOrders(searchQuery, statusFilter);
       } else {
         showNotification('فشل حذف الطلب');
       }
@@ -957,22 +991,84 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchInput(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setSearchQuery(val), 400);
+  };
+
+  const handleStatusFilter = (val: string) => {
+    setStatusFilter(val);
+  };
+
+  const isSearching = searchInput.trim() !== '' || statusFilter !== 'all';
+
   return (
     <div>
-      <h2 className="text-h3 text-text-primary text-text-primary mb-6">إدارة الطلبات</h2>
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+            <Icon name="MagnifyingGlassIcon" size={16} className="text-text-muted" />
+          </div>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={handleSearchChange}
+            placeholder="ابحث باسم العميل..."
+            className="w-full pr-9 pl-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-text-primary placeholder:text-text-muted text-body-sm focus:outline-none focus:border-brand-500/50 focus:bg-white/[0.05] transition-all backdrop-blur-sm"
+          />
+          {searchInput && (
+            <button
+              onClick={() => { setSearchInput(''); setSearchQuery(''); }}
+              className="absolute inset-y-0 left-3 flex items-center text-text-muted hover:text-text-primary transition-colors"
+            >
+              <Icon name="XMarkIcon" size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-5">
+        {STATUS_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => handleStatusFilter(f.value)}
+            className={`px-3 py-1.5 rounded-lg text-caption font-semibold border transition-all ${
+              statusFilter === f.value
+                ? 'bg-brand-500/20 border-brand-500/50 text-brand-400'
+                : 'bg-white/[0.02] border-white/8 text-text-muted hover:border-white/20 hover:text-text-secondary'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
 
       {loading ? (
         <div className="text-center py-12">
           <div className="w-8 h-8 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin mx-auto" />
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-surface-secondary rounded-2xl p-12 text-center border border-border-light border-border">
+        <div className="bg-surface-secondary rounded-2xl p-12 text-center border border-border">
           <div className="w-14 h-14 rounded-2xl bg-surface-tertiary flex items-center justify-center mx-auto mb-4">
-            <Icon name="ShoppingBagIcon" size={24} className="text-text-muted" />
+            <Icon name={isSearching ? 'MagnifyingGlassIcon' : 'ShoppingBagIcon'} size={24} className="text-text-muted" />
           </div>
-          <p className="text-body-sm font-medium text-text-muted text-text-muted">
-            لا توجد طلبات بعد
+          <p className="text-body-sm font-medium text-text-muted">
+            {searchInput.trim()
+              ? `لا يوجد أوردرات بهذا الاسم "${searchInput.trim()}"`
+              : isSearching
+              ? 'لا توجد طلبات بهذه الحالة'
+              : 'لا توجد طلبات بعد'}
           </p>
+          {isSearching && (
+            <button
+              onClick={() => { setSearchInput(''); setSearchQuery(''); setStatusFilter('all'); }}
+              className="mt-3 text-xs text-brand-500 hover:underline"
+            >
+              مسح الفلاتر
+            </button>
+          )}
         </div>
       ) : (
         <div className="bg-surface-secondary rounded-2xl border border-border-light border-border overflow-hidden">
@@ -1027,20 +1123,8 @@ function OrdersManager({ showNotification }: { showNotification: (msg: string) =
                       </p>
                     </td>
                     <td className="p-4">
-                      <span
-                        className={`px-2.5 py-1 rounded-lg text-caption font-semibold ${
-                          order.status === 'Pending'
-                            ? 'bg-warning-light text-warning-dark dark:bg-warning/10 dark:text-warning'
-                            : order.status === 'Completed'
-                              ? 'bg-success-light text-success-dark dark:bg-success/10 dark:text-success'
-                              : 'bg-error-light text-error-dark dark:bg-error/10 dark:text-error'
-                        }`}
-                      >
-                        {order.status === 'Pending'
-                          ? 'معلق'
-                          : order.status === 'Completed'
-                            ? 'مكتمل'
-                            : 'ملغي'}
+                      <span className={`px-2.5 py-1 rounded-lg text-caption font-semibold border ${ORDER_STATUS_STYLE[order.status] ?? ORDER_STATUS_STYLE.Cancelled}`}>
+                        {ORDER_STATUS_LABEL[order.status] ?? order.status}
                       </span>
                     </td>
                     <td className="p-4">

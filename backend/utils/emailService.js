@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice }) {
+export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice, deliveryMethod, pickupLocation }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Email] RESEND_API_KEY not set — skipping receipt email.');
     return;
@@ -30,6 +30,30 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
     )
     .join('');
 
+  // Generate pickup information section if applicable
+  const pickupSection = deliveryMethod === 'pickup' && pickupLocation ? `
+    <div style="background-color: #0a1628; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #1a3a5c;">
+      <h4 style="color: #00d4aa; font-size: 16px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px;">
+        📍 معلومات الاستلام من المحل
+      </h4>
+      <div style="space-y: 8px;">
+        <p style="margin: 0; color: #e2e8f0; font-size: 14px;"><strong>${pickupLocation.storeName}</strong></p>
+        <p style="margin: 4px 0; color: #94a3b8; font-size: 13px;">${pickupLocation.address}</p>
+        <p style="margin: 4px 0; color: #94a3b8; font-size: 13px;">🕒 ${pickupLocation.workingHours}</p>
+        <p style="margin: 4px 0; color: #94a3b8; font-size: 13px;">📞 ${pickupLocation.phone}</p>
+        <div style="margin-top: 12px; padding: 12px; background-color: #00d4aa15; border: 1px solid #00d4aa40; border-radius: 8px;">
+          <p style="margin: 0; color: #00d4aa; font-size: 12px; font-weight: bold;">
+            ✅ بدون رسوم شحن • ✅ بدون عربون • ✅ الدفع عند الاستلام
+          </p>
+        </div>
+        <a href="https://maps.google.com/?q=${pickupLocation.coordinates.lat},${pickupLocation.coordinates.lng}" 
+           style="display: inline-block; margin-top: 12px; padding: 8px 16px; background-color: #00d4aa; color: #0a1628; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: bold;">
+          🗺️ افتح في جوجل ماب
+        </a>
+      </div>
+    </div>
+  ` : '';
+
   const html = `
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -54,6 +78,8 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
         <p style="margin: 0; color: #94a3b8; font-size: 13px;">رقم الطلب</p>
         <p style="margin: 4px 0 0; color: #00d4aa; font-size: 20px; font-weight: 900; letter-spacing: 1px;">${orderID}</p>
       </div>
+
+      ${pickupSection}
 
       <h3 style="color: #e2e8f0; font-size: 16px; margin: 0 0 12px;">المنتجات المطلوبة</h3>
       <table style="width: 100%; border-collapse: collapse; background-color: #0a1628; border-radius: 12px; overflow: hidden; border: 1px solid #1a2a3a;">

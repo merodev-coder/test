@@ -34,6 +34,7 @@ interface Order {
   orderID: string;
   customerName: string;
   phone: string;
+  email: string;
   address: string;
   items: OrderItem[];
   driveItems: OrderItem[];
@@ -41,10 +42,43 @@ interface Order {
   capacityGB: number;
   uploadedPhotoUrl: string | null;
   status: string;
+  deliveryMethod: string;
+  selectedShippingMethod: string | null;
+  shippingProvider: string | null;
   trackingNumber: string | null;
+  deliveryId: string | null;
   storageDataMapping: StorageMapping[];
   createdAt: string;
+  customerDetails?: {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+  };
+  pickupLocation?: {
+    storeName: string;
+    address: string;
+    coordinates: { lat: number; lng: number };
+    workingHours: string;
+    phone: string;
+  };
 }
+
+const STATUS_LABEL: Record<string, string> = {
+  Pending: 'معلق',
+  AwaitingPickup: 'في انتظار الاستلام',
+  Shipping: 'جاري شحن الطلب',
+  Completed: 'تم الاستلام',
+  Cancelled: 'ملغي',
+};
+
+const STATUS_STYLE: Record<string, string> = {
+  Pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  AwaitingPickup: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  Shipping: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  Completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  Cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
+};
 
 export default function AdminOrderDetails({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -132,32 +166,80 @@ export default function AdminOrderDetails({ params }: { params: Promise<{ id: st
                       : '—'}
                   </p>
                 </div>
-                <span
-                  className={`px-4 py-1.5 rounded-lg text-sm font-bold ${
-                    order.status === 'Pending'
-                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                      : order.status === 'Completed'
-                        ? 'bg-brand-500/10 text-brand-500 border border-brand-500/20'
-                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                  }`}
-                >
-                  {order.status === 'Pending' ? 'معلق' : order.status === 'Completed' ? 'مكتمل' : 'ملغي'}
+                <span className={`px-4 py-1.5 rounded-lg text-sm font-bold border ${STATUS_STYLE[order.status] ?? STATUS_STYLE.Cancelled}`}>
+                  {STATUS_LABEL[order.status] ?? order.status}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="bg-surface-secondary p-4 rounded-xl border border-border">
-                  <p className="text-caption text-text-muted mb-1">اسم العميل</p>
-                  <p className="text-body-sm font-bold text-text-primary">{order.customerName || 'بدون اسم'}</p>
+              {/* Customer Information Section */}
+              <div className="mb-6">
+                <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
+                  <Icon name="UserIcon" size={18} className="text-brand-500" />
+                  معلومات العميل
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                    <p className="text-caption text-text-muted mb-1">الاسم بالكامل</p>
+                    <p className="text-body-sm font-bold text-text-primary">
+                      {order.customerDetails?.name || order.customerName || '—'}
+                    </p>
+                  </div>
+                  <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                    <p className="text-caption text-text-muted mb-1">رقم الموبايل</p>
+                    <p className="text-body-sm font-bold text-text-primary" dir="ltr">
+                      {order.customerDetails?.phone || order.phone || '—'}
+                    </p>
+                  </div>
+                  <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                    <p className="text-caption text-text-muted mb-1">البريد الإلكتروني</p>
+                    <p className="text-body-sm font-bold text-text-primary" dir="ltr">
+                      {order.customerDetails?.email || order.email || '—'}
+                    </p>
+                  </div>
+                  <div className="bg-surface-secondary p-4 rounded-xl border border-border lg:col-span-1">
+                    <p className="text-caption text-text-muted mb-1">طريقة التوصيل</p>
+                    <p className="text-body-sm font-bold text-text-primary">
+                      {order.deliveryMethod === 'pickup' ? 'استلام من المحل' : 'توصيل للمنزل'}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-surface-secondary p-4 rounded-xl border border-border">
-                  <p className="text-caption text-text-muted mb-1">رقم الموبايل</p>
-                  <p className="text-body-sm font-bold text-text-primary" dir="ltr">{order.phone || '—'}</p>
-                </div>
-                <div className="bg-surface-secondary p-4 rounded-xl border border-border sm:col-span-2 md:col-span-1">
-                  <p className="text-caption text-text-muted mb-1">العنوان</p>
-                  <p className="text-body-sm text-text-primary line-clamp-3">{order.address || '—'}</p>
-                </div>
+                
+                {/* Shipping Address - Only show for delivery orders */}
+                {order.deliveryMethod === 'delivery' && (
+                  <div className="mt-4">
+                    <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                      <p className="text-caption text-text-muted mb-2">عنوان الشحن</p>
+                      <p className="text-body-sm text-text-primary leading-relaxed">
+                        {order.customerDetails?.address || order.address || '—'}
+                      </p>
+                    </div>
+                    
+                    {/* Shipping Method Details */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                      {order.selectedShippingMethod && (
+                        <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                          <p className="text-caption text-text-muted mb-1">طريقة الشحن</p>
+                          <p className="text-body-sm font-bold text-text-primary">
+                            {order.selectedShippingMethod}
+                          </p>
+                        </div>
+                      )}
+                      {order.shippingProvider && (
+                        <div className="bg-surface-secondary p-4 rounded-xl border border-border">
+                          <p className="text-caption text-text-muted mb-1">مزود الشحن</p>
+                          <p className="text-body-sm font-bold text-text-primary">
+                            {order.shippingProvider}
+                            {order.trackingNumber && (
+                              <span className="text-xs text-brand-500 mr-2">
+                                ({order.trackingNumber})
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -188,7 +270,60 @@ export default function AdminOrderDetails({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            {/* Storage-Data Mapping */}
+            {/* Store Pickup Information */}
+                {order.deliveryMethod === 'pickup' && order.pickupLocation && (
+                  <div className="glass-card rounded-2xl p-6">
+                    <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
+                      <Icon name="BuildingStorefrontIcon" size={20} className="text-brand-500" />
+                      معلومات الاستلام من المحل
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-brand-500/5 border border-brand-500/15">
+                        <Icon name="MapPinIcon" size={18} className="text-brand-500 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-black text-text-primary mb-1">{order.pickupLocation.storeName}</p>
+                          <p className="text-xs text-text-muted leading-relaxed">{order.pickupLocation.address}</p>
+                          <a
+                            href={`https://maps.google.com/?q=${order.pickupLocation.coordinates.lat},${order.pickupLocation.coordinates.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1 text-xs text-brand-500 font-bold hover:underline"
+                          >
+                            <Icon name="MapIcon" size={12} />
+                            افتح في جوجل ماب
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                          <Icon name="ClockIcon" size={18} className="text-amber-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-bold text-text-primary mb-1">ساعات العمل</p>
+                            <p className="text-xs text-text-muted">{order.pickupLocation.workingHours}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                          <Icon name="PhoneIcon" size={18} className="text-blue-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-bold text-text-primary mb-1">رقم المحل</p>
+                            <p className="text-xs text-text-muted" dir="ltr">{order.pickupLocation.phone}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 p-3 rounded-xl bg-green-500/5 border border-green-500/20">
+                        <Icon name="CheckCircleIcon" size={15} className="text-green-400 flex-shrink-0" />
+                        <p className="text-xs text-green-400 font-bold">
+                          بدون رسوم شحن • بدون عربون • الدفع عند الاستلام
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Storage-Data Mapping */}
             {order.storageDataMapping && order.storageDataMapping.length > 0 && (
               <div className="glass-card rounded-2xl p-6">
                 <h3 className="text-body-lg font-bold text-text-primary mb-4 font-heading flex items-center gap-2">
@@ -291,6 +426,9 @@ export default function AdminOrderDetails({ params }: { params: Promise<{ id: st
             <BostaShipButton
               orderId={order.orderID || order.id}
               status={order.status}
+              deliveryMethod={order.deliveryMethod}
+              selectedShippingMethod={order.selectedShippingMethod}
+              shippingProvider={order.shippingProvider}
               trackingNumber={order.trackingNumber ?? undefined}
             />
 

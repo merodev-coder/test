@@ -16,6 +16,7 @@ import { getDataItemEffectivePrices, calculateCartTotals, parseCapacityGB } from
 import { getApiUrl } from '@/lib/apiConfig';
 import PerStorageTracker, { StorageDevice, DataItem, StorageAssignment } from './components/PerStorageTracker';
 import TermsOfServiceModal from '@/components/TermsOfServiceModal';
+import PickupInfo from '@/components/checkout/PickupInfo';
 
 interface CartItem {
   id: string;
@@ -116,8 +117,13 @@ export default function CheckoutPage() {
 
   const effectiveShipping = deliveryMethod === 'pickup' ? 0 : shippingCost;
 
-  const step2Valid = !!customerName && !!phone && !!customerEmail &&
-    (deliveryMethod === 'pickup' || (!!customerAddress && !!selectedGovName));
+  const step2Valid = !!customerName?.trim() && !!phone?.trim() && !!customerEmail?.trim() &&
+    (deliveryMethod === 'pickup' || (!!customerAddress?.trim() && !!selectedGovName));
+  
+  // Enhanced validation for Bosta shipping
+  const isBostaSelected = selectedShippingMethod?.toLowerCase().includes('bosta') || 
+                          selectedShippingMethod?.includes('بوسطة');
+  
   const canConfirm = step2Valid && cartItems.length > 0 && termsAgreed &&
     (deliveryMethod === 'pickup' || receiptFile !== null);
 
@@ -201,20 +207,53 @@ export default function CheckoutPage() {
     })).filter((m) => m.assignedData.length > 0);
 
   const handleConfirm = async () => {
+    // Final validation before submission
+    if (!customerName?.trim()) {
+      alert('يرجى إدخال الاسم بالكامل');
+      return;
+    }
+    if (!phone?.trim()) {
+      alert('يرجى إدخال رقم الموبايل');
+      return;
+    }
+    if (!customerEmail?.trim()) {
+      alert('يرجى إدخال البريد الإلكتروني');
+      return;
+    }
+    if (deliveryMethod === 'delivery' && (!customerAddress?.trim() || !selectedGovName)) {
+      alert('يرجى إكمال بيانات العنوان واختيار المحافظة');
+      return;
+    }
+    if (!termsAgreed) {
+      alert('يرجى الموافقة على شروط الخدمة');
+      return;
+    }
+    if (deliveryMethod === 'delivery' && !receiptFile) {
+      alert('يرجى رفع إيصال دفع العربون');
+      return;
+    }
+
     setIsLoading(true);
     const orderID = `AC-${Math.floor(Math.random() * 90000) + 10000}`;
     const storageDataMapping = generateStorageDataMapping();
+    
+    // Log Bosta selection for debugging
+    if (isBostaSelected) {
+      console.log('[Checkout] Bosta shipping selected - will trigger automatic shipment creation');
+    }
+    
     try {
       const res = await fetch(getApiUrl('orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderID, customerName, phone,
-          address: deliveryMethod === 'pickup' ? null : customerAddress,
-          customerEmail,
+          orderID, customerName: customerName.trim(), phone: phone.trim(),
+          address: deliveryMethod === 'pickup' ? null : customerAddress.trim(),
+          customerEmail: customerEmail.trim(),
           selectedShippingMethod: deliveryMethod === 'pickup' ? 'store_pickup' : selectedShippingMethod,
           shippingCost: effectiveShipping,
           requiredDeposit: depositAmount,
+          deliveryMethod,
           items: cartItems, driveItems,
           totalPrice: subtotal + effectiveShipping,
           capacityGB: storageTotal,
@@ -224,11 +263,31 @@ export default function CheckoutPage() {
       });
       if (!res.ok) throw new Error('فشل إرسال الطلب');
       const existing = JSON.parse(localStorage.getItem('abuKartona_userOrders') || '[]');
-      existing.push({ orderId: orderID, items: cartItems, driveItems, totalPrice: subtotal + effectiveShipping, totalGb: storageTotal, date: new Date().toISOString(), status: 'Pending', customerName, phone, address: deliveryMethod === 'pickup' ? null : customerAddress, storageDataMapping });
+      existing.push({ 
+        orderId: orderID, 
+        items: cartItems, 
+        driveItems, 
+        totalPrice: subtotal + effectiveShipping, 
+        totalGb: storageTotal, 
+        date: new Date().toISOString(), 
+        status: isBostaSelected ? 'جاري شحن الطلب' : 'Pending', 
+        customerName: customerName.trim(), 
+        phone: phone.trim(), 
+        address: deliveryMethod === 'pickup' ? null : customerAddress.trim(),
+        selectedShippingMethod: deliveryMethod === 'pickup' ? 'store_pickup' : selectedShippingMethod,
+        storageDataMapping 
+      });
       localStorage.setItem('abuKartona_userOrders', JSON.stringify(existing));
       clearCart(); clearDrive(); setStorageAssignments([]);
-      router.push(`/checkout/success?orderId=${orderID}&total=${subtotal + effectiveShipping}&deposit=${depositAmount}&drive=${driveItems.length}`);
-    } catch {
+      
+      // Show success message with Bosta info if applicable
+      if (isBostaSelected) {
+        router.push(`/checkout/success?orderId=${orderID}&total=${subtotal + effectiveShipping}&deposit=${depositAmount}&drive=${driveItems.length}&bosta=true`);
+      } else {
+        router.push(`/checkout/success?orderId=${orderID}&total=${subtotal + effectiveShipping}&deposit=${depositAmount}&drive=${driveItems.length}`);
+      }
+    } catch (error) {
+      console.error('[Checkout] Order submission error:', error);
       alert('حدث خطأ أثناء تأكيد الطلب. برجاء المحاولة مرة أخرى.');
       setIsLoading(false);
     }
@@ -458,17 +517,27 @@ export default function CheckoutPage() {
                                   <div>
                                     <p className="text-xs font-bold text-text-muted mb-2">١. اختر طريقة الشحن</p>
                                     <div className="space-y-2">
-                                      {shippingMethods.map((m) => (
-                                        <button key={m._id} onClick={() => handleMethodChange(m._id)}
-                                          className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-right ${
-                                            selectedMethodId === m._id ? 'border-brand-500 bg-brand-500/10' : 'border-white/8 bg-white/[0.02] hover:border-white/20'
-                                          }`}>
-                                          <span className={`text-sm font-bold ${selectedMethodId === m._id ? 'text-text-primary' : 'text-text-secondary'}`}>{m.name}</span>
-                                          <span className={`text-xs ${selectedMethodId === m._id ? 'text-brand-500' : 'text-text-muted'}`}>
-                                            {m.depositType === 'total_amount' ? 'عربون: الإجمالي' : 'عربون: الشحن'}
-                                          </span>
-                                        </button>
-                                      ))}
+                                      {shippingMethods.map((m) => {
+                                        const isBosta = m.name.toLowerCase().includes('bosta') || m.name.includes('بوسطة');
+                                        return (
+                                          <button key={m._id} onClick={() => handleMethodChange(m._id)}
+                                            className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all text-right ${
+                                              selectedMethodId === m._id ? 'border-brand-500 bg-brand-500/10' : 'border-white/8 bg-white/[0.02] hover:border-white/20'
+                                            }`}>
+                                            <div className="flex items-center gap-2">
+                                              <span className={`text-sm font-bold ${selectedMethodId === m._id ? 'text-text-primary' : 'text-text-secondary'}`}>{m.name}</span>
+                                              {isBosta && (
+                                                <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full">
+                                                  Bosta
+                                                </span>
+                                              )}
+                                            </div>
+                                            <span className={`text-xs ${selectedMethodId === m._id ? 'text-brand-500' : 'text-text-muted'}`}>
+                                              {m.depositType === 'total_amount' ? 'عربون: الإجمالي' : 'عربون: الشحن'}
+                                            </span>
+                                          </button>
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 )}
@@ -494,6 +563,14 @@ export default function CheckoutPage() {
                                       <span className="text-sm text-text-muted">العربون المطلوب</span>
                                       <span className="text-sm font-black text-amber-400">{depositAmount} جنيه</span>
                                     </div>
+                                    {isBostaSelected && (
+                                      <div className="flex items-center gap-2 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                                        <Icon name="TruckIcon" size={16} className="text-blue-400 flex-shrink-0" />
+                                        <p className="text-xs text-blue-400 font-bold">
+                                          سيتم إنشاء شحنة بوسطة تلقائياً بعد تأكيد الطلب
+                                        </p>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -507,21 +584,7 @@ export default function CheckoutPage() {
                     <AnimatePresence>
                       {deliveryMethod === 'pickup' && (
                         <motion.div key="pickup-info" {...fadeUp}>
-                          <GlassCard className="p-6">
-                            <SectionTitle icon="BuildingStorefrontIcon" label="موقع المحل" />
-                            <div className="flex items-start gap-3 p-4 rounded-xl bg-brand-500/5 border border-brand-500/15 mb-3">
-                              <Icon name="MapPinIcon" size={18} className="text-brand-500 mt-0.5 flex-shrink-0" />
-                              <div>
-                                <p className="text-sm font-black text-text-primary">أبوكرتونةaming Store</p>
-                                <p className="text-xs text-text-muted mt-1">شارع الهرم، الجيزة — بجوار مول المحطة</p>
-                                <p className="text-xs text-text-muted mt-0.5">السبت – الخميس: 11 ص – 11 م</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 p-3 rounded-xl bg-green-500/5 border border-green-500/20">
-                              <Icon name="CheckCircleIcon" size={15} className="text-green-400 flex-shrink-0" />
-                              <p className="text-xs text-green-400 font-bold">بدون عربون · بدون رسوم شحن · الدفع عند الاستلام</p>
-                            </div>
-                          </GlassCard>
+                          <PickupInfo />
                         </motion.div>
                       )}
                     </AnimatePresence>

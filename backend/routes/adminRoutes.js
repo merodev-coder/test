@@ -28,12 +28,14 @@ import {
   getTopSellingItems,
   getOrdersForExport,
 } from '../controllers/analyticsController.js';
+import { createBostaShipment } from '../controllers/adminController.js';
 
 const router = Router();
 
 router.get('/orders', authMiddleware, listOrders);
 router.patch('/orders/:id', authMiddleware, updateOrderStatus);
 router.delete('/orders/:id', authMiddleware, deleteOrder);
+router.post('/orders/ship', authMiddleware, createBostaShipment);
 
 router.post('/inventory', authMiddleware, createProduct);
 router.put('/inventory/:id', authMiddleware, updateProduct);

@@ -562,7 +562,6 @@ export default function MonthlySalesPerformance() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ExportButton year={year} onExport={() => {}} />
           <CustomDropdown
             value={String(year)}
             onChange={(value) => setYear(parseInt(value))}
@@ -575,7 +574,7 @@ export default function MonthlySalesPerformance() {
       </motion.div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           title="إجمالي الدخل"
           value={data.yearlyTotals.revenue.toLocaleString('ar-EG')}
@@ -599,18 +598,6 @@ export default function MonthlySalesPerformance() {
           icon="CubeIcon"
           accentColor="amber"
           delay={0.2}
-        />
-        <StatCard
-          title="صافي الربح"
-          value={
-            data.yearlyTotals.netProfit >= 0
-              ? data.yearlyTotals.netProfit.toLocaleString('ar-EG')
-              : Math.abs(data.yearlyTotals.netProfit).toLocaleString('ar-EG')
-          }
-          subtitle="جنيه مصري"
-          icon="TrendingUpIcon"
-          accentColor="emerald"
-          delay={0.3}
         />
       </div>
 

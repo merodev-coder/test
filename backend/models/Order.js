@@ -56,10 +56,23 @@ const orderSchema = new mongoose.Schema(
     requiredDeposit: { type: Number, default: 0 },
     trackingNumber: { type: String },
     deliveryId: { type: String },
+    deliveryMethod: { type: String, enum: ['delivery', 'pickup'], default: 'delivery' },
+    shippingProvider: { type: String },
+    // Store pickup location information
+    pickupLocation: {
+      storeName: { type: String, default: 'أبوكرتونةaming Store' },
+      address: { type: String, default: '9 شارع جمال، تقسيم فريد ذكي، حدائق المعصرة، القاهرة' },
+      coordinates: {
+        lat: { type: Number, default: 30.0444 },
+        lng: { type: Number, default: 31.2357 }
+      },
+      workingHours: { type: String, default: 'يومياً من 12:00 ظهراً إلى 12:00 منتصف الليل' },
+      phone: { type: String, default: '01234567890' }
+    },
     storageDataMapping: [storageDataMappingSchema],
     status: {
       type: String,
-      enum: ['Pending', 'Completed', 'Cancelled'],
+      enum: ['Pending', 'AwaitingPickup', 'Shipping', 'Completed', 'Cancelled'],
       default: 'Pending',
     },
   },
