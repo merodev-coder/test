@@ -6,7 +6,7 @@ import Link from 'next/link';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import { useStore } from '@/store/useStore';
-import { ThemedSelect } from '@/components/ui/ThemedSelect';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 // ─── Click-to-Zoom Modal ─────────────────────────────────────────────────────
 function ZoomModal({ image, name, onClose }: { image: string; name: string; onClose: () => void }) {
@@ -393,7 +393,7 @@ export function BuyBox({ product }: { product: any }) {
           <label className="text-body-sm font-semibold text-text-secondary text-text-secondary">
             الكمية:
           </label>
-          <ThemedSelect
+          <CustomDropdown
             value={String(quantity)}
             onChange={(value) => setQuantity(Number(value))}
             options={Array.from({ length: Math.min(product.stockCount, 10) }, (_, i) => ({
@@ -401,6 +401,7 @@ export function BuyBox({ product }: { product: any }) {
               label: String(i + 1),
             }))}
             className="w-20"
+            size="sm"
           />
         </div>
       )}
@@ -484,11 +485,11 @@ export function BuyBox({ product }: { product: any }) {
       <div className="bg-surface-secondary dark:bg-white/[0.03] rounded-xl p-3 text-caption text-text-muted text-text-muted space-y-1">
         <div className="flex justify-between">
           <span>يُشحن من</span>
-          <span className="font-semibold text-text-primary text-text-primary">أبوكرتونةn>
+          <span className="font-semibold text-text-primary text-text-primary">أبوكرتونة</span>
         </div>
         <div className="flex justify-between">
           <span>يُباع بواسطة</span>
-          <span className="font-semibold text-text-primary text-text-primary">أبوكرتونةpan>
+          <span className="font-semibold text-text-primary text-text-primary">أبوكرتونة</span>
         </div>
       </div>
     </motion.div>
