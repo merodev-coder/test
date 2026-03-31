@@ -282,7 +282,7 @@ export default function Header() {
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 28 }}
                 >
-                  أبوكارتونة
+                  أبوكرتونة
                 </motion.span>
               </Link>
 

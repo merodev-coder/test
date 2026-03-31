@@ -142,7 +142,7 @@ export default function AdminLoginPage() {
               transition={{ delay: 0.6 }}
               className="mt-6 pt-4 border-t border-border text-center text-caption text-text-muted"
             >
-              أبوكارتونةلوحة تحكم المتجر
+              أبوكرتونةلوحة تحكم المتجر
             </motion.p>
           </div>
         </motion.div>

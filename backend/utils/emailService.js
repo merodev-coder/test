@@ -42,7 +42,7 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
   <div style="max-width: 600px; margin: 0 auto; background-color: #0f1f35; border-radius: 16px; overflow: hidden; border: 1px solid #1a2a3a;">
 
     <div style="background: linear-gradient(135deg, #00d4aa 0%, #0099ff 100%); padding: 32px 24px; text-align: center;">
-      <h1 style="margin: 0; color: #0a1628; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">أبوكارتونة</h1>
+      <h1 style="margin: 0; color: #0a1628; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">أبوكرتونة</h1>
       <p style="margin: 8px 0 0; color: #0a1628; font-size: 14px; opacity: 0.8;">Gaming Store</p>
     </div>
 
@@ -80,23 +80,23 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 
       <p style="color: #64748b; font-size: 13px; margin: 24px 0 0; text-align: center;">
         سيتواصل معك فريقنا لتأكيد الطلب قريباً.<br/>
-        شكراً لثقتك في أبوكارتونة Gaming Store ❤️
+        شكراً لثقتك في أبوكرتونة Gaming Store ❤️
       </p>
     </div>
 
     <div style="background-color: #0a1628; padding: 16px 24px; text-align: center; border-top: 1px solid #1a2a3a;">
-      <p style="margin: 0; color: #475569; font-size: 12px;">© ${new Date().getFullYear()} أبوكارتونة Gaming Store — جميع الحقوق محفوظة</p>
+      <p style="margin: 0; color: #475569; font-size: 12px;">© ${new Date().getFullYear()} أبوكرتونة Gaming Store — جميع الحقوق محفوظة</p>
     </div>
   </div>
 </body>
 </html>`;
 
   try {
-    const fromAddress = process.env.EMAIL_FROM || 'أبوكارتونة Gaming <onboarding@resend.dev>';
+    const fromAddress = process.env.EMAIL_FROM || 'أبوكرتونة Gaming <onboarding@resend.dev>';
     const { error } = await resend.emails.send({
       from: fromAddress,
       to: customerEmail,
-      subject: `✅ إيصال طلبك ${orderID} — أبوكارتونة`,
+      subject: `✅ إيصال طلبك ${orderID} — أبوكرتونة`,
       html,
     });
     if (error) {

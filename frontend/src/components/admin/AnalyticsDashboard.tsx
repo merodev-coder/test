@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { getAdminApiUrl } from '@/lib/apiConfig';
-import { ThemedSelect } from '@/components/ui/ThemedSelect';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 import {
   AreaChart,
   Area,
@@ -68,7 +68,10 @@ interface ExportOrder {
   orderID: string;
   customerName: string;
   customerPhone: string;
+  customerAddress: string;
   customerCity: string;
+  shippingCost: number;
+  requiredDeposit: number;
   orderDate: string;
   orderStatus: string;
   totalPrice: number;
@@ -361,11 +364,14 @@ const ExportButton = ({ year, onExport }: { year: number; onExport: () => void }
       'رقم الطلب',
       'اسم العميل',
       'رقم الهاتف',
-      'المدينة',
+      'العنوان',
+      'المحافظة / طريقة الشحن',
+      'تكلفة الشحن',
+      'العربون المدفوع',
       'المنتج',
       'الكمية',
       'سعر الوحدة',
-      'الإجمالي',
+      'إجمالي البند',
       'إجمالي الطلب',
       'الحالة',
       'التاريخ',
@@ -375,7 +381,10 @@ const ExportButton = ({ year, onExport }: { year: number; onExport: () => void }
       order.orderID,
       order.customerName,
       order.customerPhone,
+      order.customerAddress,
       order.customerCity,
+      order.shippingCost,
+      order.requiredDeposit,
       order.productName,
       order.quantity,
       order.unitPrice,
@@ -409,14 +418,15 @@ const ExportButton = ({ year, onExport }: { year: number; onExport: () => void }
     <button
       onClick={handleExport}
       disabled={exporting}
-      className="btn-secondary px-4 py-2.5 text-body-sm flex items-center gap-2 disabled:opacity-50"
+      className="group relative flex items-center gap-2 px-4 py-2 rounded-xl border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 hover:border-brand-500/60 text-brand-400 hover:text-brand-300 text-sm font-semibold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed overflow-hidden"
     >
+      <div className="absolute inset-0 bg-gradient-to-l from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
       {exporting ? (
-        <div className="w-4 h-4 border-2 border-brand-300 border-t-brand-500 rounded-full animate-spin" />
+        <div className="w-3.5 h-3.5 border-2 border-brand-400/40 border-t-brand-400 rounded-full animate-spin flex-shrink-0" />
       ) : (
-        <Icon name="ArrowDownTrayIcon" size={16} />
+        <Icon name="ArrowDownTrayIcon" size={15} className="flex-shrink-0" />
       )}
-      تصدير البيانات (Excel/CSV)
+      <span className="relative">{exporting ? 'جاري التصدير...' : 'تصدير CSV'}</span>
     </button>
   );
 };
@@ -553,12 +563,13 @@ export default function MonthlySalesPerformance() {
 
         <div className="flex items-center gap-3">
           <ExportButton year={year} onExport={() => {}} />
-          <ThemedSelect
+          <CustomDropdown
             value={String(year)}
             onChange={(value) => setYear(parseInt(value))}
             options={years.map((y) => ({ value: String(y), label: String(y) }))}
             label="السنة"
             className="w-32"
+            size="sm"
           />
         </div>
       </motion.div>

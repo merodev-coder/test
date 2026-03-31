@@ -106,7 +106,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold text-text-primary leading-tight font-readex tracking-tight">
                 لوحة التحكم
               </h1>
-              <span className="text-text-secondary text-sm opacity-80">أبوكارتونة</span>
+              <span className="text-text-secondary text-sm opacity-80">أبوكرتونة</span>
             </div>
           </div>
           <div className="flex items-center gap-3">

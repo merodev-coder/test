@@ -500,7 +500,7 @@ export default function HomePage() {
                   <SectionHeader
                     label="Exclusive Offers"
                     title="عروض"
-                    accent="أبوكارتونة"
+                    accent="أبوكرتونة
                     index={1}
                   />
                   <ProductGrid
@@ -511,7 +511,7 @@ export default function HomePage() {
                 </SectionWrapper>
               ) : (
                 <SectionWrapper glowSide="center">
-                  <SectionHeader label="Exclusive Offers" title="عروض" accent="أبوكارتونة" />
+                  <SectionHeader label="Exclusive Offers" title="عروض" accent="أبوكرتونة />
                   <EmptySection message="لا توجد عروض حالياً" />
                 </SectionWrapper>
               )}

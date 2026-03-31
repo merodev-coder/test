@@ -199,7 +199,7 @@ export default function DeliveryOptions({ onDeliveryChange, orderSubtotal = 0 }:
           <div className="flex items-start gap-3">
             <Icon name="MapPinIcon" size={18} className="text-brand-500 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm text-text-primary font-bold">أبوكارتونة Gaming Store</p>
+              <p className="text-sm text-text-primary font-bold">أبوكرتونةaming Store</p>
               <p className="text-xs text-text-muted mt-1">شارع الهرم، الجيزة — بجوار مول المحطة</p>
               <p className="text-xs text-text-muted mt-1">السبت – الخميس: 11 ص – 11 م</p>
             </div>

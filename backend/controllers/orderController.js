@@ -1,4 +1,5 @@
 import { Order } from '../models/Order.js';
+import { Product } from '../models/Product.js';
 import { validateCapacity } from '../utils/capacityGuard.js';
 import { sendOrderReceipt } from '../utils/emailService.js';
 
@@ -69,6 +70,21 @@ export async function createOrder(req, res, next) {
       status: 'Pending',
     });
     res.status(201).json({ order });
+
+    // Decrement stock for each ordered product
+    const stockOps = items
+      .filter((item) => item.product)
+      .map((item) => ({
+        updateOne: {
+          filter: { _id: item.product },
+          update: [{ $set: { stockCount: { $max: [0, { $subtract: ['$stockCount', item.quantity] }] } } }],
+        },
+      }));
+    if (stockOps.length > 0) {
+      Product.bulkWrite(stockOps).catch((err) =>
+        console.error('[Stock] Failed to update stock counts:', err.message)
+      );
+    }
 
     const customerEmail = body.customerEmail || customerDetails.email || '';
     if (customerEmail) {

@@ -512,7 +512,7 @@ export default function CheckoutPage() {
                             <div className="flex items-start gap-3 p-4 rounded-xl bg-brand-500/5 border border-brand-500/15 mb-3">
                               <Icon name="MapPinIcon" size={18} className="text-brand-500 mt-0.5 flex-shrink-0" />
                               <div>
-                                <p className="text-sm font-black text-text-primary">أبوكارتونة Gaming Store</p>
+                                <p className="text-sm font-black text-text-primary">أبوكرتونةaming Store</p>
                                 <p className="text-xs text-text-muted mt-1">شارع الهرم، الجيزة — بجوار مول المحطة</p>
                                 <p className="text-xs text-text-muted mt-0.5">السبت – الخميس: 11 ص – 11 م</p>
                               </div>

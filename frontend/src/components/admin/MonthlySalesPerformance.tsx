@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '@/components/ui/AppIcon';
 import { getAdminApiUrl } from '@/lib/apiConfig';
-import { ThemedSelect } from '@/components/ui/ThemedSelect';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 interface MonthlyData {
   month: number;
@@ -140,12 +140,13 @@ export default function MonthlySalesPerformance() {
           </p>
         </div>
 
-        <ThemedSelect
+        <CustomDropdown
           value={String(year)}
           onChange={(value) => setYear(parseInt(value))}
           options={years.map((y) => ({ value: String(y), label: String(y) }))}
           label="السنة"
           className="w-32"
+          size="sm"
         />
       </div>
 
