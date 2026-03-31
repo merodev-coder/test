@@ -1,16 +1,5 @@
 import nodemailer from 'nodemailer';
 
-// Create a transporter using SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: process.env.SMTP_PORT || 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
-
 export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice, deliveryMethod, pickupLocation }) {
   // Verify SMTP configuration
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
@@ -22,6 +11,17 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
     console.error('[Email] No customer email provided for order:', orderID);
     return;
   }
+
+  // Create transporter inside the function to ensure env vars are loaded
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: process.env.SMTP_PORT || 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
+    }
+  });
 
   // Test the transporter connection
   try {
