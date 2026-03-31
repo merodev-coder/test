@@ -70,7 +70,7 @@ export default function MonthlySalesPerformance() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const token = document.cookie.match(/admin_session=([^;]+)/)?.[1];
+      const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -90,7 +90,7 @@ export default function MonthlySalesPerformance() {
     async (month: number) => {
       setAuditLoading(true);
       try {
-        const token = document.cookie.match(/admin_session=([^;]+)/)?.[1];
+        const token = localStorage.getItem('token');
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
 

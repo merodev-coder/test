@@ -232,7 +232,7 @@ const TopSellingItems = ({ year }: { year: number }) => {
     const fetchTopSelling = async () => {
       setLoading(true);
       try {
-        const token = document.cookie.match(/admin_session=([^;]+)/)?.[1];
+        const token = localStorage.getItem('token');
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -337,7 +337,7 @@ const ExportButton = ({ year, onExport }: { year: number; onExport: () => void }
   const handleExport = async () => {
     setExporting(true);
     try {
-      const token = document.cookie.match(/admin_session=([^;]+)/)?.[1];
+      const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -433,7 +433,7 @@ export default function MonthlySalesPerformance() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const token = document.cookie.match(/admin_session=([^;]+)/)?.[1];
+      const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -453,7 +453,7 @@ export default function MonthlySalesPerformance() {
     async (month: number) => {
       setAuditLoading(true);
       try {
-        const token = document.cookie.match(/admin_session=([^;]+)/)?.[1];
+        const token = localStorage.getItem('token');
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
 
