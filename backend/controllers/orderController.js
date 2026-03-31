@@ -77,6 +77,7 @@ export async function createOrder(req, res, next) {
           email: body.customerEmail || '',
           address: body.address || '',
         };
+    try {
     const order = await Order.create({
       orderID,
       customerDetails,
@@ -168,6 +169,22 @@ export async function createOrder(req, res, next) {
         deliveryMethod,
         pickupLocation: pickupLocationData
       }).catch((err) => console.error('[Email] Failed to send receipt:', err.message));
+    }
+    } catch (dbError) {
+      console.error('[Database] Failed to create order:', dbError.message);
+      
+      // Check if it's a database connection issue
+      if (dbError.message.includes('timeout') || dbError.message.includes('ECONNREFUSED') || dbError.message.includes('buffering')) {
+        return res.status(503).json({ 
+          error: 'Database connection failed. Please try again later.',
+          details: 'The server is unable to connect to the database. Please contact support if this issue persists.'
+        });
+      }
+      
+      return res.status(500).json({ 
+        error: 'Failed to create order',
+        details: dbError.message 
+      });
     }
   } catch (err) {
     next(err);
