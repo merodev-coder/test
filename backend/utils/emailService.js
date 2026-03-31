@@ -1,9 +1,10 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice, deliveryMethod, pickupLocation }) {
-  // Verify SMTP configuration
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn('[Email] SMTP credentials not set — skipping receipt email.');
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Email] RESEND_API_KEY not set — skipping receipt email.');
     return;
   }
 
@@ -12,24 +13,6 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
     return;
   }
 
-  // Create transporter inside the function to ensure env vars are loaded
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
-    port: process.env.SMTP_PORT || 587,
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER || 'apikey',
-      pass: process.env.SMTP_PASS
-    }
-  });
-
-  // Test the transporter connection
-  try {
-    await transporter.verify();
-  } catch (verifyErr) {
-    console.error('[Email] SMTP connection failed:', verifyErr.message);
-    return;
-  }
 
   // 3. فلترة العناصر (تجاهل الـ Data لو في منتجات تانية)
   const nonDataItems = items.filter((item) => item.type !== 'data');
@@ -136,17 +119,18 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 </html>`;
 
   try {
-    const fromAddress = process.env.EMAIL_FROM || process.env.SMTP_USER;
-    
-    const mailOptions = {
-      from: `"أبوكرتونة Gaming" <${fromAddress}>`,
+    const { error } = await resend.emails.send({
+      from: 'onboarding@resend.dev',
       to: customerEmail,
       subject: `✅ إيصال طلبك ${orderID} — أبوكرتونة`,
       html: html
-    };
+    });
     
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`[Email] Receipt sent to ${customerEmail} for order ${orderID} - Message ID: ${info.messageId}`);
+    if (error) {
+      console.error('[Email] Resend error:', error.message);
+    } else {
+      console.log(`[Email] Receipt sent to ${customerEmail} for order ${orderID}`);
+    }
   } catch (mailErr) {
     console.error('[Email] Failed to send email:', mailErr.message);
   }
