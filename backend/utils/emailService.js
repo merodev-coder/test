@@ -14,11 +14,11 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 
   // Create transporter inside the function to ensure env vars are loaded
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
     port: process.env.SMTP_PORT || 587,
-    secure: false, // true for 465, false for other ports
+    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
     auth: {
-      user: process.env.SMTP_USER,
+      user: process.env.SMTP_USER || 'apikey',
       pass: process.env.SMTP_PASS
     }
   });
