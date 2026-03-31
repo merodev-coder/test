@@ -270,7 +270,7 @@ export default function CheckoutPage() {
         totalPrice: subtotal + effectiveShipping, 
         totalGb: storageTotal, 
         date: new Date().toISOString(), 
-        status: isBostaSelected ? 'جاري شحن الطلب' : 'Pending', 
+        status: isBostaSelected ? 'Shipping' : 'Pending', 
         customerName: customerName.trim(), 
         phone: phone.trim(), 
         address: deliveryMethod === 'pickup' ? null : customerAddress.trim(),

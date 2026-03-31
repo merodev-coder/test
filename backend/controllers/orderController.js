@@ -64,9 +64,9 @@ export async function createOrder(req, res, next) {
       };
     } else if (selectedShippingMethod) {
       if (isBostaMethod(selectedShippingMethod)) {
-        orderStatus = 'جاري شحن الطلب'; // Shipping in progress for Bosta
+        orderStatus = 'Shipping'; // Shipping in progress for Bosta
       } else {
-        orderStatus = 'جاري شحن الطلب'; // Shipping in progress for other methods
+        orderStatus = 'Shipping'; // Shipping in progress for other methods
       }
     }
     const customerDetails = body.customerDetails && Object.keys(body.customerDetails).length > 0
