@@ -16,6 +16,7 @@ A modern Next.js 15 application built with TypeScript and Tailwind CSS.
   # or
   yarn install
   ```
+  1
 
 2. Start the development server:
   ```bash
