@@ -62,15 +62,20 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Health check endpoint for Uptime Robot
+app.get('/ping', (req, res) => {
+  res.status(200).json({ message: 'Server is alive' });
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 8080;
 
 connectDB(process.env.MONGODB_URI)
   .then(() => {
-    app.listen(port, () => {
-      console.log(`Server listening on port ${port}`);
+    app.listen(port, "0.0.0.0", () => {
+      console.log(`Server is running on port ${port}`);
     });
   })
   .catch((err) => {
