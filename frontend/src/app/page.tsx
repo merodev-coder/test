@@ -14,12 +14,6 @@ import Icon from '@/components/ui/AppIcon';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { getApiUrl } from '@/lib/apiConfig';
 
-export const metadata = {
-  title: 'أبوكرتونة',
-  description:
-    'تسوق أحدث الكمبيوترات والإكسسوارات، واملأ هارد درايف بالألعاب والأفلام مجاناً. شحن لجميع محافظات مصر.',
-};
-
 const BRAND_GREEN = '#37D7AC';
 
 // ─── Enhanced Section Header ────────────────────────────────────────────────
