@@ -1,6 +1,13 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend = null;
+
+function getResendInstance() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export async function sendOrderReceipt({ customerEmail, customerName, orderID, items, totalPrice, deliveryMethod, pickupLocation }) {
   if (!process.env.RESEND_API_KEY) {
@@ -119,7 +126,13 @@ export async function sendOrderReceipt({ customerEmail, customerName, orderID, i
 </html>`;
 
   try {
-    const { error } = await resend.emails.send({
+    const resendClient = getResendInstance();
+    if (!resendClient) {
+      console.error('[Email] Failed to initialize Resend client');
+      return;
+    }
+
+    const { error } = await resendClient.emails.send({
       from: 'onboarding@resend.dev',
       to: customerEmail,
       subject: `✅ إيصال طلبك ${orderID} — أبوكرتونة`,

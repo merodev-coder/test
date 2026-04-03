@@ -1,5 +1,8 @@
-import express from 'express';
+// Load environment variables first
 import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -21,8 +24,6 @@ import {
 
 import { getTags } from './controllers/productController.js';
 
-dotenv.config();
-
 const app = express();
 
 app.set('trust proxy', 1);
@@ -31,7 +32,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors({
-  origin: '*', // مؤقتاً عشان نكسر الـ CORS خالص
+  origin: ['https://abocartona.netlify.app', 'https://abo-kartonaa.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true
@@ -62,7 +63,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health check endpoint for Uptime Robot
+// Health check endpoint for Render.com
 app.get('/ping', (req, res) => {
   res.status(200).json({ message: 'Server is alive' });
 });
