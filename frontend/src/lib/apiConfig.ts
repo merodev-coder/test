@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://considerate-celebration-production-558b.up.railway.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
 export function getApiUrl(endpoint: string): string {
   const cleanEndpoint = endpoint.replace(/^\/+/, '');
