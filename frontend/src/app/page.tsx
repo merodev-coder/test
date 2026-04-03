@@ -4,8 +4,8 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import HeroSection from './components/HeroSection';
-import WhatsAppButton from './components/WhatsAppButton';
+import HeroSection from '@/components/HeroSection';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { gsap, ScrollTrigger } from '@/lib/gsapinit';
 import { useStore, type Product } from '@/store/useStore';
 import Link from 'next/link';
@@ -462,7 +462,7 @@ export default function HomePage() {
       <Header />
 
       <main className="relative z-10 pt-16">
-        <HeroSection storage={{ total: 1000, used: 0, hasDrive: false }} />
+        <HeroSection />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-32">
           {loading ? (

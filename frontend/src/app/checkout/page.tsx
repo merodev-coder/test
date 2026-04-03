@@ -9,7 +9,7 @@ import PaymentDeposit from './components/PaymentDeposit';
 import OrderSummary from './components/OrderSummary';
 import Icon from '@/components/ui/AppIcon';
 import CustomDropdown from '@/components/ui/CustomDropdown';
-import WhatsAppButton from '../components/WhatsAppButton';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { useRouter } from 'next/navigation';
 import { useStore, Product as StoreProduct, StorageDataMapping } from '@/store/useStore';
 import { getDataItemEffectivePrices, calculateCartTotals, parseCapacityGB } from '@/lib/storageUtils';

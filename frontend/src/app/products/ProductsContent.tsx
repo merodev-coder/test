@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import ProductFilters from './components/ProductFilters';
 import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
-import WhatsAppButton from '../components/WhatsAppButton';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { useSearchParams } from 'next/navigation';
 import { useStore, type Product, type Tag } from '@/store/useStore';
 import { ThemedSelect } from '@/components/ui/ThemedSelect';

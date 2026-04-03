@@ -4,7 +4,7 @@ import React, { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Icon from '@/components/ui/AppIcon';
-import WhatsAppButton from '../../components/WhatsAppButton';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion'; // تأكد من تثبيت framer-motion
 
