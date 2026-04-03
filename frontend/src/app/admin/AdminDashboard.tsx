@@ -128,7 +128,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                href="/homepage"
+                href="/"
                 className="btn-ghost px-4 py-2.5 font-medium flex items-center gap-2"
               >
                 <Icon name="HomeIcon" size={18} />

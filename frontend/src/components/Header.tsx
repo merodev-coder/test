@@ -251,7 +251,7 @@ export default function Header() {
 
             <div className="flex items-center justify-between w-full h-[60px] px-4">
               {/* Logo with breathing animation */}
-              <Link href="/homepage" className="flex items-center gap-2.5 group">
+              <Link href="/" className="flex items-center gap-2.5 group">
                 <motion.div
                   animate={{
                     scale: [1, 1.05, 1],

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { setupInventorySyncMiddleware } from './inventoryMiddleware.js';
 
 const orderItemSchema = new mongoose.Schema(
   {
@@ -78,5 +79,8 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } }
 );
+
+// Setup inventory sync middleware
+setupInventorySyncMiddleware(orderSchema);
 
 export const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);

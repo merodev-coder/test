@@ -1,8 +1,10 @@
+import mongoose from 'mongoose';
 import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
 import { validateCapacity } from '../utils/capacityGuard.js';
 import { sendOrderReceipt } from '../utils/emailService.js';
 import { createBostaTicket, isBostaMethod } from '../utils/bostaService.js';
+import { restoreStockForOrder } from '../models/inventoryMiddleware.js';
 
 function buildOrderID() {
   const n = Math.floor(Math.random() * 90000) + 10000;
@@ -242,17 +244,53 @@ export async function listOrders(req, res, next) {
 }
 
 export async function deleteOrder(req, res, next) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
     const isMongoId = /^[0-9a-fA-F]{24}$/.test(id);
-    const order = await Order.findOneAndDelete(
+    
+    // Find the order first to get the items before deletion
+    const order = await Order.findOne(
       isMongoId ? { $or: [{ _id: id }, { orderID: id }] } : { orderID: id }
-    );
+    ).session(session);
+
     if (!order) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ error: 'Order not found' });
     }
-    res.json({ message: 'Order deleted successfully' });
+
+    // Restore stock using the utility function
+    const stockRestoreResult = await restoreStockForOrder(order, session);
+
+    // Delete the order
+    await Order.findOneAndDelete(
+      isMongoId ? { $or: [{ _id: id }, { orderID: id }] } : { orderID: id }
+    ).session(session);
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json({ 
+      message: 'تم حذف الأوردر وتحديث الجرد بنجاح',
+      orderId: order.orderID,
+      restoredItems: stockRestoreResult.restored,
+      items: stockRestoreResult.items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        productId: item.product
+      }))
+    });
+
   } catch (err) {
+    // Abort the transaction on any error
+    await session.abortTransaction();
+    session.endSession();
+    
+    console.error('[Order Deletion] Failed to delete order and update inventory:', err.message);
     next(err);
   }
 }

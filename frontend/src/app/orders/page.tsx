@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Icon from '@/components/ui/AppIcon';
-import WhatsAppButton from '../homepage/components/WhatsAppButton';
+import WhatsAppButton from '../components/WhatsAppButton';
 
 interface StoredOrder {
   orderId: string;

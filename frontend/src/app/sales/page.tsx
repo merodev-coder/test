@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import WhatsAppButton from '../homepage/components/WhatsAppButton';
+import WhatsAppButton from '../components/WhatsAppButton';
 import ProductCard from '@/components/ProductCard';
 import Icon from '@/components/ui/AppIcon';
 import { useStore, type Product } from '@/store/useStore';

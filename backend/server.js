@@ -32,8 +32,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors({
-  origin: ['https://abocartona.netlify.app', 'https://abo-kartonaa.netlify.app'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  origin: ['https://abocartona.netlify.app', 'https://69cda1c81d08f90008185ee0--abocartona.netlify.app', 'https://considerate-celebration-production-558b.up.railway.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true
 }));

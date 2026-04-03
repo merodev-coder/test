@@ -4,7 +4,7 @@ import React, { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Icon from '@/components/ui/AppIcon';
-import WhatsAppButton from '@/app/homepage/components/WhatsAppButton';
+import WhatsAppButton from '../../components/WhatsAppButton';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
