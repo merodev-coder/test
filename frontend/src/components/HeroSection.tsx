@@ -258,7 +258,6 @@ const HeroSection = memo(function HeroSection({ storage }: HeroProps) {
               className="flex flex-wrap gap-6"
             >
               {[
-                { value: '24hr', label: 'توصيل سريع' },
                 { value: '100%', label: 'قطع أصلية' },
                 { value: '+5K', label: 'عميل سعيد' },
               ].map((stat, i) => (
