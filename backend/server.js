@@ -32,15 +32,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors({
-  origin: [
-    'https://abocartona.netlify.app', 
-    'https://69cda1c81d08f90008185ee0--abocartona.netlify.app', 
-    'https://69cfb05667a3420008d50d9c--abocartona.netlify.app',
-    'https://69cfb1331ced1724c43fe902--abocartona.netlify.app',
-    'https://considerate-celebration-production-558b.up.railway.app',
-    'http://localhost:3000',
-    'http://localhost:4029'
-  ],
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true
