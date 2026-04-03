@@ -18,7 +18,7 @@ async function patchStatus(orderId: string, status: string, extra?: Record<strin
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
-  const res = await fetch(getAdminApiUrl(`orders/${orderId}/status`), {
+  const res = await fetch(getAdminApiUrl(`orders/${orderId}`), {
     method: 'PATCH',
     headers,
     body: JSON.stringify({ status, ...extra }),
