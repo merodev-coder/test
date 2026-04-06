@@ -18,12 +18,62 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: 'أبوكرتونة عتاد هاردوير في مصر',
-  description:
-    'تسوق أحدث الكمبيوترات والإكسسوارات، واملأ هارد درايف بالألعاب والأفلام مجاناً. شحن لجميع محافظات مصر.',
+  metadataBase: new URL('https://abocartonastore.com'),
+  title: {
+    default: 'أبوكرتونة - أفضل متجر للهاردوير والألعاب في مصر',
+    template: '%s | أبوكرتونة'
+  },
+  description: 'اكتشف أحدث أجهزة الكمبيوتر والهاردوير الاحترافي والألعاب الحصرية في مصر. توصيل سريع لجميع المحافظات وضمان أصالة المنتجات.',
+  keywords: ['هاردوير مصر', 'كمبيوتر جيمينج', 'أجهزة كمبيوتر', 'ألعاب فيديو', 'أفلام', 'Hardware Egypt', 'Gaming PCs', 'PC Hardware', 'Video Games Egypt', 'Abocartona'],
+  authors: [{ name: 'Abocartona Store' }],
+  creator: 'Abocartona Store',
+  publisher: 'Abocartona Store',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'ar_EG',
+    url: 'https://abocartonastore.com',
+    title: 'أبوكرتونة - أفضل متجر للهاردوير والألعاب في مصر',
+    description: 'اكتشف أحدث أجهزة الكمبيوتر والهاردوير الاحترافي والألعاب الحصرية في مصر. توصيل سريع لجميع المحافظات.',
+    siteName: 'أبوكرتونة',
+    images: [
+      {
+        url: '/assets/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'أبوكرتونة - متجر الهاردوير والألعاب',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'أبوكرتونة - أفضل متجر للهاردوير والألعاب في مصر',
+    description: 'اكتشف أحدث أجهزة الكمبيوتر والهاردوير الاحترافي والألعاب الحصرية في مصر',
+    images: ['/assets/images/twitter-image.jpg'],
+    creator: '@abocartonastore',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
   icons: {
     icon: [{ url: '/assets/images/app_logo.png', type: 'image/png' }],
+    shortcut: '/assets/images/favicon.ico',
+    apple: '/assets/images/apple-touch-icon.png',
   },
 };
 
