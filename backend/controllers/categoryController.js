@@ -35,14 +35,37 @@ export async function listCategories(req, res, next) {
   }
 }
 
+// Default subcategories seeded when a category is first accessed
+const DEFAULT_SUBCATEGORIES = {
+  storage: [{ name: 'تخزين', slug: 'storage' }],
+};
+
+const LABEL_MAP = {
+  laptops: 'لابتوب',
+  accessories: 'إكسسوار',
+  storage: 'قطع كمبيوتر',
+  data: 'داتا',
+  games: 'ألعاب',
+};
+
 // GET /api/categories/:type/subcategories — get subcategories for a specific type
 export async function getSubCategories(req, res, next) {
   try {
     const { type } = req.params;
-    const category = await Category.findOne({ type }).lean();
-    if (!category) {
+    let category = await Category.findOne({ type }).lean();
+
+    // Auto-seed the category with defaults if it doesn't exist yet
+    if (!category && DEFAULT_SUBCATEGORIES[type]) {
+      const created = await Category.create({
+        type,
+        label: LABEL_MAP[type] || type,
+        subCategories: DEFAULT_SUBCATEGORIES[type],
+      });
+      category = created.toObject();
+    } else if (!category) {
       return res.json({ subCategories: [] });
     }
+
     res.json({
       subCategories: category.subCategories.map((s) => ({
         id: s._id.toString(),
@@ -157,18 +180,10 @@ export async function addSubCategory(req, res, next) {
       .replace(/[^a-z0-9\u0621-\u064A]+/g, '-')
       .replace(/^-|-$/g, '');
 
-    const labelMap = {
-      laptops: 'لابتوب',
-      accessories: 'إكسسوار',
-      storage: 'قطع كمبيوتر',
-      data: 'داتا',
-      games: 'ألعاب',
-    };
-
     const category = await Category.findOneAndUpdate(
       { type },
       {
-        $setOnInsert: { type, label: labelMap[type] || type },
+        $setOnInsert: { type, label: LABEL_MAP[type] || type },
         $push: { subCategories: { name, slug } },
       },
       { new: true, upsert: true, runValidators: true }

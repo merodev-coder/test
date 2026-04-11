@@ -392,7 +392,7 @@ function ProductsManager({
 
   // Clear storage-specific fields when switching away from تخزين subcategory (only within storage type)
   useEffect(() => {
-    if (formData.type === 'storage' && formData.subtype !== 'تخزين') {
+    if (formData.type === 'storage' && formData.subtype !== 'storage') {
       setFormData((prev) => {
         if (prev.storageCapacity === 0 && prev.gbSize === 0 && prev.dataDetails.length === 0) return prev;
         return { ...prev, storageCapacity: 0, gbSize: 0, dataDetails: [] };
@@ -539,7 +539,7 @@ function ProductsManager({
                         subCatLoading
                           ? [{ value: '', label: 'جاري التحميل...' }]
                           : subCategories.length > 0
-                            ? subCategories.map((sc) => ({ value: sc.name, label: sc.name }))
+                            ? subCategories.map((sc) => ({ value: sc.slug, label: sc.name }))
                             : [{ value: '', label: 'لا توجد فئات — أضف واحدة' }]
                       }
                       placeholder="اختر الفئة..."
@@ -569,7 +569,7 @@ function ProductsManager({
                                   );
                                   if (res.ok) {
                                     setSubCategories((prev) => prev.filter((s) => s.id !== sc.id));
-                                    if (formData.subtype === sc.name) {
+                                    if (formData.subtype === sc.slug) {
                                       setFormData((prev) => ({ ...prev, subtype: '' }));
                                     }
                                     showNotification('تم حذف الفئة');
@@ -612,7 +612,7 @@ function ProductsManager({
                               if (res.ok) {
                                 const data = await res.json();
                                 setSubCategories((prev) => [...prev, data.subCategory]);
-                                setFormData((prev) => ({ ...prev, subtype: name }));
+                                setFormData((prev) => ({ ...prev, subtype: data.subCategory.slug }));
                                 setNewSubCatName('');
                                 showNotification('تم إضافة الفئة بنجاح');
                               } else {
@@ -641,7 +641,7 @@ function ProductsManager({
                             if (res.ok) {
                               const data = await res.json();
                               setSubCategories((prev) => [...prev, data.subCategory]);
-                              setFormData((prev) => ({ ...prev, subtype: name }));
+                              setFormData((prev) => ({ ...prev, subtype: data.subCategory.slug }));
                               setNewSubCatName('');
                               showNotification('تم إضافة الفئة بنجاح');
                             } else {
@@ -705,8 +705,8 @@ function ProductsManager({
                       className="input-field w-full"
                     />
                   </div>
-                  {/* Storage-specific fields: only show when type=storage AND subtype=تخزين */}
-                  {formData.type === 'storage' && formData.subtype === 'تخزين' && (
+                  {/* Storage-specific fields: only show when type=storage AND subtype slug=storage */}
+                  {formData.type === 'storage' && formData.subtype === 'storage' && (
                     <>
                       <div>
                         <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
@@ -754,8 +754,8 @@ function ProductsManager({
                   )}
                 </div>
 
-                {/* Data Details (games/movies included) — only for storage > تخزين */}
-                {formData.type === 'storage' && formData.subtype === 'تخزين' && (
+                {/* Data Details (games/movies included) — only for storage > storage slug */}
+                {formData.type === 'storage' && formData.subtype === 'storage' && (
                   <div>
                     <label className="text-caption font-semibold text-text-secondary mb-1.5 block">
                       الداتا المضافة (ألعاب / أفلام)

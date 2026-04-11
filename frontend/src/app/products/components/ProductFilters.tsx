@@ -295,7 +295,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                     className={`
                       flex items-center gap-3 cursor-pointer group
                       px-3 py-2.5 rounded-xl transition-all duration-200
-                      ${filters.subtype === sc.name
+                      ${filters.subtype === sc.slug
                         ? 'bg-brand-500/10 border border-brand-500/30'
                         : 'bg-surface-secondary/50 border border-transparent hover:bg-surface-secondary hover:border-border'
                       }
@@ -305,13 +305,13 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                     <div
                       className={`
                         w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200
-                        ${filters.subtype === sc.name
+                        ${filters.subtype === sc.slug
                           ? 'bg-brand-500 border-brand-500'
                           : 'border-border-dark bg-transparent group-hover:border-brand-500/50'
                         }
                       `}
                     >
-                      {filters.subtype === sc.name && (
+                      {filters.subtype === sc.slug && (
                         <svg
                           className="w-3 h-3 text-white"
                           fill="none"
@@ -326,15 +326,15 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
                     <input
                       type="checkbox"
                       className="sr-only"
-                      checked={filters.subtype === sc.name}
+                      checked={filters.subtype === sc.slug}
                       onChange={() => {
-                        setSubtype(filters.subtype === sc.name ? '' : sc.name);
+                        setSubtype(filters.subtype === sc.slug ? '' : sc.slug);
                       }}
                     />
                     <span
                       className={`
                         text-sm font-medium flex-1 transition-colors duration-200
-                        ${filters.subtype === sc.name
+                        ${filters.subtype === sc.slug
                           ? 'text-brand-500'
                           : 'text-text-muted group-hover:text-brand-500'
                         }
