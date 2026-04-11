@@ -19,6 +19,7 @@ const productSchema = new mongoose.Schema(
     stockCount: { type: Number, default: 0 },
     storageCapacity: { type: Number, default: 0 },
     gbSize: { type: Number, default: 0 },
+    dataDetails: { type: [String], default: [] },
     tags: { type: [String], default: [] },
     isBrandActive: { type: Boolean, default: false, required: true },
     brands: { type: [String], default: [], required: true },

@@ -23,6 +23,7 @@ export type Product = {
   stockCount: number;
   storageCapacity: number | null;
   gbSize: number | null;
+  dataDetails: string[];
   isSale: boolean; // Show on dedicated /sale page
   isBrandActive: boolean;
   brands: string[];

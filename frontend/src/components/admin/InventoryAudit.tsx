@@ -53,7 +53,7 @@ const MONTHS_AR = [
 const CATEGORY_LABELS: Record<string, string> = {
   laptops: 'لابتوب',
   accessories: 'إكسسوار',
-  storage: 'تخزين',
+  storage: 'قطع كمبيوتر',
   data: 'داتا',
   unknown: 'غير معروف',
 };

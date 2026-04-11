@@ -26,7 +26,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 const tabOptions = [
   { id: 'all', label: 'الكل' },
   { id: 'data', label: 'ألعاب و أفلام' },
-  { id: 'storage', label: 'التخزين' },
+  { id: 'storage', label: 'قطع كمبيوتر' },
   { id: 'laptops', label: 'ال اللابتوبات' },
   { id: 'accessories', label: 'الإكسسوارات' },
 ];

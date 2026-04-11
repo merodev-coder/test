@@ -160,7 +160,7 @@ export async function addSubCategory(req, res, next) {
     const labelMap = {
       laptops: 'لابتوب',
       accessories: 'إكسسوار',
-      storage: 'تخزين',
+      storage: 'قطع كمبيوتر',
       data: 'داتا',
       games: 'ألعاب',
     };

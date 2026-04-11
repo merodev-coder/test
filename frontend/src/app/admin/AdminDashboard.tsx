@@ -335,7 +335,10 @@ function ProductsManager({
     isBrandActive: false,
     brands: [] as string[],
     tags: [] as string[],
+    dataDetails: [] as string[],
   });
+
+  const [newDataDetail, setNewDataDetail] = useState('');
 
   // Dynamic subcategories state
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
@@ -369,6 +372,7 @@ function ProductsManager({
         stockCount: editingProduct.stockCount || 0,
         storageCapacity: editingProduct.storageCapacity || 0,
         gbSize: editingProduct.gbSize || 0,
+        dataDetails: Array.isArray((editingProduct as any).dataDetails) ? [...(editingProduct as any).dataDetails] : [],
         isSale: editingProduct.isSale ?? false,
         isBrandActive: editingProduct.isBrandActive ?? false,
         brands: Array.isArray(editingProduct.brands) ? [...editingProduct.brands] : [],
@@ -385,6 +389,16 @@ function ProductsManager({
       setFormData((prev) => ({ ...prev, price: prev.gbSize * 0.5 }));
     }
   }, [formData.type, formData.gbSize]);
+
+  // Clear storage-specific fields when switching away from تخزين subcategory (only within storage type)
+  useEffect(() => {
+    if (formData.type === 'storage' && formData.subtype !== 'تخزين') {
+      setFormData((prev) => {
+        if (prev.storageCapacity === 0 && prev.gbSize === 0 && prev.dataDetails.length === 0) return prev;
+        return { ...prev, storageCapacity: 0, gbSize: 0, dataDetails: [] };
+      });
+    }
+  }, [formData.type, formData.subtype]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -453,6 +467,7 @@ function ProductsManager({
       isBrandActive: false,
       brands: [],
       tags: [],
+      dataDetails: [],
     });
     setAdded(false);
   };
@@ -508,7 +523,7 @@ function ProductsManager({
                       options={[
                         { value: 'laptops', label: 'لابتوب' },
                         { value: 'accessories', label: 'إكسسوار' },
-                        { value: 'storage', label: 'تخزين' },
+                        { value: 'storage', label: 'قطع كمبيوتر' },
                         { value: 'data', label: 'داتا' },
                       ]}
                       className="w-full"
@@ -690,21 +705,38 @@ function ProductsManager({
                       className="input-field w-full"
                     />
                   </div>
-                  {formData.type === 'storage' && (
-                    <div>
-                      <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
-                        سعة التخزين (GB)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.storageCapacity}
-                        onChange={(e) =>
-                          setFormData({ ...formData, storageCapacity: Number(e.target.value) })
-                        }
-                        className="input-field w-full"
-                      />
-                    </div>
+                  {/* Storage-specific fields: only show when type=storage AND subtype=تخزين */}
+                  {formData.type === 'storage' && formData.subtype === 'تخزين' && (
+                    <>
+                      <div>
+                        <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
+                          سعة التخزين (GB)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.storageCapacity}
+                          onChange={(e) =>
+                            setFormData({ ...formData, storageCapacity: Number(e.target.value) })
+                          }
+                          className="input-field w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
+                          حجم الداتا المضافة (GB)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.gbSize}
+                          onChange={(e) =>
+                            setFormData({ ...formData, gbSize: Number(e.target.value) })
+                          }
+                          className="input-field w-full"
+                        />
+                      </div>
+                    </>
                   )}
+                  {/* Data type fields */}
                   {formData.type === 'data' && (
                     <div>
                       <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
@@ -721,6 +753,76 @@ function ProductsManager({
                     </div>
                   )}
                 </div>
+
+                {/* Data Details (games/movies included) — only for storage > تخزين */}
+                {formData.type === 'storage' && formData.subtype === 'تخزين' && (
+                  <div>
+                    <label className="text-caption font-semibold text-text-secondary mb-1.5 block">
+                      الداتا المضافة (ألعاب / أفلام)
+                    </label>
+                    {formData.dataDetails.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {formData.dataDetails.map((item, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-brand-500/10 border border-brand-500/30 text-xs text-brand-500"
+                          >
+                            {item}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  dataDetails: prev.dataDetails.filter((_, i) => i !== idx),
+                                }))
+                              }
+                              className="text-red-400 hover:text-red-300 transition-colors ml-0.5"
+                            >
+                              <Icon name="XMarkIcon" size={12} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newDataDetail}
+                        onChange={(e) => setNewDataDetail(e.target.value)}
+                        className="input-field flex-1 text-xs"
+                        placeholder="أضف لعبة أو فيلم..."
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = newDataDetail.trim();
+                            if (!val) return;
+                            setFormData((prev) => ({
+                              ...prev,
+                              dataDetails: [...prev.dataDetails, val],
+                            }));
+                            setNewDataDetail('');
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const val = newDataDetail.trim();
+                          if (!val) return;
+                          setFormData((prev) => ({
+                            ...prev,
+                            dataDetails: [...prev.dataDetails, val],
+                          }));
+                          setNewDataDetail('');
+                        }}
+                        className="btn-secondary px-3 py-1.5 text-xs flex items-center gap-1"
+                      >
+                        <Icon name="PlusIcon" size={12} />
+                        إضافة
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
@@ -979,7 +1081,7 @@ function ProductsManager({
                   : product.type === 'accessories'
                     ? 'إكسسوار'
                     : product.type === 'storage'
-                      ? 'تخزين'
+                      ? 'قطع كمبيوتر'
                       : 'داتا'}
               </span>
               <span

@@ -18,6 +18,7 @@ export interface Product {
   stockCount: number;
   storageCapacity: number | null;
   gbSize: number | null;
+  dataDetails: string[];
   isSale: boolean;
   isBrandActive: boolean;
   brands: string[];

@@ -364,7 +364,7 @@ const HeroSection = memo(function HeroSection({ storage }: HeroProps) {
             >
               {[
                 { icon: Laptop, label: ' اللابتوبات', color: 'text-brand-400' },
-                { icon: HardDrive, label: 'تخزين', color: 'text-secondary-400' },
+                { icon: HardDrive, label: 'قطع كمبيوتر', color: 'text-secondary-400' },
                 { icon: Cpu, label: 'رامات', color: 'text-accent-400' },
                 { icon: Zap, label: 'اكسسوارات', color: 'text-brand-400' },
               ].map((item, i) => (

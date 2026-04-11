@@ -134,7 +134,7 @@ export default function ProductCard({
   const typeConfig: Record<string, { label: string; color: string; dot: string }> = {
     laptops: { label: 'لابتوب', color: 'rgba(99,179,255,0.15)', dot: '#63b3ff' },
     accessories: { label: 'إكسسوار', color: 'rgba(167,139,250,0.15)', dot: '#a78bfa' },
-    storage: { label: 'تخزين', color: 'rgba(52,211,153,0.15)', dot: '#34d399' },
+    storage: { label: 'قطع كمبيوتر', color: 'rgba(52,211,153,0.15)', dot: '#34d399' },
     data: { label: 'داتا', color: 'rgba(251,191,36,0.15)', dot: '#fbbf24' },
   };
   const type = typeConfig[product.type] ?? typeConfig.data;

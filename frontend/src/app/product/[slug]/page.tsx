@@ -112,7 +112,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       : product.type === 'accessories'
         ? 'إكسسوارات'
         : product.type === 'storage'
-          ? 'تخزين'
+          ? 'قطع كمبيوتر'
           : 'داتا';
 
   return (
