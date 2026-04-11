@@ -530,6 +530,49 @@ function ProductsManager({
                       placeholder="اختر الفئة..."
                       className="w-full"
                     />
+                    {/* Existing subcategories with delete buttons */}
+                    {subCategories.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {subCategories.map((sc) => (
+                          <span
+                            key={sc.id}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-secondary border border-border text-xs text-text-secondary"
+                          >
+                            {sc.name}
+                            <button
+                              type="button"
+                              title="حذف"
+                              onClick={async () => {
+                                if (!confirm(`حذف "${sc.name}"؟`)) return;
+                                try {
+                                  const token = localStorage.getItem('token');
+                                  const headers: Record<string, string> = {};
+                                  if (token) headers.Authorization = `Bearer ${token}`;
+                                  const res = await fetch(
+                                    getAdminApiUrl(`categories/${formData.type}/subcategories/${sc.id}`),
+                                    { method: 'DELETE', headers }
+                                  );
+                                  if (res.ok) {
+                                    setSubCategories((prev) => prev.filter((s) => s.id !== sc.id));
+                                    if (formData.subtype === sc.name) {
+                                      setFormData((prev) => ({ ...prev, subtype: '' }));
+                                    }
+                                    showNotification('تم حذف الفئة');
+                                  } else {
+                                    showNotification('خطأ في حذف الفئة');
+                                  }
+                                } catch {
+                                  showNotification('خطأ في حذف الفئة');
+                                }
+                              }}
+                              className="text-red-400 hover:text-red-300 transition-colors ml-0.5"
+                            >
+                              <Icon name="XMarkIcon" size={12} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex gap-2 mt-2">
                       <input
                         type="text"
