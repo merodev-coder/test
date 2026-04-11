@@ -29,7 +29,7 @@ const storageOptions = [
 ];
 
 export default function ProductFilters({ onFiltersChange, isOpen, onClose }: ProductFiltersProps) {
-  const { tags, filters, toggleTag, clearTags, fetchTags, setPriceRange, setCategory } = useStore();
+  const { tags, filters, toggleTag, clearTags, fetchTags, setPriceRange, setCategory, setSubtype, availableSubCategories } = useStore();
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [localPriceRange, setLocalPriceRange] = useState<[number, number]>([0, 50000]);
   const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
@@ -73,6 +73,7 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
     setLocalPriceRange([0, 50000]);
     clearTags();
     setCategory('all');
+    setSubtype('');
 
     // Immediate update for clear all (not debounced)
     setPriceRange([0, 50000]);
@@ -280,6 +281,72 @@ export default function ProductFilters({ onFiltersChange, isOpen, onClose }: Pro
               ))}
             </div>
           </div>
+
+          {/* Dynamic Sub-Categories / Brands Section */}
+          {filters.category !== 'all' && availableSubCategories.length > 0 && (
+            <div className="mb-6 pb-6 border-b border-white/5">
+              <h4 className="text-xs font-black text-brand-500 uppercase tracking-wider mb-4">
+                الماركات
+              </h4>
+              <div className="space-y-2.5">
+                {availableSubCategories.map((sc) => (
+                  <motion.label
+                    key={sc.id}
+                    className={`
+                      flex items-center gap-3 cursor-pointer group
+                      px-3 py-2.5 rounded-xl transition-all duration-200
+                      ${filters.subtype === sc.name
+                        ? 'bg-brand-500/10 border border-brand-500/30'
+                        : 'bg-surface-secondary/50 border border-transparent hover:bg-surface-secondary hover:border-border'
+                      }
+                    `}
+                    whileHover={{ x: 4 }}
+                  >
+                    <div
+                      className={`
+                        w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200
+                        ${filters.subtype === sc.name
+                          ? 'bg-brand-500 border-brand-500'
+                          : 'border-border-dark bg-transparent group-hover:border-brand-500/50'
+                        }
+                      `}
+                    >
+                      {filters.subtype === sc.name && (
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={filters.subtype === sc.name}
+                      onChange={() => {
+                        setSubtype(filters.subtype === sc.name ? '' : sc.name);
+                      }}
+                    />
+                    <span
+                      className={`
+                        text-sm font-medium flex-1 transition-colors duration-200
+                        ${filters.subtype === sc.name
+                          ? 'text-brand-500'
+                          : 'text-text-muted group-hover:text-brand-500'
+                        }
+                      `}
+                    >
+                      {sc.name}
+                    </span>
+                  </motion.label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {tags.length > 0 && (
             <div className="mb-6 pb-6 border-b border-white/5">

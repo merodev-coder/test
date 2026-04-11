@@ -1,10 +1,12 @@
 import { Product } from '../models/Product.js';
+import { Category } from '../models/Category.js';
 import { z } from 'zod';
 
 const paginationSchema = z.object({
   page: z.string().default('1').transform(Number).pipe(z.number().min(1)),
   limit: z.string().default('20').transform(Number).pipe(z.number().min(1).max(100)),
   category: z.string().optional(),
+  subtype: z.string().optional(),
   search: z.string().optional(),
   isSale: z.enum(['true', 'false']).optional(),
   tags: z.string().optional(),
@@ -46,10 +48,11 @@ const productSchema = z.object({
 
 export async function listProducts(req, res, next) {
   try {
-    const { page, limit, category, search, isSale, tags, minPrice, maxPrice } = paginationSchema.parse(req.query);
+    const { page, limit, category, subtype, search, isSale, tags, minPrice, maxPrice } = paginationSchema.parse(req.query);
     
     const filter = {};
     if (category) filter.type = category;
+    if (subtype) filter.subtype = subtype;
     if (isSale !== undefined) filter.isSale = isSale === 'true';
     
     // Price range filtering
@@ -74,13 +77,21 @@ export async function listProducts(req, res, next) {
     
     const skip = (page - 1) * limit;
     
-    const [docs, total] = await Promise.all([
+    // Fetch products, count, and available subcategories in parallel
+    const subCategoriesPromise = category
+      ? Category.findOne({ type: category }).lean().then(cat =>
+          cat ? cat.subCategories.map(s => ({ id: s._id.toString(), name: s.name, slug: s.slug })) : []
+        )
+      : Promise.resolve([]);
+
+    const [docs, total, availableSubCategories] = await Promise.all([
       Product.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),
       Product.countDocuments(filter),
+      subCategoriesPromise,
     ]);
     
     const products = docs.map((doc) => ({
@@ -112,6 +123,7 @@ export async function listProducts(req, res, next) {
     
     res.json({
       products,
+      availableSubCategories,
       pagination: {
         page,
         limit,

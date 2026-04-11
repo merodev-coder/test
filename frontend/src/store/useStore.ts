@@ -54,9 +54,16 @@ export type Order = {
   storageDataMapping?: StorageDataMapping[];
 };
 
+export type SubCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type Filters = {
   searchQuery: string;
   category: ProductType | 'all';
+  subtype: string;
   tags: string[];
   priceRange: [number, number];
 };
@@ -71,6 +78,7 @@ type StoreState = {
   products: Product[];
   productsLoading: boolean;
   tags: Tag[];
+  availableSubCategories: SubCategory[];
   isAuthenticated: boolean;
   token: string | null;
 };
@@ -78,6 +86,7 @@ type StoreState = {
 type StoreActions = {
   setSearchQuery: (query: string) => void;
   setCategory: (category: Filters['category']) => void;
+  setSubtype: (subtype: string) => void;
   toggleTag: (tag: string) => void;
   clearTags: () => void;
   setPriceRange: (priceRange: [number, number]) => void;
@@ -97,6 +106,7 @@ type StoreActions = {
   fetchProducts: (params?: {
     searchQuery?: string;
     category?: string;
+    subtype?: string;
     tags?: string[];
     minPrice?: number;
     maxPrice?: number;
@@ -139,10 +149,11 @@ export const useStore = create<StoreState & StoreActions>()(
       cartItems: [],
       driveItems: [],
       orders: [],
-      filters: { searchQuery: '', category: 'all', tags: [], priceRange: [0, 50000] },
+      filters: { searchQuery: '', category: 'all', subtype: '', tags: [], priceRange: [0, 50000] },
       products: [],
       productsLoading: false,
       tags: [],
+      availableSubCategories: [],
       isAuthenticated: false,
       token: null,
 
@@ -156,11 +167,23 @@ export const useStore = create<StoreState & StoreActions>()(
       },
 
       setCategory: (category) => {
-        set((state) => ({ filters: { ...state.filters, category } }));
+        set((state) => ({ filters: { ...state.filters, category, subtype: '' } }));
         get().fetchProducts({
           searchQuery: get().filters.searchQuery,
           category,
           tags: get().filters.tags,
+        });
+      },
+
+      setSubtype: (subtype) => {
+        set((state) => ({ filters: { ...state.filters, subtype } }));
+        get().fetchProducts({
+          searchQuery: get().filters.searchQuery,
+          category: get().filters.category,
+          subtype,
+          tags: get().filters.tags,
+          minPrice: get().filters.priceRange[0],
+          maxPrice: get().filters.priceRange[1],
         });
       },
 
@@ -187,7 +210,7 @@ export const useStore = create<StoreState & StoreActions>()(
       },
 
       clearTags: () => {
-        set((state) => ({ filters: { ...state.filters, tags: [], priceRange: [0, 50000] } }));
+        set((state) => ({ filters: { ...state.filters, tags: [], subtype: '', priceRange: [0, 50000] } }));
         get().fetchProducts({
           searchQuery: get().filters.searchQuery,
           category: get().filters.category,
@@ -378,6 +401,7 @@ export const useStore = create<StoreState & StoreActions>()(
           if (params?.searchQuery) searchParams.set('search', params.searchQuery);
           if (params?.category && params.category !== 'all')
             searchParams.set('category', params.category);
+          if (params?.subtype) searchParams.set('subtype', params.subtype);
           if (params?.tags?.length) searchParams.set('tags', params.tags.join(','));
           if (params?.minPrice !== undefined) searchParams.set('minPrice', String(params.minPrice));
           if (params?.maxPrice !== undefined) searchParams.set('maxPrice', String(params.maxPrice));
@@ -392,7 +416,10 @@ export const useStore = create<StoreState & StoreActions>()(
           const data = await res.json();
           console.info('Fetched products:', data.products?.length || 0, 'products');
 
-          set({ products: data.products || [] });
+          set({
+            products: data.products || [],
+            availableSubCategories: data.availableSubCategories || [],
+          });
         } catch (error) {
           console.error('Error fetching products:', error);
           set({ products: [] });
