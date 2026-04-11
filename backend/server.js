@@ -23,6 +23,7 @@ import {
 } from './middleware/security.js';
 
 import { getTags } from './controllers/productController.js';
+import { getSubCategories, listCategories } from './controllers/categoryController.js';
 
 const app = express();
 
@@ -59,6 +60,8 @@ app.use('/uploads', express.static(uploadsPath));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/tags', getTags);
+app.get('/api/categories', listCategories);
+app.get('/api/categories/:type/subcategories', getSubCategories);
 app.use('/api/orders', orderRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/admin', adminRoutes);

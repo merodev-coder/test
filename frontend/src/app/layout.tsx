@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: 'أبوكرتونة',
     images: [
       {
-        url: '/assets/images/og-image.jpg',
+        url: '/assets/images/app_logo.jpg',
         width: 1200,
         height: 630,
         alt: 'أبوكرتونة - متجر الهاردوير والألعاب',

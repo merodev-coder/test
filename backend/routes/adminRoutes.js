@@ -28,6 +28,13 @@ import {
   getTopSellingItems,
   getOrdersForExport,
 } from '../controllers/analyticsController.js';
+import {
+  listCategories,
+  createCategory,
+  updateCategory,
+  addSubCategory,
+  removeSubCategory,
+} from '../controllers/categoryController.js';
 import { createBostaShipment } from '../controllers/adminController.js';
 
 const router = Router();
@@ -63,6 +70,13 @@ router.delete('/shipping/methods/:id', authMiddleware, deleteShippingMethod);
 router.post('/shipping/methods/:id/governorates', authMiddleware, addGovernorateToMethod);
 router.patch('/shipping/methods/:id/governorates/:govId', authMiddleware, updateGovernorateInMethod);
 router.delete('/shipping/methods/:id/governorates/:govId', authMiddleware, removeGovernorateFromMethod);
+
+// Category routes
+router.get('/categories', authMiddleware, listCategories);
+router.post('/categories', authMiddleware, createCategory);
+router.patch('/categories/:id', authMiddleware, updateCategory);
+router.post('/categories/:type/subcategories', authMiddleware, addSubCategory);
+router.delete('/categories/:type/subcategories/:subId', authMiddleware, removeSubCategory);
 
 // Analytics routes
 router.get('/monthly-performance', authMiddleware, getMonthlyPerformance);

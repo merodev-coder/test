@@ -5,6 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { getTotalStorageWithAggregation, createStorageSummary } from '@/lib/storageUtils';
 import { getApiUrl, getAdminApiUrl } from '@/lib/apiConfig';
+
+interface SubCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
 import type { Product, Tag } from '@/store/useStore';
 import { useStore } from '@/store/useStore';
 import { type ProductType } from '@/lib/productSchema';
@@ -331,6 +337,24 @@ function ProductsManager({
     tags: [] as string[],
   });
 
+  // Dynamic subcategories state
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [subCatLoading, setSubCatLoading] = useState(false);
+  const [newSubCatName, setNewSubCatName] = useState('');
+
+  // Fetch subcategories when type changes
+  useEffect(() => {
+    if (!formData.type) return;
+    setSubCatLoading(true);
+    fetch(getApiUrl(`categories/${formData.type}/subcategories`))
+      .then((res) => res.json())
+      .then((data) => {
+        setSubCategories(data.subCategories || []);
+      })
+      .catch(() => setSubCategories([]))
+      .finally(() => setSubCatLoading(false));
+  }, [formData.type]);
+
   // Initialize form data when editing
   useEffect(() => {
     if (editingProduct) {
@@ -492,16 +516,89 @@ function ProductsManager({
                     />
                   </div>
                   <div>
-                    <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
-                      الفئة
-                    </label>
-                    <input
-                      type="text"
+                    <CustomDropdown
+                      label="الفئة"
                       value={formData.subtype}
-                      onChange={(e) => setFormData({ ...formData, subtype: e.target.value })}
-                      className="input-field w-full"
-                      placeholder="مثال: Dell, ASUS..."
+                      onChange={(value) => setFormData({ ...formData, subtype: value })}
+                      options={
+                        subCatLoading
+                          ? [{ value: '', label: 'جاري التحميل...' }]
+                          : subCategories.length > 0
+                            ? subCategories.map((sc) => ({ value: sc.name, label: sc.name }))
+                            : [{ value: '', label: 'لا توجد فئات — أضف واحدة' }]
+                      }
+                      placeholder="اختر الفئة..."
+                      className="w-full"
                     />
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        value={newSubCatName}
+                        onChange={(e) => setNewSubCatName(e.target.value)}
+                        className="input-field flex-1 text-xs"
+                        placeholder="أضف فئة جديدة..."
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const name = newSubCatName.trim();
+                            if (!name) return;
+                            try {
+                              const token = localStorage.getItem('token');
+                              const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                              if (token) headers.Authorization = `Bearer ${token}`;
+                              const res = await fetch(getAdminApiUrl(`categories/${formData.type}/subcategories`), {
+                                method: 'POST',
+                                headers,
+                                body: JSON.stringify({ name }),
+                              });
+                              if (res.ok) {
+                                const data = await res.json();
+                                setSubCategories((prev) => [...prev, data.subCategory]);
+                                setFormData((prev) => ({ ...prev, subtype: name }));
+                                setNewSubCatName('');
+                                showNotification('تم إضافة الفئة بنجاح');
+                              } else {
+                                showNotification('خطأ في إضافة الفئة');
+                              }
+                            } catch {
+                              showNotification('خطأ في إضافة الفئة');
+                            }
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const name = newSubCatName.trim();
+                          if (!name) return;
+                          try {
+                            const token = localStorage.getItem('token');
+                            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                            if (token) headers.Authorization = `Bearer ${token}`;
+                            const res = await fetch(getAdminApiUrl(`categories/${formData.type}/subcategories`), {
+                              method: 'POST',
+                              headers,
+                              body: JSON.stringify({ name }),
+                            });
+                            if (res.ok) {
+                              const data = await res.json();
+                              setSubCategories((prev) => [...prev, data.subCategory]);
+                              setFormData((prev) => ({ ...prev, subtype: name }));
+                              setNewSubCatName('');
+                              showNotification('تم إضافة الفئة بنجاح');
+                            } else {
+                              showNotification('خطأ في إضافة الفئة');
+                            }
+                          } catch {
+                            showNotification('خطأ في إضافة الفئة');
+                          }
+                        }}
+                        className="btn-secondary px-3 py-1.5 text-xs flex items-center gap-1"
+                      >
+                        <Icon name="PlusIcon" size={12} />
+                        إضافة
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label className="text-caption font-semibold text-text-secondary text-text-secondary mb-1.5 block">
