@@ -4,19 +4,24 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/next",
-      "config": { "distDir": ".next" }
+      "config": {
+        "distDir": ".next"
+      }
     },
     {
       "src": "backend/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 15 // 👈 Legacy configuration goes here, NOT in a 'functions' block
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/backend/server.js" },
-    { "src": "/(.*)", "dest": "/frontend/$1" }
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
   ],
   "env": {
     "NEXT_PUBLIC_API_BASE_URL": "@api_url",
